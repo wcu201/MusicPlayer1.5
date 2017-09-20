@@ -14,6 +14,8 @@
 		BE819D731F5CE4C900B9DE60 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BE819D711F5CE4C900B9DE60 /* LaunchScreen.storyboard */; };
 		BE819D7E1F5CE4C900B9DE60 /* MusicPlayer1_5Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE819D7D1F5CE4C900B9DE60 /* MusicPlayer1_5Tests.swift */; };
 		BE819D891F5CE4C900B9DE60 /* MusicPlayer1_5UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE819D881F5CE4C900B9DE60 /* MusicPlayer1_5UITests.swift */; };
+		BEE2FE901F5F431D00324879 /* Music Library in Resources */ = {isa = PBXBuildFile; fileRef = BEE2FE8F1F5F431D00324879 /* Music Library */; };
+		BEE2FE921F5F488C00324879 /* MusicViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE2FE911F5F488C00324879 /* MusicViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +49,8 @@
 		BE819D841F5CE4C900B9DE60 /* MusicPlayer1.5UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MusicPlayer1.5UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE819D881F5CE4C900B9DE60 /* MusicPlayer1_5UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlayer1_5UITests.swift; sourceTree = "<group>"; };
 		BE819D8A1F5CE4C900B9DE60 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BEE2FE8F1F5F431D00324879 /* Music Library */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "Music Library"; path = "../../../Documents/Music Library"; sourceTree = "<group>"; };
+		BEE2FE911F5F488C00324879 /* MusicViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +104,8 @@
 				BE819D681F5CE4C900B9DE60 /* AppDelegate.swift */,
 				BE819D6A1F5CE4C900B9DE60 /* ViewController.swift */,
 				BE819D6C1F5CE4C900B9DE60 /* Main.storyboard */,
+				BEE2FE911F5F488C00324879 /* MusicViewController.swift */,
+				BEE2FE8F1F5F431D00324879 /* Music Library */,
 				BE819D6F1F5CE4C900B9DE60 /* Assets.xcassets */,
 				BE819D711F5CE4C900B9DE60 /* LaunchScreen.storyboard */,
 				BE819D741F5CE4C900B9DE60 /* Info.plist */,
@@ -238,6 +244,7 @@
 				BE819D731F5CE4C900B9DE60 /* LaunchScreen.storyboard in Resources */,
 				BE819D701F5CE4C900B9DE60 /* Assets.xcassets in Resources */,
 				BE819D6E1F5CE4C900B9DE60 /* Main.storyboard in Resources */,
+				BEE2FE901F5F431D00324879 /* Music Library in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,6 +269,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEE2FE921F5F488C00324879 /* MusicViewController.swift in Sources */,
 				BE819D6B1F5CE4C900B9DE60 /* ViewController.swift in Sources */,
 				BE819D691F5CE4C900B9DE60 /* AppDelegate.swift in Sources */,
 			);
@@ -514,6 +522,7 @@
 				BE819D8F1F5CE4C900B9DE60 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BE819D901F5CE4C900B9DE60 /* Build configuration list for PBXNativeTarget "MusicPlayer1.5Tests" */ = {
 			isa = XCConfigurationList;
@@ -522,6 +531,7 @@
 				BE819D921F5CE4C900B9DE60 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BE819D931F5CE4C900B9DE60 /* Build configuration list for PBXNativeTarget "MusicPlayer1.5UITests" */ = {
 			isa = XCConfigurationList;
@@ -530,6 +540,7 @@
 				BE819D951F5CE4C900B9DE60 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
