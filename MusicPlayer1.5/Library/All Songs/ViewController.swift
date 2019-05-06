@@ -30,6 +30,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBOutlet weak var titlePlaying: UILabel!
     @IBOutlet weak var artistPlaying: UILabel!
     
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    
     var currentSong: URL?
     var isSearching: Bool = false
     var selectedSong: URL?
@@ -68,11 +70,26 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.delegate = self
         tableView.dataSource = self
         
+        self.tabBarController?.tabBar.addSubview(nowPlayingBar)
+        
         //tableVC.library = self
         
-        musicVC.player?.delegate = self
-
+        //musicVC.player?.delegate = self
+        //appDelegate.player.delegate = self
+        
+        if currentSong != nil {
+            populateNowPlayBar(url: currentSong!)
+            nowPlaying.isHidden = false
+        }
+        
+        
     }
+    
+    /*
+    override func updateViewConstraints() {
+        //addContraintsToNowPlayingBar()
+        //nowPlayingBar.isHidden = false
+    }*/
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -117,7 +134,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             if isSearching{return userData.filteredLibrary.count}
             //return userData.songLibrary.count
             //return userData.downloadLibrary.count
-            return currentLibray.count
+            return appDelegate.downloadLibrary.count
         default:
             return 0
         }
@@ -144,18 +161,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 cell?.editBTN.addTarget(self, action: #selector(goToMetadataVC), for: .touchUpInside)
             }
             else {
-                /*
-                cell?.titleText.text = getTitle(songURL: userData.downloadLibrary[indexPath.row])
-                cell?.artistText.text = getArtist(songURL: userData.downloadLibrary[indexPath.row])
-                cell?.artwork.image = getImage(songURL: userData.downloadLibrary[indexPath.row])
+                cell?.titleText.text = getTitle(songURL: appDelegate.downloadLibrary[indexPath.row])
+                cell?.artistText.text = getArtist(songURL: appDelegate.downloadLibrary[indexPath.row])
+                cell?.artwork.image = getImage(songURL: appDelegate.downloadLibrary[indexPath.row])
                 
-                cell?.editBTN.setTitle(userData.downloadLibrary[indexPath.row].absoluteString, for: .normal)*/
-                
-                cell?.titleText.text = getTitle(songURL: currentLibray[indexPath.row])
-                cell?.artistText.text = getArtist(songURL: currentLibray[indexPath.row])
-                cell?.artwork.image = getImage(songURL: currentLibray[indexPath.row])
-                
-                cell?.editBTN.setTitle(currentLibray[indexPath.row].absoluteString, for: .normal)
+                cell?.editBTN.setTitle(appDelegate.downloadLibrary[indexPath.row].absoluteString, for: .normal)
                 cell?.editBTN.addTarget(self, action: #selector(goToMetadataVC), for: .touchUpInside)
             }
         
@@ -175,9 +185,36 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 1 {
+            currentSong = appDelegate.downloadLibrary[indexPath.row]
+            appDelegate.arrayPos = indexPath.row
+            populateNowPlayBar(url: currentSong!)
+            
+            //deprecated
+            /*(musicVC.nav.viewControllers.first as! LibraryViewController).populateNowPlyingBar(url: currentSong!)
+            (musicVC.nav.viewControllers.first as! LibraryViewController).nowPlaying = currentSong!
+             */
+            
+            do { appDelegate.player = try AVAudioPlayer(contentsOf: appDelegate.downloadLibrary[indexPath.row]/*currentLibray[indexPath.row]*/)}
+            catch{print("Song does not exist.")}
+            
+            appDelegate.player.prepareToPlay()
+            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+            appDelegate.player.play()
+            
+            musicVC.isShuffled = false
+            if appDelegate.playerVC?.artwork != nil {
+                appDelegate.playerVC?.url = currentSong!
+                appDelegate.playerVC?.setup(theURL: currentSong!)
+                show(appDelegate.playerVC!, sender: self)
+            }
+            else {
+                
+                self.performSegue(withIdentifier: "showMusic", sender: self)
+    
+            }
         //let Storyboard = UIStoryboard(name: "Main", bundle: nil)
         //let MvC = Storyboard.instantiateViewController(withIdentifier: "MusicViewController") as! MusicViewController
-        
+        /*
         if(isSearching){
             //MvC.url = (userData.filteredLibrary[indexPath.row])
             currentSong = (userData.filteredLibrary[indexPath.row])
@@ -208,8 +245,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             musicVC.playerExists = true
             musicVC.arrayPos = indexPath.row
             //populateNowPlayBar(url: MvC.url)
+            
+            //populates now playing bar for all songs view
             populateNowPlayBar(url: currentSong!)
+            //populates now playing bar for library view
             (musicVC.nav.viewControllers.first as! LibraryViewController).populateNowPlyingBar(url: currentSong!)
+            (musicVC.nav.viewControllers.first as! LibraryViewController).nowPlaying = currentSong!
         
         do { musicVC.player = try AVAudioPlayer(contentsOf: currentLibray[indexPath.row])
             //musicVC.player = try AVAudioPlayer(contentsOf: userData.downloadLibrary[indexPath.row])
@@ -231,7 +272,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         else {
             self.performSegue(withIdentifier: "showMusic", sender: self)
             }
+ */
         }
+ 
     }
     
     
@@ -241,7 +284,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     
     @IBAction func nowPlaying(_ sender: Any) {
-         show(musicVC.songVC, sender: self)
+        show(appDelegate.playerVC! /*musicVC.songVC*/, sender: self)
         //performSegue(withIdentifier: "showMusic", sender: self)
         //self.present((self.navigationController?.viewControllers.last)!, animated: true, completion: nil)
         //self.show((self.navigationController?.viewControllers.last)!, sender: self)
@@ -301,6 +344,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
       nowPlaying.isEnabled = true
     }
 
+    func addContraintsToNowPlayingBar(){
+        nowPlayingBar.translatesAutoresizingMaskIntoConstraints = true
+        
+        let widthConstraint = NSLayoutConstraint(item: nowPlayingBar, attribute: .width, relatedBy: .equal, toItem: self.tabBarController?.tabBar, attribute: .width, multiplier: 1.0, constant: 0)
+        let heightConstraint = NSLayoutConstraint(item: nowPlayingBar, attribute: .height, relatedBy: .equal, toItem: self.tabBarController?.tabBar, attribute: .height, multiplier: 1.0, constant: 0)
+        let xConstraint = NSLayoutConstraint(item: nowPlayingBar, attribute: .leading, relatedBy: .equal, toItem: self.tabBarController?.tabBar, attribute: .leading, multiplier: 1.0, constant: 0)
+        let yConstraint = NSLayoutConstraint(item: nowPlayingBar, attribute: .bottom, relatedBy: .equal, toItem: self.tabBarController?.tabBar, attribute: .top, multiplier: 1.0, constant: 0)
+        
+        self.view.addConstraints([widthConstraint, heightConstraint, xConstraint, yConstraint])
+        
+    }
     
     func populateNowPlayBar(url: URL){
         nowPlayingBar.isHidden = false
@@ -308,6 +362,25 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         backgroundArt.image = getImage(songURL: url)
         titlePlaying.text = getTitle(songURL: url)
         artistPlaying.text = getArtist(songURL: url)
+    }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let deleteAction = UITableViewRowAction(style: .normal, title: "Delete", handler: {(action) in
+            openBoolAlert(title: "Delete Song", message: "Are you sure you want to delete this song?", view: self, action: {() in
+                print("Action Called: Delete", self.appDelegate.downloadLibrary[indexPath.row])
+                self.appDelegate.deleteFromLibrary(url: self.appDelegate.downloadLibrary[indexPath.row])
+                tableView.reloadData()
+            })
+        })
+        let editAction = UITableViewRowAction(style: .normal, title: "Edit", handler: {(action) in
+            self.selectedSong = self.appDelegate.downloadLibrary[indexPath.row]
+            self.performSegue(withIdentifier: "goToMetadata", sender: self)
+        })
+        
+        deleteAction.backgroundColor = UIColor.red
+        editAction.backgroundColor = UIColor.blue
+        
+        return [deleteAction, editAction]
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -318,8 +391,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         if segue.identifier == "showMusic" {
             let vc = segue.destination as? MusicViewController
+            print("current song: ", (currentSong?.absoluteString))
             vc?.url  = currentSong!
-            musicVC.songVC = vc!
+            appDelegate.playerVC = vc
+            //musicVC.songVC = vc!
         }
     }
     
@@ -338,6 +413,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         musicVC.arrayPos = 0
         populateNowPlayBar(url: currentSong!)
         (musicVC.nav.viewControllers.first as? LibraryViewController)?.populateNowPlyingBar(url: currentSong!)
+        (musicVC.nav.viewControllers.first as! LibraryViewController).nowPlaying = currentSong!
         
         do {musicVC.player = try AVAudioPlayer(contentsOf: currentSong!)}
         catch{print("Song does not exist.")}
@@ -357,16 +433,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     
     @IBAction func playPause(_ sender: Any) {
-        if !(musicVC.player?.isPlaying)! {
-            musicVC.player?.play()
+        if !(appDelegate.player.isPlaying) {
+            appDelegate.player.play()
             playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
-            musicVC.songVC.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
         }
             
         else {
-            musicVC.player?.pause()
+            appDelegate.player.pause()
             playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
-            musicVC.songVC.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
+            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
+            //musicVC.songVC.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
         }
     }
     

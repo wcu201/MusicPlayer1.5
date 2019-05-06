@@ -7,15 +7,25 @@
 //
 
 import UIKit
+import AVKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    var downloadLibrary = [URL]()
+    var isShuffled = false 
+    var player = AVAudioPlayer()
+    var playerVC: MusicViewController?
+    var songPlaying: URL?
+    var arrayPos = Int()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        populateDownloadLibrary()
+        /*player.addObserver(<#T##observer: NSObject##NSObject#>, forKeyPath: <#T##String#>, options: <#T##NSKeyValueObservingOptions#>, context: <#T##UnsafeMutableRawPointer?#>)*/
+        //print("Player Status: ")
+        //playerVC = UIStoryboard(name: "Main", bundle: Bundle.main).instantiateViewController(withIdentifier: "MusicViewController") 
         return true
     }
 
@@ -40,7 +50,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
+    
+    func populateDownloadLibrary(){
+        //Gathers all downloaded files and returns their urls
+            var downloads = [URL]()
+            
+            let fileManager = FileManager.default
+            let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            do {
+                let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
+                for song in fileURLs {
+                    downloads.append(song)
+                }
+            }
+            catch {
+                print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
+            }
+        downloadLibrary = downloads
+    }
+    
+    func deleteFromLibrary(url: URL){
+        do {
+            //stop everything before removing item from library
+            print("Deleting from library")
+            /*if(player.data != nil){
+                player.stop()
+            }*/
+            player = AVAudioPlayer()
+            
+            try FileManager.default.removeItem(at: url)
+        }
+        catch {
+            print("Error: Cannot find ", url)
+        }
+        
+        populateDownloadLibrary()
+    }
 
 }
 

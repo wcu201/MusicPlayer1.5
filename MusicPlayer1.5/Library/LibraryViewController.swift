@@ -13,18 +13,15 @@ class LibraryViewController: UIViewController, UITableViewDataSource, UITableVie
 
     
     @IBOutlet weak var playPauseBTN: UIButton!
-    
     @IBOutlet weak var nowPlayingBTN: UIButton!
-    
     @IBOutlet weak var nowPlayingBar: UIView!
-    
     @IBOutlet weak var artworkPlaying: UIImageView!
-    
     @IBOutlet weak var backgroundArt: UIImageView!
-    
     @IBOutlet weak var titlePlaying: UILabel!
-    
     @IBOutlet weak var artistPlaying: UILabel!
+    @IBOutlet weak var menu: UITableView!
+    
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var nowPlaying: URL?
     let categories = ["All Songs", "Albums", "Artists", "Recently Added"]
     
@@ -42,9 +39,18 @@ class LibraryViewController: UIViewController, UITableViewDataSource, UITableVie
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if indexPath.row == 0 {
+            if nowPlaying != nil {
+                print("A song is playing")
+            }
+            else {
+                print("No song playing")
+            }
+            
             if musicVC.nav.viewControllers.count > 1 {
                 (musicVC.nav.viewControllers[1] as? ViewController)?.currentLibray = userData.downloadLibrary
                 self.show(musicVC.nav.viewControllers[1], sender: self)
+                //Every time I press back from all songs it deinits that view and thus when I press all songs again a new veiw is initialized without the now playing bar if a song was playing
+                //A good solution would be just keeping track of if a song is playing and then populating the now playing bar if it is
             }
             else {
                 performSegue(withIdentifier: "showAllSongs", sender: self)
@@ -61,6 +67,7 @@ class LibraryViewController: UIViewController, UITableViewDataSource, UITableVie
         
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         musicVC.nav = self.navigationController!
         self.navigationController?.tabBarController?.viewControllers?.forEach{let _=$0.view}
         
@@ -75,20 +82,25 @@ class LibraryViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     @IBAction func showNowPlaying(_ sender: Any) {
-        self.show(musicVC.songVC, sender: self)
+        //self.show(musicVC.songVC, sender: self)
+        self.show(appDelegate.playerVC!, sender: self)
     }
     
     @IBAction func playPause(_ sender: Any) {
-        if !(musicVC.player?.isPlaying)! {
-            musicVC.player?.play()
+        if !(appDelegate.player.isPlaying/*musicVC.player?.isPlaying*/) {
+            //musicVC.player?.play()
+            appDelegate.player.play()
             playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
-            musicVC.songVC.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+            //musicVC.songVC.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
         }
             
         else {
-            musicVC.player?.pause()
+            //musicVC.player?.pause()
+            appDelegate.player.pause()
             playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
-            musicVC.songVC.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
+            //musicVC.songVC.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
+            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
         }
         
         
@@ -107,6 +119,9 @@ class LibraryViewController: UIViewController, UITableViewDataSource, UITableVie
         if segue.destination.restorationIdentifier == "songs"{
             let vc = segue.destination as? ViewController
             vc?.currentLibray = userData.downloadLibrary
+            if nowPlaying != nil {
+                vc?.currentSong = nowPlaying
+            }
         }
     }
     

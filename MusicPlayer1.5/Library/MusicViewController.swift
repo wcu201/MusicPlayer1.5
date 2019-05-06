@@ -28,7 +28,7 @@ class MusicViewController: UIViewController {
     @IBOutlet weak var timeLeft: UILabel!
 
     
-    
+    var appDelegate = AppDelegate()
     var url: URL = Bundle.main.url(forResource: "Day N Night", withExtension: ".mp3", subdirectory: "Music Library")!
     var timeAV: Float = 0.0
     var leftAV: Float = 0.0
@@ -37,7 +37,8 @@ class MusicViewController: UIViewController {
     
     
     override func viewWillAppear(_ animated: Bool) {
-        self.title = "\(musicVC.arrayPos+1) of \(userData.downloadLibrary.count)"
+        self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.downloadLibrary.count)"
+        //appDelegate = UIApplication.shared.delegate as! AppDelegate
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -47,30 +48,49 @@ class MusicViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        appDelegate = UIApplication.shared.delegate as! AppDelegate
         setup(theURL: url)
         setupRemoteTransportControls()
         setupNowPlaying()
+        
+        //deprecated
+        /*
         (musicVC.nav.viewControllers[1] as? ViewController)?.nowPlaying.isHidden = false
         (musicVC.nav.viewControllers[1] as? ViewController)?.nowPlaying.isEnabled = true
         (musicVC.nav.viewControllers.first as? LibraryViewController)?.nowPlayingBTN.isHidden = false
+         */
 
         UIApplication.shared.beginReceivingRemoteControlEvents()
         let commandCenter = MPRemoteCommandCenter.shared()
         
         commandCenter.pauseCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
-            musicVC.player?.pause()
+            //musicVC.player?.pause()
+            self.appDelegate.player.pause()
             self.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
             return .success
         }
         
         commandCenter.playCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
-            musicVC.player?.play()
+            //musicVC.player?.play()
+            self.appDelegate.player.play()
             self.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
             return .success
         }
         
         commandCenter.changePlaybackPositionCommand.addTarget{(event) in
-            //
+            /*
+            if (self.appDelegate.player.isPlaying) {
+                self.appDelegate.player.stop()
+                self.appDelegate.player.currentTime = event.timestamp
+                self.appDelegate.player.prepareToPlay()
+                self.appDelegate.player.play()
+            }
+            else {
+                self.appDelegate.player.stop()
+                self.appDelegate.player.currentTime = event.timestamp
+                self.appDelegate.player.prepareToPlay()
+            }
+             */
             return .success
         }
         
@@ -87,7 +107,8 @@ class MusicViewController: UIViewController {
 
        _ = Timer.scheduledTimer(timeInterval: 0.0, target: self, selector: #selector(MusicViewController.updateSlider), userInfo: nil, repeats: true)
         
-        musicProgress.maximumValue = Float((musicVC.player?.duration)!)
+        print(appDelegate.player.duration)
+        musicProgress.maximumValue = Float((appDelegate.player.duration))
     }
     
     deinit {
@@ -102,89 +123,112 @@ class MusicViewController: UIViewController {
 
     
     @IBAction func playPause(_ sender: Any) {
-        if !(musicVC.player?.isPlaying)! {
-            musicVC.player?.play()
+        if !(appDelegate.player.isPlaying) {
+            appDelegate.player.play()
             playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+            
+            /*
             (musicVC.nav.viewControllers.first as? LibraryViewController)?.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
             (musicVC.nav.viewControllers[1] as? ViewController)?.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
+             */
         }
             
         else {
-            musicVC.player?.pause()
+            appDelegate.player.pause()
             playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
+            
+            /*
             (musicVC.nav.viewControllers.first as? LibraryViewController)?.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
             (musicVC.nav.viewControllers[1] as? ViewController)?.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
+             */
         }
     }
     
     @IBAction func restart(_ sender: Any) {
-        musicVC.player?.stop()
-        musicVC.player?.currentTime=0
-        musicVC.player?.play()
+        appDelegate.player.stop()
+        appDelegate.player.currentTime=0
+        playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+        appDelegate.player.play()
     }
     
     @IBAction func changeAudioTime(_ sender: Any) {
-        if (musicVC.player?.isPlaying)! {
-            musicVC.player?.stop()
-            musicVC.player?.currentTime = TimeInterval(musicProgress.value)
-            musicVC.player?.prepareToPlay()
-            musicVC.player?.play()
+        if (appDelegate.player.isPlaying) {
+            appDelegate.player.stop()
+            appDelegate.player.currentTime = TimeInterval(musicProgress.value)
+            appDelegate.player.prepareToPlay()
+            appDelegate.player.play()
         }
         else {
-            musicVC.player?.stop()
-            musicVC.player?.currentTime = TimeInterval(musicProgress.value)
-            musicVC.player?.prepareToPlay()
+            appDelegate.player.stop()
+            appDelegate.player.currentTime = TimeInterval(musicProgress.value)
+            appDelegate.player.prepareToPlay()
         }
     }
     
     @IBAction func nextSong(_ sender: Any) {
-        musicVC.player?.stop()
+        appDelegate.player.stop()
         
-        switch musicVC.isShuffled {
-        case true:
-            if musicVC.arrayPos+1 == userData.shuffledLibrary.count {
-                musicVC.arrayPos = 0
-            }
-            else {
-                musicVC.arrayPos += 1
-            }
+        //WARNING: Underneath is a lot of deprecated code that needs fixing. May be the source of future problems
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        switch appDelegate.isShuffled {
+            case true:
+                if appDelegate.arrayPos+1 == userData.shuffledLibrary.count {
+                    //musicVC.arrayPos = 0
+                    appDelegate.arrayPos  = 0
+                }
+                else {
+                    //musicVC.arrayPos += 1
+                    appDelegate.arrayPos += 1
+                }
+                
+                url = userData.shuffledLibrary[musicVC.arrayPos]
+                setup(theURL: userData.shuffledLibrary[musicVC.arrayPos])
+                //tableVC.library.populateNowPlayBar(url: userData.shuffledLibrary[musicVC.arrayPos])
+                (musicVC.nav.viewControllers[1] as! ViewController).populateNowPlayBar(url: userData.shuffledLibrary[musicVC.arrayPos])
+                (musicVC.nav.viewControllers.first as! LibraryViewController).populateNowPlyingBar(url: userData.shuffledLibrary[musicVC.arrayPos])
+                
+                do{musicVC.player = try AVAudioPlayer(contentsOf: userData.shuffledLibrary[musicVC.arrayPos])}
+                catch{print("Song does not exist.")}
+            case false:
+                if /*musicVC.arrayPos+1*/appDelegate.arrayPos+1 == appDelegate.downloadLibrary.count/*userData.downloadLibrary.count*/ {
+                    //musicVC.arrayPos = 0
+                    appDelegate.arrayPos = 0
+                }
+                else {
+                    //musicVC.arrayPos += 1
+                    appDelegate.arrayPos += 1
+                }
+                
+                url = appDelegate.downloadLibrary[appDelegate.arrayPos]/*userData.downloadLibrary[musicVC.arrayPos]*/
+                //setup(theURL: userData.downloadLibrary[musicVC.arrayPos])
+                setup(theURL: appDelegate.downloadLibrary[appDelegate.arrayPos])
+                //tableVC.library.populateNowPlayBar(url: userData.downloadLibrary[musicVC.arrayPos])
+                //(musicVC.nav.viewControllers[1] as! ViewController).populateNowPlayBar(url: appDelegate.downloadLibrary[appDelegate.arrayPos]/*userData.downloadLibrary[musicVC.arrayPos]*/)
+                //(musicVC.nav.viewControllers.first as! LibraryViewController).populateNowPlyingBar(url: appDelegate.downloadLibrary[appDelegate.arrayPos]/*userData.downloadLibrary[musicVC.arrayPos]*/)
+                
+                do{appDelegate.player = try AVAudioPlayer(contentsOf: appDelegate.downloadLibrary[appDelegate.arrayPos])}
+                catch{print("Song does not exist.")}
+                setupNowPlaying()
+                //do{musicVC.player = try AVAudioPlayer(contentsOf: userData.downloadLibrary[musicVC.arrayPos])}
+                //catch{print("Song does not exist.")}
+            default:
+                break
             
-            url = userData.shuffledLibrary[musicVC.arrayPos]
-            setup(theURL: userData.shuffledLibrary[musicVC.arrayPos])
-            //tableVC.library.populateNowPlayBar(url: userData.shuffledLibrary[musicVC.arrayPos])
-            (musicVC.nav.viewControllers[1] as! ViewController).populateNowPlayBar(url: userData.shuffledLibrary[musicVC.arrayPos])
-            (musicVC.nav.viewControllers.first as! LibraryViewController).populateNowPlyingBar(url: userData.shuffledLibrary[musicVC.arrayPos])
             
-            do{musicVC.player = try AVAudioPlayer(contentsOf: userData.shuffledLibrary[musicVC.arrayPos])}
-            catch{print("Song does not exist.")}
-        case false:
-            if musicVC.arrayPos+1 == userData.downloadLibrary.count {
-                musicVC.arrayPos = 0
-            }
-            else {
-                musicVC.arrayPos += 1
-            }
-            
-            url = userData.downloadLibrary[musicVC.arrayPos]
-            setup(theURL: userData.downloadLibrary[musicVC.arrayPos])
-            //tableVC.library.populateNowPlayBar(url: userData.downloadLibrary[musicVC.arrayPos])
-            (musicVC.nav.viewControllers[1] as! ViewController).populateNowPlayBar(url: userData.downloadLibrary[musicVC.arrayPos])
-            (musicVC.nav.viewControllers.first as! LibraryViewController).populateNowPlyingBar(url: userData.downloadLibrary[musicVC.arrayPos])
-            
-            do{musicVC.player = try AVAudioPlayer(contentsOf: userData.downloadLibrary[musicVC.arrayPos])}
-            catch{print("Song does not exist.")}
-        default:
-            break
         }
 
-        musicProgress.maximumValue = Float((musicVC.player?.duration)!)
-        musicVC.player?.prepareToPlay()
+        //musicProgress.maximumValue = Float((musicVC.player?.duration)!)
+        musicProgress.maximumValue = Float((appDelegate.player.duration))
+        appDelegate.player.prepareToPlay()
+        //musicVC.player?.prepareToPlay()
         playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
-        musicVC.player?.play()
+        //musicVC.player?.play()
+        appDelegate.player.play()
     }
     
     func next() {
-        musicVC.player?.stop()
+        //musicVC.player?.stop()
+        self.appDelegate.player.stop()
         
         if musicVC.arrayPos+1 == userData.songLibrary.count {
             musicVC.arrayPos = 0
@@ -211,7 +255,7 @@ class MusicViewController: UIViewController {
         topArtwork.image = getImage(songURL: theURL)
         songName.text = getTitle(songURL: theURL)
         artistName.text = getArtist(songURL: theURL)
-        self.title = "\(musicVC.arrayPos+1) of \(userData.downloadLibrary.count)"
+        self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.downloadLibrary.count)"
     }
 
     
@@ -274,10 +318,11 @@ class MusicViewController: UIViewController {
     
     
     func updateSlider() {
-        musicProgress.setValue(Float((musicVC.player?.currentTime)!), animated: true)
-        
-        timeAV = round(Float((musicVC.player?.currentTime)!))
-        leftAV = round(Float((musicVC.player?.duration)!)-Float((musicVC.player?.currentTime)!))
+        //musicProgress.setValue(Float((musicVC.player?.currentTime)!), animated: true)
+        musicProgress.setValue(Float(appDelegate.player.currentTime), animated: true)
+        //timeAV = round(Float((musicVC.player?.currentTime)!))
+        timeAV = round(Float(appDelegate.player.currentTime))
+        leftAV = round(Float(appDelegate.player.duration)-Float(appDelegate.player.currentTime))
         sec = Int(timeAV)%60
         min = Int(timeAV)/60
         if sec<10
@@ -290,7 +335,7 @@ class MusicViewController: UIViewController {
         {timeLeft.text = "\(min)"+":"+"0"+"\(sec)"}
         else
         {timeLeft.text = "\(min)"+":"+"\(sec)"}
-        if Int((musicVC.player?.currentTime)!) == Int((musicVC.player?.duration)!)
+        if Int(appDelegate.player.currentTime) == Int(appDelegate.player.duration)
         {nextButton.sendActions(for: .touchUpInside)
             //tableVC.library.Console.text = "NEXT"
         }
@@ -302,8 +347,8 @@ class MusicViewController: UIViewController {
         
         // Add handler for Play Command
         commandCenter.playCommand.addTarget { [unowned self] event in
-            if musicVC.player?.rate == 0.0 {
-                musicVC.player?.play()
+            if self.appDelegate.player.rate == 0.0 {
+                self.appDelegate.player.play()
                 return .success
             }
             return .commandFailed
@@ -311,8 +356,9 @@ class MusicViewController: UIViewController {
         
         // Add handler for Pause Command
         commandCenter.pauseCommand.addTarget { [unowned self] event in
-            if musicVC.player?.rate == 1.0 {
-                musicVC.player?.pause()
+            if self.appDelegate.player.rate/*musicVC.player?.rate*/ == 1.0 {
+                //musicVC.player?.pause()
+                self.appDelegate.player.pause()
                 return .success
             }
             return .commandFailed
@@ -325,18 +371,16 @@ class MusicViewController: UIViewController {
         var nowPlayingInfo = [String : Any]()
         nowPlayingInfo[MPMediaItemPropertyTitle] = getTitle(songURL: url)
         nowPlayingInfo[MPMediaItemPropertyArtist] = getArtist(songURL: url)
-        //nowPlayingInfo[MPMediaItemPropertyArtwork] = getImage(songURL: url)
-        
-        if let image = UIImage(named: "lockscreen") {
-            nowPlayingInfo[MPMediaItemPropertyArtwork] =
-                MPMediaItemArtwork(boundsSize: getImage(songURL: url).size) { size in
-                    return self.getImage(songURL: self.url)
-            }
+        nowPlayingInfo[MPMediaItemPropertyArtwork] =
+            MPMediaItemArtwork(boundsSize: getImage(songURL: url).size) { size in
+                return self.getImage(songURL: self.url)
         }
+
         
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = item.currentTime().seconds
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = item.asset.duration.seconds
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = musicVC.player?.rate
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.appDelegate.player.rate//musicVC.player?.rate
+        //nowPlayingInfo[MPMediaItemPropertyArtwork] = get
         
         // Set the metadata
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
