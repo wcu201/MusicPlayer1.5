@@ -78,8 +78,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         //appDelegate.player.delegate = self
         
         if currentSong != nil {
-            populateNowPlayBar(url: currentSong!)
-            nowPlaying.isHidden = false
+            //populateNowPlayBar(url: currentSong!)
+            //nowPlaying.isHidden = false
         }
         
         
@@ -187,7 +187,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if indexPath.section == 1 {
             currentSong = appDelegate.downloadLibrary[indexPath.row]
             appDelegate.arrayPos = indexPath.row
-            populateNowPlayBar(url: currentSong!)
+            //populateNowPlayBar(url: currentSong!)
             
             //deprecated
             /*(musicVC.nav.viewControllers.first as! LibraryViewController).populateNowPlyingBar(url: currentSong!)
@@ -403,11 +403,39 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     @objc func shufflePlay() {
+        /*
         //userData.shuffledLibrary = userData.downloadLibrary
         userData.shuffledLibrary = currentLibray
         userData.shuffledLibrary.shuffle()
-        musicVC.isShuffled = true
+        musicVC.isShuffled = true*/
         
+        if (appDelegate.downloadLibrary.isEmpty==false){
+            appDelegate.shuffledLibrary = appDelegate.downloadLibrary
+            appDelegate.shuffledLibrary.shuffle()
+            appDelegate.isShuffled = true
+            
+            currentSong = appDelegate.shuffledLibrary[0]
+            appDelegate.arrayPos = 0
+            
+            //populateNowPlayBar(url: currentSong!)
+            
+            do {appDelegate.player = try AVAudioPlayer(contentsOf: currentSong!)}
+            catch{print("Song does not exist.")}
+            
+            appDelegate.player.prepareToPlay()
+            appDelegate.player.play()
+            
+            if appDelegate.playerVC?.artwork != nil {
+                appDelegate.playerVC?.url = currentSong!
+                appDelegate.playerVC?.setup(theURL: currentSong!)
+                show(appDelegate.playerVC!, sender:self)
+            }
+            else {
+                self.performSegue(withIdentifier: "showMusic", sender: self)
+            }
+        }
+        
+        /*
         currentSong = userData.shuffledLibrary[0]
         musicVC.playerExists = true
         musicVC.arrayPos = 0
@@ -428,7 +456,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
         else {
             self.performSegue(withIdentifier: "showMusic", sender: self)
-        }
+        }*/
     }
 
     

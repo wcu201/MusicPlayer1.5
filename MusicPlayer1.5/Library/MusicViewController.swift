@@ -170,59 +170,24 @@ class MusicViewController: UIViewController {
         
         //WARNING: Underneath is a lot of deprecated code that needs fixing. May be the source of future problems
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        switch appDelegate.isShuffled {
-            case true:
-                if appDelegate.arrayPos+1 == userData.shuffledLibrary.count {
-                    //musicVC.arrayPos = 0
-                    appDelegate.arrayPos  = 0
-                }
-                else {
-                    //musicVC.arrayPos += 1
-                    appDelegate.arrayPos += 1
-                }
-                
-                url = userData.shuffledLibrary[musicVC.arrayPos]
-                setup(theURL: userData.shuffledLibrary[musicVC.arrayPos])
-                //tableVC.library.populateNowPlayBar(url: userData.shuffledLibrary[musicVC.arrayPos])
-                (musicVC.nav.viewControllers[1] as! ViewController).populateNowPlayBar(url: userData.shuffledLibrary[musicVC.arrayPos])
-                (musicVC.nav.viewControllers.first as! LibraryViewController).populateNowPlyingBar(url: userData.shuffledLibrary[musicVC.arrayPos])
-                
-                do{musicVC.player = try AVAudioPlayer(contentsOf: userData.shuffledLibrary[musicVC.arrayPos])}
-                catch{print("Song does not exist.")}
-            case false:
-                if /*musicVC.arrayPos+1*/appDelegate.arrayPos+1 == appDelegate.downloadLibrary.count/*userData.downloadLibrary.count*/ {
-                    //musicVC.arrayPos = 0
-                    appDelegate.arrayPos = 0
-                }
-                else {
-                    //musicVC.arrayPos += 1
-                    appDelegate.arrayPos += 1
-                }
-                
-                url = appDelegate.downloadLibrary[appDelegate.arrayPos]/*userData.downloadLibrary[musicVC.arrayPos]*/
-                //setup(theURL: userData.downloadLibrary[musicVC.arrayPos])
-                setup(theURL: appDelegate.downloadLibrary[appDelegate.arrayPos])
-                //tableVC.library.populateNowPlayBar(url: userData.downloadLibrary[musicVC.arrayPos])
-                //(musicVC.nav.viewControllers[1] as! ViewController).populateNowPlayBar(url: appDelegate.downloadLibrary[appDelegate.arrayPos]/*userData.downloadLibrary[musicVC.arrayPos]*/)
-                //(musicVC.nav.viewControllers.first as! LibraryViewController).populateNowPlyingBar(url: appDelegate.downloadLibrary[appDelegate.arrayPos]/*userData.downloadLibrary[musicVC.arrayPos]*/)
-                
-                do{appDelegate.player = try AVAudioPlayer(contentsOf: appDelegate.downloadLibrary[appDelegate.arrayPos])}
-                catch{print("Song does not exist.")}
-                setupNowPlaying()
-                //do{musicVC.player = try AVAudioPlayer(contentsOf: userData.downloadLibrary[musicVC.arrayPos])}
-                //catch{print("Song does not exist.")}
-            default:
-                break
-            
-            
-        }
+        
+        //update the array position to that of the next song
+        if appDelegate.arrayPos+1 == appDelegate.downloadLibrary.count{appDelegate.arrayPos = 0}
+        else {appDelegate.arrayPos += 1}
+        
+        if appDelegate.isShuffled {url = appDelegate.shuffledLibrary[appDelegate.arrayPos]}
+        else{url = appDelegate.downloadLibrary[appDelegate.arrayPos]}
+ 
+        setup(theURL: url)
+        
+        //load the url onto the avplayer
+        do{appDelegate.player = try AVAudioPlayer(contentsOf: url)}
+        catch{print("Song doesn't exist")}
 
-        //musicProgress.maximumValue = Float((musicVC.player?.duration)!)
+        //Start the play song process 
         musicProgress.maximumValue = Float((appDelegate.player.duration))
         appDelegate.player.prepareToPlay()
-        //musicVC.player?.prepareToPlay()
         playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
-        //musicVC.player?.play()
         appDelegate.player.play()
     }
     

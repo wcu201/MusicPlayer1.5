@@ -14,6 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     var downloadLibrary = [URL]()
+    var shuffledLibrary = [URL]()
     var isShuffled = false 
     var player = AVAudioPlayer()
     var playerVC: MusicViewController?
