@@ -101,7 +101,7 @@ class MusicViewController: UIViewController {
         
         let audioSession = AVAudioSession.sharedInstance()
         do{
-            try audioSession.setCategory(AVAudioSessionCategoryPlayback)
+            try audioSession.setCategory(AVAudioSession.Category.playback)
         }
         catch{}
 
@@ -189,6 +189,7 @@ class MusicViewController: UIViewController {
         appDelegate.player.prepareToPlay()
         playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
         appDelegate.player.play()
+        appDelegate.songPlaying = url
     }
     
     func next() {
@@ -217,7 +218,7 @@ class MusicViewController: UIViewController {
     func setup(theURL: URL){
         artwork.image = getImage(songURL: theURL)
         flippedArtwork.image = flipImageDown(theImage: getImage(songURL: theURL))
-        topArtwork.image = getImage(songURL: theURL)
+        topArtwork.image = blurImage(usingImage: getImage(songURL: theURL), blurAmount: 60.0)
         songName.text = getTitle(songURL: theURL)
         artistName.text = getArtist(songURL: theURL)
         self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.downloadLibrary.count)"
@@ -234,7 +235,7 @@ class MusicViewController: UIViewController {
         for theItem in metadata {
             if theItem.commonKey == nil { continue }
             if let key = theItem.commonKey, let value = theItem.value {
-                if key == "artist"
+                if key.rawValue == "artist"
                 {theArtist = value as! String}
             }
         }
@@ -250,7 +251,7 @@ class MusicViewController: UIViewController {
         for theItem in metadata {
             if theItem.commonKey == nil { continue }
             if let key = theItem.commonKey, let value = theItem.value {
-                if key == "title"
+                if key.rawValue == "title"
                 {theTitle = value as! String}
             }
         }
@@ -266,7 +267,7 @@ class MusicViewController: UIViewController {
         for theItem in metadata {
             if theItem.commonKey == nil {continue}
             if let key = theItem.commonKey, let value = theItem.value{
-                if key == "artwork"{
+                if key.rawValue == "artwork"{
                     theImage = UIImage(data: value as! Data)!
                 }
             }
@@ -277,12 +278,12 @@ class MusicViewController: UIViewController {
     }
     
     func flipImageDown(theImage: UIImage) -> UIImage {
-        return UIImage(cgImage: theImage.cgImage!, scale: theImage.scale, orientation: UIImageOrientation.downMirrored)
+        return UIImage(cgImage: theImage.cgImage!, scale: theImage.scale, orientation: UIImage.Orientation.downMirrored)
         }
     
     
     
-    func updateSlider() {
+    @objc func updateSlider() {
         //musicProgress.setValue(Float((musicVC.player?.currentTime)!), animated: true)
         musicProgress.setValue(Float(appDelegate.player.currentTime), animated: true)
         //timeAV = round(Float((musicVC.player?.currentTime)!))

@@ -7,7 +7,7 @@
 
 import Foundation
 
-class ID3GenreStringAdapter: GenreStringAdapter {
+class ID3GenreStringAdapter {
     func adapt(genre: String) -> Genre {
         let expression = try! NSRegularExpression(pattern: "(\\()\\w*\\d*(\\))")
         guard let genreWithParenthesisRange = Range(
@@ -16,11 +16,11 @@ class ID3GenreStringAdapter: GenreStringAdapter {
             return Genre(genre: nil, description: genre)
         }
         let genreWithParenthesis = String(genre[genreWithParenthesisRange])
-        let genreIdentifier = adaptGenreIdentifierFrom(genreWithParenthesis: genreWithParenthesis!)
+        let genreIdentifier = adaptGenreIdentifierFrom(genreWithParenthesis: genreWithParenthesis)
         let genreDescription = adaptGenreDescriptionFrom(
                 genreDescriptionExtracted: String(genre[genreWithParenthesisRange.upperBound..<genre.endIndex]),
                 genreIdentifier: genreIdentifier,
-                genreWithParenthesis: genreWithParenthesis!
+                genreWithParenthesis: genreWithParenthesis
         )
         return Genre(genre: genreIdentifier, description: genreDescription)
     }

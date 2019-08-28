@@ -10,7 +10,18 @@ import UIKit
 
 class HomeViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
+    @IBOutlet weak var nowPlayingBar: UIView!
+    
+    @IBOutlet weak var artworkPlaying: UIImageView!
+    
+    @IBOutlet weak var backgroundArtworkPlaying: UIImageView!
+    @IBOutlet weak var artistPlaying: UILabel!
+    @IBOutlet weak var titlePlaying: UILabel!
     @IBOutlet weak var collection: UICollectionView!
+    
+    @IBOutlet weak var playPauseBTN: UIButton!
+    
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     
     let sections = ["Songs", "Artists", "Albums", "Playlists", "Recently Added"]
@@ -42,6 +53,14 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        guard appDelegate.musicPlaying else {
+            print("no music")
+            return
+        }
+        
+        self.populateNowPlayBar(url: appDelegate.songPlaying!)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,7 +74,25 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         // Dispose of any resources that can be recreated.
     }
     
-
+    func populateNowPlayBar(url: URL){
+        nowPlayingBar.isHidden = false
+        artworkPlaying.image = getImage(songURL: url)
+        backgroundArtworkPlaying.image = getImage(songURL: url)
+        titlePlaying.text = getTitle(songURL: url)
+        artistPlaying.text = getArtist(songURL: url)
+    }
+    
+    
+    @IBAction func playPauseMusic(_ sender: Any) {
+        if appDelegate.player.isPlaying{
+            appDelegate.player.pause()
+            playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
+        }
+        else{
+            appDelegate.player.play()
+            playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
+        }
+    }
     /*
     // MARK: - Navigation
 

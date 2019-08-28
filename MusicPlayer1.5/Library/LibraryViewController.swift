@@ -8,7 +8,8 @@
 
 import UIKit
 import ID3TagEditor
-
+import AVFoundation
+//DEPRECATED
 class LibraryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     
@@ -64,6 +65,8 @@ class LibraryViewController: UIViewController, UITableViewDataSource, UITableVie
             performSegue(withIdentifier: "showArtists", sender: self)
         }
     }
+    
+
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -105,6 +108,8 @@ class LibraryViewController: UIViewController, UITableViewDataSource, UITableVie
         
         
     }
+    
+    
     
     
     func populateNowPlyingBar(url: URL){

@@ -4,7 +4,7 @@
 [![codebeat badge](https://codebeat.co/badges/cb9699d0-4287-4723-96f9-e1a72fa05406)](https://codebeat.co/projects/github-com-chicio-id3tageditor-master)
 [![codecov](https://codecov.io/gh/chicio/ID3TagEditor/branch/master/graph/badge.svg)](https://codecov.io/gh/chicio/ID3TagEditor)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/chicio/ID3TagEditor/master/LICENSE.md)
-[![Supported platform](https://img.shields.io/badge/platforms-macOS%20%7C%20iOS%20%7C%20tvOS%20%7C%20watchOS-orange.svg)](https://img.shields.io/badge/platforms-macOS%20%7C%20iOS%20%7C%20Apple%20TV%20%7C%20Apple%20Watch-orange.svg)
+[![Supported platform](https://img.shields.io/badge/platform-macOS%20%7C%20iOS%20%7C%20tvOS%20%7C%20watchOS%20%7C%20Linux%20Ubuntu-orange.svg)](https://img.shields.io/badge/platform-macOS%20%7C%20iOS%20%7C%20tvOS%20%7C%20watchOS%20%7C%20Linux%20Ubuntu-orange.svg)
 [![CocoaPods Version](https://img.shields.io/cocoapods/v/ID3TagEditor.svg)](https://cocoapods.org/pods/ID3TagEditor)
 
 ![ID3TagEditor: A swift library to read and modify ID3 Tag of any mp3 file](https://raw.githubusercontent.com/chicio/ID3TagEditor/master/Assets/icon-logo-background.png 
@@ -16,8 +16,12 @@ A swift library to read and modify ID3 Tag of any mp3 file.
 
 ### Installation
 
-There are three ways to install ID3TagEditor in your project: manual installation, as a stand-alone framework or using
-cocoapods.
+There are four ways to install ID3TagEditor in your project:
+
+- manual installation
+- framework 
+- cocoapods
+- Swift Package Manager (support for linux platform)
 
 **Manual installation**
 
@@ -37,11 +41,38 @@ Add the dependency to your Podfile (choose the release version you prefer):
 
 ```
 target 'MyApp' do
-    pod 'ID3TagEditor', '~> 1.0'
+    pod 'ID3TagEditor', '~> 2.0'
 end
 ```
 
 and then run pod install (or pod update).
+
+**Swift Package Manager**
+
+ID3TagEditor is also available as Swift Package for the Swift Package Manager. To use it simply add it to your dependecies in the Swift  `Package.swift`.
+After that you can build your project with the command `swift build`, and eventually run you project (if it is an executable type) with the command `swift run`.
+If you want you can also run tests using `swift test`.  
+  
+  *IMPORTANT: at the moment some tests are excluded from  `swift test` because some test api are missing (eg. `XCTestExpectation`) or 
+because the Bundle of resources in the test target doesn't work as expected.* 
+
+```
+// swift-tools-version:4.2
+
+import PackageDescription
+
+let package = Package(
+    name: "Your App",
+    dependencies: [
+        .package(url: "https://github.com/chicio/ID3TagEditor.git", from: "2.2.0"),
+    ],
+    targets: [
+        .target(
+            name: "Your App",
+            dependencies: ["ID3TagEditor"]),
+    ]
+)
+```
 
 ***
 
@@ -53,9 +84,13 @@ ID3Tag editor is compatible with the following platforms:
 * MacOS
 * Apple Watch
 * Apple TV
+* Linux Ubuntu
 
-ID3TagEditor is really easy to use. To read the ID3 tag of an mp3 file use the `read` method of an instance of 
-the `ID3TagEditor` class.  
+To read the ID3 tag of an mp3 file you can choose between two api contained in the `ID3TagEditor` class:
+* `public func read(from path: String) throws -> ID3Tag?`
+* `public func read(mp3: Data) throws -> ID3Tag?`
+
+Below you can find a sample code of the api usage.
 
 ```swift
 do {
@@ -64,12 +99,20 @@ do {
     if let id3Tag = try id3TagEditor.read(from: "<valid path to the mp3 file>") {
         ...use the tag...
     }
+    
+    if let id3Tag = try id3TagEditor.read(mp3: "<valid mp3 file passed as Data>") {
+        ...use the tag...
+    }    
 } catch {
     print(error)
 }  
 ```
 
-To write a new ID3 tag into an mp3 file use the `write` method of an instance of the `ID3TagEditor` class.
+To write a new ID3 tag into an mp3 file you can choose between two api contained in the `ID3TagEditor` class:
+* `public func write(tag: ID3Tag, to path: String, andSaveTo newPath: String? = nil) throws`
+* `public func write(tag: ID3Tag, mp3: Data) throws -> Data`
+
+Below you can find a sample code of the api usage.
 
 ```swift
 do {
@@ -79,39 +122,59 @@ do {
         albumArtist: "an example album artist",
         album: "an example album",
         title: "an example title",
-        year: "2019",
+        recordingDateTime: RecordingDateTime(date: RecordingDate(day: 1, month: 10, year: 2019), 
+                                             time: RecordingTime(hour: 14, minute: 30)),
         genre: Genre(genre: .ClassicRock, description: "Rock & Roll"),
-        attachedPictures: AttachedPicture(art: <NSData/Data of the image>, type: .FrontCover, format: .Jpeg),
+        attachedPictures: AttachedPicture(picture: <NSData/Data of the image>, type: .FrontCover, format: .Jpeg),
         trackPosition: TrackPositionInSet(position: 2, totalTracks: 9)
     )
-    try id3TagEditor.write(tag: id3Tag, to: PathLoader().pathFor(name: "example", fileType: "mp3"))
+    
+    try id3TagEditor.write(tag: id3Tag, to: "<valid path to the mp3 file that will be overwritten>"))
+    try id3TagEditor.write(tag: id3Tag, 
+                           to: "<valid path to the mp3 file>",
+                           andSaveTo: "<new path where you want to save the mp3>"))
+    let newMp3: Data = try id3TagEditor.write(tag: id3Tag, mp3: <valid mp3 file passed as Data>)                          
 } catch {
     print(error)
 }    
 ```  
 
-The above methods use the `ID3Tag` class to describe a valid ID3 tag. The class contains various properties that could be
+The above methods use the `ID3Tag` class to describe a valid ID3 tag. This class contains various properties that could be
 used to read/write a tag to the mp3 file.
-Two versions of the tag are supported. They are described in the `ID3Version` enum:
+Three versions of the tag are supported. They are described in the `ID3Version` enum:
 
 * version 2.2, described by the enum value `.version2`  
 * version 2.3, described by the enum value `.version3`  
+* version 2.4, described by the enum value `.version4`
 
 The ID3 supported properties are:
 
 * `version`, as previously described
 * `artist`, as a string containing the name of the song's artists
 * `albumArtist`, as a string containing additional info about the artists 
-* `title`, as a string containing the title of the song
-* `trackPosition`, as a `TrackPositionInSet` object containing the position of the track in the recording and the total number of track in the recordings
 * `album`, as a string containing the album title
-* `year`, as a string containing the year of the recording
+* `title`, as a string containing the title of the song
+* `recordingDateTime`, as an object composed by two other properties:
+    * `date` as a `RecordingDate` object with three fields:
+        * `day`, as a number that represents the recording day 
+        * `month`, as a number that represents the recording month
+        * `year`, as a number that represents the recording year
+    * `time` as a `RecordingTime` object with two fields:
+        * `hour`, as a number that represents the recording hour
+        * `minute`, as a number that represents the recording minute
+* `trackPosition`, as a `TrackPositionInSet` object containing the position of the track in the recording and the total number of track in the recordings
 * `genre`, as a `Genre` object containing the `ID3Genre` identifier and/or a `description` of the song's genre
 * `attachedPictures`, as an array of `AttachedPicture` objects containing the `Data` of an image, the `ID3PictureType` and the `ID3PictureFormat`
 
 Only the `version` field is mandatory. The other fields are optional.
 The field `artist`,  `albumArtist`, `title` and `album` are encoded/saved using Unicode 16 bit string (as requested by specification). 
-The library is also able to read text frame wrongly encoded with Unicode (for example year must always be a ISO88591 string). 
+The library is also able to read text frame wrongly encoded with Unicode (for example recordingDateTime must always be a ISO88591 string). 
+
+***
+
+### Documentation
+
+You can find the complete api documentation on [fabrizioduroni.it](https://www.fabrizioduroni.it/ID3TagEditor/ "ID3TagEditor doc").
 
 ***
 
@@ -125,4 +188,5 @@ supported target.
 <img width="320" src="https://raw.githubusercontent.com/chicio/ID3TagEditor/master/Screenshots/01-example.png">
 <img src="https://raw.githubusercontent.com/chicio/ID3TagEditor/master/Screenshots/03-example.png">
 <img src="https://raw.githubusercontent.com/chicio/ID3TagEditor/master/Screenshots/02-example.png">
+<img src="https://raw.githubusercontent.com/chicio/ID3TagEditor/master/Screenshots/05-example.png">
 </p>

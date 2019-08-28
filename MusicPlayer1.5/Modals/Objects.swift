@@ -62,7 +62,7 @@ func getArtist(songURL: URL) -> String {
     for theItem in metadata {
         if theItem.commonKey == nil { continue }
         if let key = theItem.commonKey, let value = theItem.value {
-            if key == "artist"
+            if key.rawValue == "artist"
             {theArtist = value as! String}
         }
     }
@@ -78,7 +78,7 @@ func getTitle(songURL: URL) -> String {
     for theItem in metadata {
         if theItem.commonKey == nil { continue }
         if let key = theItem.commonKey, let value = theItem.value {
-            if key == "title"
+            if key.rawValue == "title"
             {theTitle = value as! String}
         }
     }
@@ -94,7 +94,7 @@ func getImage(songURL: URL) -> UIImage {
     for theItem in metadata {
         if theItem.commonKey == nil {continue}
         if let key = theItem.commonKey, let value = theItem.value{
-            if key == "artwork"{
+            if key.rawValue == "artwork"{
                 theImage = UIImage(data: value as! Data)!
             }
         }
@@ -119,6 +119,7 @@ func openBoolAlert(title: String, message: String, view: UIViewController, actio
     view.present(alert, animated: true, completion: nil)
 }
 
+/*
 func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
     let size = image.size
     
@@ -143,4 +144,4 @@ func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
     UIGraphicsEndImageContext()
     
     return newImage!
-}
+}*/

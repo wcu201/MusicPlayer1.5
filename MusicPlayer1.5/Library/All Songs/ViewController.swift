@@ -200,6 +200,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             appDelegate.player.prepareToPlay()
             appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
             appDelegate.player.play()
+            appDelegate.musicPlaying = true
+            appDelegate.songPlaying = currentSong
             
             musicVC.isShuffled = false
             if appDelegate.playerVC?.artwork != nil {
@@ -299,7 +301,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         for theItem in metadata {
             if theItem.commonKey == nil { continue }
             if let key = theItem.commonKey, let value = theItem.value {
-                if key == "artist"
+                if key.rawValue == "artist"
                 {theArtist = value as! String}
             }
         }
@@ -315,7 +317,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         for theItem in metadata {
             if theItem.commonKey == nil { continue }
             if let key = theItem.commonKey, let value = theItem.value {
-                if key == "title"
+                if key.rawValue == "title"
                 {theTitle = value as! String}
             }
         }
@@ -331,7 +333,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         for theItem in metadata {
             if theItem.commonKey == nil {continue}
             if let key = theItem.commonKey, let value = theItem.value{
-                if key == "artwork"{
+                if key.rawValue == "artwork"{
                     theImage = UIImage(data: value as! Data)!
                 }
             }
@@ -365,14 +367,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let deleteAction = UITableViewRowAction(style: .normal, title: "Delete", handler: {(action) in
+        let deleteAction = UITableViewRowAction(style: .normal, title: "Delete", handler: {(action, other) in
             openBoolAlert(title: "Delete Song", message: "Are you sure you want to delete this song?", view: self, action: {() in
                 print("Action Called: Delete", self.appDelegate.downloadLibrary[indexPath.row])
                 self.appDelegate.deleteFromLibrary(url: self.appDelegate.downloadLibrary[indexPath.row])
                 tableView.reloadData()
             })
         })
-        let editAction = UITableViewRowAction(style: .normal, title: "Edit", handler: {(action) in
+        let editAction = UITableViewRowAction(style: .normal, title: "Edit", handler: {(action, other) in
             self.selectedSong = self.appDelegate.downloadLibrary[indexPath.row]
             self.performSegue(withIdentifier: "goToMetadata", sender: self)
         })
@@ -413,6 +415,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             appDelegate.shuffledLibrary = appDelegate.downloadLibrary
             appDelegate.shuffledLibrary.shuffle()
             appDelegate.isShuffled = true
+            appDelegate.musicPlaying = true
+            appDelegate.songPlaying = currentSong
             
             currentSong = appDelegate.shuffledLibrary[0]
             appDelegate.arrayPos = 0

@@ -64,7 +64,8 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
                 if tag?.title != nil {songTitle = (tag?.title)!} else{songTitle = ""}
                 if tag?.albumArtist != nil {albumArtist = (tag?.albumArtist)!} else{albumArtist = ""}
                 if tag?.album != nil {album = (tag?.album)!} else{album = ""}
-                if tag?.year != nil {releaseYear = (tag?.year)!} else{releaseYear = ""}
+                //apparently year has been removed
+                //if tag?.year != nil {releaseYear = (tag?.year)!} else{releaseYear = ""}
                 if tag?.attachedPictures != nil {
                     print("No attatched pictures")
                 } else{print("Attatched pictures: ", tag?.attachedPictures?.count)}
@@ -98,7 +99,7 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
             newMetadata.append(cell.textfield.text!)
             print("Test: ", cell.textfield.text!)
         }
-        
+    
         do {
             let id3TagEditor = ID3TagEditor()
             let tag = ID3Tag(version: .version3,
@@ -106,9 +107,9 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
                              albumArtist: newMetadata[2],
                              album: newMetadata[3],
                              title: newMetadata[0],
-                             year: newMetadata[4],
+                             recordingDateTime: RecordingDateTime(date: RecordingDate(day: 0, month: 0, year: Int(newMetadata[4])), time: RecordingTime(hour: 0, minute: 0)),
                              genre: Genre(genre: ID3Genre.Other, description: "Other"),
-                             attachedPictures: [AttachedPicture(art: UIImagePNGRepresentation(artwork!)!, type: .Other, format: .Png)],
+                             attachedPictures: [AttachedPicture(picture: artwork!.pngData()!, type: .Other, format: .Png)],
                              trackPosition: TrackPositionInSet(position: 1, totalTracks: 1))
         
          //try ID3TagEditor.write(ID3TagEditor())
@@ -131,7 +132,7 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
         for theItem in metadata {
             if theItem.commonKey == nil {continue}
             if let key = theItem.commonKey, let value = theItem.value{
-                if key == "artwork"{
+                if key.rawValue == "artwork"{
                     theImage = UIImage(data: value as! Data)!
                 }
             }
@@ -161,10 +162,10 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
 }
 
 extension MetadataViewController: UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         print("Did finish picking. Info = " + "\(info)")
         var selectedImage: UIImage?
-        if let croppedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
+        if let croppedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage { 
             selectedImage = croppedImage
         }
         artwork = selectedImage

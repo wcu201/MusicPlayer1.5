@@ -1,6 +1,6 @@
 PODS:
-  - Alamofire (4.7.3)
-  - ID3TagEditor (1.2.0)
+  - Alamofire (4.8.2)
+  - ID3TagEditor (2.2.0)
   - SVProgressHUD (2.2.5)
 
 DEPENDENCIES:
@@ -15,10 +15,10 @@ SPEC REPOS:
     - SVProgressHUD
 
 SPEC CHECKSUMS:
-  Alamofire: c7287b6e5d7da964a70935e5db17046b7fde6568
-  ID3TagEditor: 3b039dffc9949e554dc8f2ae9690444ddfc12f37
+  Alamofire: ae5c501addb7afdbb13687d7f2f722c78734c2d3
+  ID3TagEditor: 9ac1b6654cc273628a4a4f479ced83742bb429a7
   SVProgressHUD: 1428aafac632c1f86f62aa4243ec12008d7a51d6
 
-PODFILE CHECKSUM: 0e807736d4f088bd04e7eb5b191da0cb549f59c3
+PODFILE CHECKSUM: df39deb5429c535f5b57f4443cc43d5781ab0b7b
 
 COCOAPODS: 1.5.0

@@ -12,6 +12,7 @@ import Alamofire
 import SVProgressHUD
 
 class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, UISearchBarDelegate {
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var addressBar: UISearchBar?
     var backButton: UIBarButtonItem?
     var forwardButton: UIBarButtonItem?
@@ -105,7 +106,16 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
             print("***fileURL: ",fileURL ?? "")
             return (fileURL!,[.removePreviousFile, .createIntermediateDirectories])
         }
-        self.navigationController?.tabBarController?.tabBar.items![2].badgeValue = "1"
+        
+        //Adding number of downloads icon
+        if (self.navigationController?.tabBarController?.tabBar.items![2].badgeValue == nil) {
+            self.navigationController?.tabBarController?.tabBar.items![2].badgeValue = "1"
+        }
+        else {
+            let numberOfCurrentDownloads = Int(self.navigationController?.tabBarController?.tabBar.items![2].badgeValue ?? "0")
+            self.navigationController?.tabBarController?.tabBar.items![2].badgeValue = "\(numberOfCurrentDownloads!+1)"
+        }
+        
         Alamofire.download(url, to: dest).response(completionHandler: {(complete) in
             
             if (UserDefaults.standard.array(forKey: "downloadHistory")) == nil {
@@ -123,6 +133,7 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
                 print ("url: ", url.lastPathComponent)
                 self.fileLocalURLArr.append(url.lastPathComponent)
                 
+                self.appDelegate.populateDownloadLibrary()
             }
             else {
                 print("Unsuccessful Download")
@@ -132,7 +143,7 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
     
     //Create alert asking user to commit to download
     func creatActionSheet(title: String, message: String, songURL: URL){
-        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.actionSheet)
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.actionSheet)
         
         let downloadAction = UIAlertAction(title: "Download", style: .default, handler: {(action) in
             self.downloadURL(url: songURL)

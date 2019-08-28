@@ -74,7 +74,7 @@ class ArtistsViewController: UIViewController, UITableViewDataSource, UITableVie
         for theItem in metadata {
             if theItem.commonKey == nil { continue }
             if let key = theItem.commonKey, let value = theItem.value {
-                if key == "artist"
+                if key.rawValue == "artist"
                 {theArtist = value as! String}
             }
         }

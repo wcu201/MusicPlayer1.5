@@ -95,7 +95,7 @@ class AlbumsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         for theItem in metadata {
             if theItem.commonKey == nil {continue}
             if let key = theItem.commonKey, let value = theItem.value{
-                if key == "albumName"{
+                if key.rawValue == "albumName"{
                     album = value as! String
                 }
             }
@@ -120,7 +120,7 @@ class AlbumsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         for theItem in metadata {
             if theItem.commonKey == nil {continue}
             if let key = theItem.commonKey, let value = theItem.value{
-                if key == "artwork"{
+                if key.rawValue == "artwork"{ 
                     theImage = UIImage(data: value as! Data)!
                 }
             }

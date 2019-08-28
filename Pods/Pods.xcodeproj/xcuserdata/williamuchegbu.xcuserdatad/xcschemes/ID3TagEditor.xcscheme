@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "387CC239A874738F01EBCB2B236BFB61"
+               BlueprintIdentifier = "24BC6EAE914130B866C7A7C91D62E196"
                BlueprintName = "ID3TagEditor"
                ReferencedContainer = "container:Pods.xcodeproj"
                BuildableName = "ID3TagEditor.framework">

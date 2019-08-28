@@ -22,9 +22,10 @@ class ID3FrameContentParser: FrameContentParser {
         if (isAValid(frameType: frameType)) {
             frameContentParsingOperations[frameType]?.parse(frame: frame, id3Tag: id3Tag)
         }
+        print("properties: ", id3Tag.properties)
     }
 
-    func getFrameTypeFrom(frame: Data, version: ID3Version) -> FrameType {
+    private func getFrameTypeFrom(frame: Data, version: ID3Version) -> FrameType {
         let frameIdentifierSize = id3FrameConfiguration.identifierSizeFor(version: version)
         let frameIdentifierData = [UInt8](frame.subdata(in: Range(0...frameIdentifierSize - 1)))
         let frameIdentifier = toString(frameIdentifier: frameIdentifierData)
@@ -38,6 +39,7 @@ class ID3FrameContentParser: FrameContentParser {
 
     private func toString(frameIdentifier: [UInt8]) -> String {
         return frameIdentifier.reduce("") { (convertedString, byte) -> String in
+            print("converted data: ", convertedString)
             return convertedString + String(Character(UnicodeScalar(byte)))
         }
     }

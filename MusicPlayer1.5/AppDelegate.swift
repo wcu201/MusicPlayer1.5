@@ -15,15 +15,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var downloadLibrary = [URL]()
     var shuffledLibrary = [URL]()
-    var isShuffled = false 
+    var currentPlaylist = [URL]()
+    var isShuffled = false
+    var musicPlaying = false
     var player = AVAudioPlayer()
     var playerVC: MusicViewController?
     var songPlaying: URL?
     var arrayPos = Int()
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         populateDownloadLibrary()
+        let mp3FileReader = Mp3FileReader()
+        do {
+            let mp3Data = try mp3FileReader.readFrom(path: downloadLibrary[0])
+            //print("testing")
+        }
+        catch {
+            print("error")
+        }
+        
         /*player.addObserver(<#T##observer: NSObject##NSObject#>, forKeyPath: <#T##String#>, options: <#T##NSKeyValueObservingOptions#>, context: <#T##UnsafeMutableRawPointer?#>)*/
         //print("Player Status: ")
         //playerVC = UIStoryboard(name: "Main", bundle: Bundle.main).instantiateViewController(withIdentifier: "MusicViewController") 
