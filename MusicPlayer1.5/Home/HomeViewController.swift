@@ -80,6 +80,8 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         backgroundArtworkPlaying.image = getImage(songURL: url)
         titlePlaying.text = getTitle(songURL: url)
         artistPlaying.text = getArtist(songURL: url)
+        if appDelegate.player.isPlaying {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)}
+        else {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)}
     }
     
     

@@ -11,6 +11,8 @@ import UIKit
 class downloadTableViewCell: UITableViewCell {
     @IBOutlet weak var urlLabel: UILabel!
     
+    @IBOutlet weak var progressBar: UIProgressView!
+    @IBOutlet weak var progressNumber: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

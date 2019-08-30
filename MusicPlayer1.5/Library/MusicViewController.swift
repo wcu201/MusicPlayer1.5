@@ -24,6 +24,7 @@ class MusicViewController: UIViewController {
     @IBOutlet weak var nextButton: UIButton!
     
     @IBOutlet weak var musicProgress: UISlider!
+    @IBOutlet weak var volumeSlider: UISlider!
     @IBOutlet weak var timeElapsed: UILabel!
     @IBOutlet weak var timeLeft: UILabel!
 
@@ -52,13 +53,16 @@ class MusicViewController: UIViewController {
         setup(theURL: url)
         setupRemoteTransportControls()
         setupNowPlaying()
-        
-        //deprecated
-        /*
-        (musicVC.nav.viewControllers[1] as? ViewController)?.nowPlaying.isHidden = false
-        (musicVC.nav.viewControllers[1] as? ViewController)?.nowPlaying.isEnabled = true
-        (musicVC.nav.viewControllers.first as? LibraryViewController)?.nowPlayingBTN.isHidden = false
-         */
+        //let thumb = UIImage(named: "Image")!
+        //var x = #imageLiteral(resourceName: "baseline_volume_mute_black_48dp")
+        //x.resizableImage(withCapInsets: UIEdgeInsets(top: 0, left: <#T##CGFloat#>, bottom: <#T##CGFloat#>, right: <#T##CGFloat#>))
+        //musicProgress.thumbTintColor = UIColor(red: 206.0/255.0, green: 24.0/255.0, blue: 73.0/255.0, alpha: 1.0)
+        musicProgress.setThumbImage(resizeImage(image: UIImage(named: "custom_thumb")!, targetSize: CGSize(width: 20, height: 20)), for: .normal)
+        //volumeSlider.setMinimumTrackImage(#imageLiteral(resourceName: "baseline_volume_mute_black_48dp"), for: .normal)
+        //volumeSlider.setMaximumTrackImage(#imageLiteral(resourceName: "baseline_volume_up_black_48dp"), for: .normal)
+        //volumeSlider.setMinimumTrackImage(resizeImage(image: #imageLiteral(resourceName: "baseline_volume_mute_black_48dp"), targetSize: CGSize(width: 20, height: 20)), for: .normal)
+        //volumeSlider.setMaximumTrackImage(resizeImage(image: #imageLiteral(resourceName: "baseline_volume_up_black_48dp"), targetSize: CGSize(width: 20, height: 20)), for: .normal)
+        //musicProgress.thumbImage(for: .normal).transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
 
         UIApplication.shared.beginReceivingRemoteControlEvents()
         let commandCenter = MPRemoteCommandCenter.shared()
@@ -222,7 +226,8 @@ class MusicViewController: UIViewController {
         songName.text = getTitle(songURL: theURL)
         artistName.text = getArtist(songURL: theURL)
         self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.downloadLibrary.count)"
-    }
+        self.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+    } 
 
     
     
@@ -305,6 +310,11 @@ class MusicViewController: UIViewController {
         {nextButton.sendActions(for: .touchUpInside)
             //tableVC.library.Console.text = "NEXT"
         }
+    }
+    
+    
+    @IBAction func changeVolume(_ sender: Any) {
+        appDelegate.player.volume = volumeSlider.value
     }
     
     func setupRemoteTransportControls() {

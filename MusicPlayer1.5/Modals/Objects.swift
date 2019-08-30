@@ -69,6 +69,22 @@ func getArtist(songURL: URL) -> String {
     return theArtist
 }
 
+func getAlbum(songURL: URL) -> String {
+    var theAlbum: String = "Unknown Album"
+    
+    let item = AVPlayerItem(url: songURL)
+    let metadata = item.asset.metadata
+    
+    for theItem in metadata {
+        if theItem.commonKey == nil { continue }
+        if let key = theItem.commonKey, let value = theItem.value {
+            if key.rawValue == "albumName"
+            {theAlbum = value as! String}
+        }
+    }
+    return theAlbum
+}
+
 func getTitle(songURL: URL) -> String {
     var theTitle: String = "No Title"
     

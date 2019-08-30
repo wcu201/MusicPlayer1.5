@@ -11,19 +11,44 @@ import UIKit
 class DownloadsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var downloadTable: UITableView!
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 2
+    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if UserDefaults.standard.array(forKey: "downloadHistory") != nil {
-        return (UserDefaults.standard.array(forKey: "downloadHistory")?.count)!
+        if section==0{
+            if UserDefaults.standard.array(forKey: "downloadHistory") != nil {
+                return (UserDefaults.standard.array(forKey: "downloadHistory")?.count)!
+            }
         }
+        
+        if section==1{return appDelegate.downloadProgressQueue.count}
+        
         return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "downloadCell") as? downloadTableViewCell
-        cell?.urlLabel.text = UserDefaults.standard.array(forKey: "downloadHistory")?[indexPath.row] as? String
+        
+        if indexPath.section==0{
+            cell?.progressBar.isHidden = true
+            cell?.progressNumber.isHidden = true
+            cell?.urlLabel.text = UserDefaults.standard.array(forKey: "downloadHistory")?[indexPath.row] as? String
+        }
+        if indexPath.section==1{
+            cell?.urlLabel.isHidden = true
+            let urlKeys = Array(appDelegate.downloadProgressQueue.keys)
+            while appDelegate.downloadProgressQueue[urlKeys[indexPath.row]]!<Float(1.0) {
+                let progress = appDelegate.downloadProgressQueue[urlKeys[indexPath.row]]!
+                cell?.progressBar.progress = progress
+                
+                if progress<Float(0.1){cell?.progressNumber.text = " \(Int(progress*100))%"}
+                else{cell?.progressNumber.text = "\(Int(progress*100))%"}
+            }
+        }
+
         return cell!
         //return tableView.dequeueReusableCell(withIdentifier: "")!
     }

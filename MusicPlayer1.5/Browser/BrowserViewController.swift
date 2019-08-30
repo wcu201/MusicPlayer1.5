@@ -99,6 +99,7 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
     //downloadURL(url: URL(string: "https://a.tumblr.com/tumblr_lz99inw5kp1r9sexqo1.mp3")!)
     
     func downloadURL(url: URL) {
+        //Creates destination where file is stored
         let dest: DownloadRequest.DownloadFileDestination = { _, _ in
             let documentsURL:NSURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first! as NSURL
             print("***documentURL: ",documentsURL)
@@ -107,7 +108,7 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
             return (fileURL!,[.removePreviousFile, .createIntermediateDirectories])
         }
         
-        //Adding number of downloads icon
+        //Adding number of downloads icon (shows how many things are being downloaded)
         if (self.navigationController?.tabBarController?.tabBar.items![2].badgeValue == nil) {
             self.navigationController?.tabBarController?.tabBar.items![2].badgeValue = "1"
         }
@@ -116,26 +117,35 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
             self.navigationController?.tabBarController?.tabBar.items![2].badgeValue = "\(numberOfCurrentDownloads!+1)"
         }
         
-        Alamofire.download(url, to: dest).response(completionHandler: {(complete) in
-            
-            if (UserDefaults.standard.array(forKey: "downloadHistory")) == nil {
+        //Adding record to download history
+        if (UserDefaults.standard.array(forKey: "downloadHistory")) == nil {
             UserDefaults.standard.set([url.lastPathComponent], forKey: "downloadHistory")
-            }
-            else {
-                var downloads = UserDefaults.standard.array(forKey: "downloadHistory")
-                downloads?.append(url.lastPathComponent)
-                UserDefaults.standard.set(downloads, forKey: "downloadHistory")
-            }
+        }
+        else {
+            var downloads = UserDefaults.standard.array(forKey: "downloadHistory")
+            downloads?.append(url.lastPathComponent)
+            UserDefaults.standard.set(downloads, forKey: "downloadHistory")
+        }
+        
+        //Performing actual download operation
+        Alamofire.download(url, to: dest)
+            .downloadProgress(closure: {(progress) in
+                print("Progress: \(progress.fractionCompleted)")
+                self.appDelegate.downloadProgressQueue[url] = Float(progress.fractionCompleted)
+            })
+            .response(completionHandler: {(complete) in
             
             if complete.error == nil, let filePath = complete.destinationURL?.path {
                 self.navigationController?.tabBarController?.tabBar.items![2].badgeValue = nil
                 print ("Download Finished: ", filePath)
                 print ("url: ", url.lastPathComponent)
+                self.appDelegate.downloadProgressQueue.removeValue(forKey: url)
                 self.fileLocalURLArr.append(url.lastPathComponent)
                 
                 self.appDelegate.populateDownloadLibrary()
             }
             else {
+                
                 print("Unsuccessful Download")
             }
         })

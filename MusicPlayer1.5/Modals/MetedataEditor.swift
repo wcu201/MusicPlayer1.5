@@ -76,7 +76,7 @@ class Mp3FileReader {
         
         
         
-        var myrange = count-20
+        var myrange = count
         var counter = 0
         var myData = ""
         while(counter < 50){

@@ -41,6 +41,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     override func viewWillAppear(_ animated: Bool) {
         //isSearching = false
         tableView.reloadData()
+        
+        guard appDelegate.musicPlaying else {
+            print("no music")
+            return
+        }
+        
+        self.populateNowPlayBar(url: appDelegate.songPlaying!)
+        self.nowPlaying.isHidden = false
         /*do {
             let id3TagEditor = ID3TagEditor()
             let tag = ID3Tag(version: .version3,
@@ -70,7 +78,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.delegate = self
         tableView.dataSource = self
         
-        self.tabBarController?.tabBar.addSubview(nowPlayingBar)
+        //self.tabBarController?.tabBar.addSubview(nowPlayingBar)
         
         //tableVC.library = self
         
@@ -128,15 +136,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
-        case 0:
-            return 1
-        case 1:
-            if isSearching{return userData.filteredLibrary.count}
-            //return userData.songLibrary.count
-            //return userData.downloadLibrary.count
-            return appDelegate.downloadLibrary.count
-        default:
-            return 0
+            case 0:
+                return 1
+            case 1:
+                if isSearching{return userData.filteredLibrary.count}
+                return appDelegate.downloadLibrary.count
+            default:
+                return 0
         }
     }
     
@@ -188,12 +194,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             currentSong = appDelegate.downloadLibrary[indexPath.row]
             appDelegate.arrayPos = indexPath.row
             //populateNowPlayBar(url: currentSong!)
-            
-            //deprecated
-            /*(musicVC.nav.viewControllers.first as! LibraryViewController).populateNowPlyingBar(url: currentSong!)
-            (musicVC.nav.viewControllers.first as! LibraryViewController).nowPlaying = currentSong!
-             */
-            
+        
             do { appDelegate.player = try AVAudioPlayer(contentsOf: appDelegate.downloadLibrary[indexPath.row]/*currentLibray[indexPath.row]*/)}
             catch{print("Song does not exist.")}
             
@@ -364,6 +365,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         backgroundArt.image = getImage(songURL: url)
         titlePlaying.text = getTitle(songURL: url)
         artistPlaying.text = getArtist(songURL: url)
+        if appDelegate.player.isPlaying {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)}
+        else {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)}
     }
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
@@ -416,9 +419,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             appDelegate.shuffledLibrary.shuffle()
             appDelegate.isShuffled = true
             appDelegate.musicPlaying = true
-            appDelegate.songPlaying = currentSong
+            
             
             currentSong = appDelegate.shuffledLibrary[0]
+            appDelegate.songPlaying = currentSong
             appDelegate.arrayPos = 0
             
             //populateNowPlayBar(url: currentSong!)

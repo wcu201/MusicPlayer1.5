@@ -13,19 +13,30 @@ import AVKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    
     var downloadLibrary = [URL]()
     var shuffledLibrary = [URL]()
     var currentPlaylist = [URL]()
+    var artistsLibraries = [String : [URL]]()
+    var albumLibraries = [String : [URL]]()
+    var playlistsLibraries = [String : URL]()
+    var recentlyAddedLibrary  = [URL]()
+    
     var isShuffled = false
     var musicPlaying = false
     var player = AVAudioPlayer()
     var playerVC: MusicViewController?
     var songPlaying: URL?
     var arrayPos = Int()
+    
+    var downloadProgressQueue = [URL:Float]() 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         populateDownloadLibrary()
+        populateArtistLibraries()
+        populateAlbumLibraries()
+        /*
         let mp3FileReader = Mp3FileReader()
         do {
             let mp3Data = try mp3FileReader.readFrom(path: downloadLibrary[0])
@@ -33,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         catch {
             print("error")
-        }
+        }*/
         
         /*player.addObserver(<#T##observer: NSObject##NSObject#>, forKeyPath: <#T##String#>, options: <#T##NSKeyValueObservingOptions#>, context: <#T##UnsafeMutableRawPointer?#>)*/
         //print("Player Status: ")
@@ -79,6 +90,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
             }
         downloadLibrary = downloads
+    }
+    
+    func populateArtistLibraries(){
+        var library = [String : [URL]]()
+        
+        for url in downloadLibrary{
+            let artist = getArtist(songURL: url)
+            if library.keys.contains(artist) {library[artist]?.append(url)}
+            else {library[artist] = [url]}
+        }
+        
+        artistsLibraries = library
+    }
+    
+    func populateAlbumLibraries(){
+        var library = [String : [URL]]()
+        
+        for url in downloadLibrary{
+            let album = getAlbum(songURL: url)
+            if library.keys.contains(album) {library[album]?.append(url)}
+            else {library[album] = [url]}
+        }
+        
+        albumLibraries = library
     }
     
     func deleteFromLibrary(url: URL){
