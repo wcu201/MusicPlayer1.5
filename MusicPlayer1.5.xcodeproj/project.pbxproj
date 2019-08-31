@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5413A5BC231A050F008AED0B /* RecentlyAddedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5413A5BB231A050F008AED0B /* RecentlyAddedCollectionViewCell.swift */; };
 		5431837422F742A000E720AB /* MetedataEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5431837322F742A000E720AB /* MetedataEditor.swift */; };
 		543B774721044C80003A1EE9 /* MetadataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 543B774621044C80003A1EE9 /* MetadataViewController.swift */; };
 		543B774921044D29003A1EE9 /* metadataTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 543B774821044D29003A1EE9 /* metadataTableViewCell.swift */; };
@@ -61,6 +62,7 @@
 /* Begin PBXFileReference section */
 		03CFE6A4BAFF0D9CB5167FA1 /* Pods_MusicPlayer1_5UITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MusicPlayer1_5UITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		08C9352677D69634CE560686 /* Pods-MusicPlayer1.5Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MusicPlayer1.5Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-MusicPlayer1.5Tests/Pods-MusicPlayer1.5Tests.release.xcconfig"; sourceTree = "<group>"; };
+		5413A5BB231A050F008AED0B /* RecentlyAddedCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentlyAddedCollectionViewCell.swift; sourceTree = "<group>"; };
 		5431837322F742A000E720AB /* MetedataEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetedataEditor.swift; sourceTree = "<group>"; };
 		543B774621044C80003A1EE9 /* MetadataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataViewController.swift; sourceTree = "<group>"; };
 		543B774821044D29003A1EE9 /* metadataTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = metadataTableViewCell.swift; sourceTree = "<group>"; };
@@ -189,6 +191,7 @@
 			children = (
 				54941853224FF0C900E2F097 /* HomeViewController.swift */,
 				54941855224FFFD900E2F097 /* HomeCollectionViewCell.swift */,
+				5413A5BB231A050F008AED0B /* RecentlyAddedCollectionViewCell.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -550,6 +553,7 @@
 				5476D65E2106582D00702147 /* PlaylistViewController.swift in Sources */,
 				54ED74F72101A26F00326880 /* DownloadsViewController.swift in Sources */,
 				54A3A2C82108EF15006C4881 /* ShuffleTableViewCell.swift in Sources */,
+				5413A5BC231A050F008AED0B /* RecentlyAddedCollectionViewCell.swift in Sources */,
 				543B774B2104D5FD003A1EE9 /* songTableViewCell.swift in Sources */,
 				54ED74F3210139CE00326880 /* BrowserViewController.swift in Sources */,
 				54ED74FB2102493E00326880 /* LibraryViewController.swift in Sources */,

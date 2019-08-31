@@ -16,11 +16,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var downloadLibrary = [URL]()
     var shuffledLibrary = [URL]()
+    var selectedLibrary = [URL]()
+    
     var currentPlaylist = [URL]()
     var artistsLibraries = [String : [URL]]()
     var albumLibraries = [String : [URL]]()
     var playlistsLibraries = [String : URL]()
-    var recentlyAddedLibrary  = [URL]()
+    var recentlyAddedQueue  = [URL]()
     
     var isShuffled = false
     var musicPlaying = false

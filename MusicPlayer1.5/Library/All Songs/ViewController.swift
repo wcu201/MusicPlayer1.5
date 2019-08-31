@@ -81,8 +81,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         //self.tabBarController?.tabBar.addSubview(nowPlayingBar)
         
         //tableVC.library = self
-        
-        //musicVC.player?.delegate = self
+
         //appDelegate.player.delegate = self
         
         if currentSong != nil {
@@ -93,12 +92,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
     }
     
-    /*
-    override func updateViewConstraints() {
-        //addContraintsToNowPlayingBar()
-        //nowPlayingBar.isHidden = false
-    }*/
-
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -140,7 +133,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 return 1
             case 1:
                 if isSearching{return userData.filteredLibrary.count}
-                return appDelegate.downloadLibrary.count
+                return appDelegate.selectedLibrary.count
+                //return appDelegate.downloadLibrary.count
             default:
                 return 0
         }
@@ -156,10 +150,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let cell = tableView.dequeueReusableCell(withIdentifier: "songCell", for: indexPath) as? songTableViewCell
         
             if isSearching {
-                /*
-                 cell.textLabel?.text = getTitle(songURL: (userData.filteredLibrary[indexPath.row]))
-                cell.detailTextLabel?.text = getArtist(songURL: (userData.filteredLibrary[indexPath.row]))
-                cell.imageView?.image = getImage(songURL: (userData.filteredLibrary[indexPath.row]))*/
                 cell?.titleText.text = getTitle(songURL: (userData.filteredLibrary[indexPath.row]))
                 cell?.artistText.text = getArtist(songURL: (userData.filteredLibrary[indexPath.row]))
                 cell?.artwork.image = getImage(songURL: (userData.filteredLibrary[indexPath.row]))
@@ -167,11 +157,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 cell?.editBTN.addTarget(self, action: #selector(goToMetadataVC), for: .touchUpInside)
             }
             else {
+                cell?.titleText.text = getTitle(songURL: appDelegate.selectedLibrary[indexPath.row])
+                cell?.artistText.text = getArtist(songURL: appDelegate.selectedLibrary[indexPath.row])
+                cell?.artwork.image = getImage(songURL: appDelegate.selectedLibrary[indexPath.row])
+                
+                cell?.editBTN.setTitle(appDelegate.selectedLibrary[indexPath.row].absoluteString, for: .normal)
+                /*
                 cell?.titleText.text = getTitle(songURL: appDelegate.downloadLibrary[indexPath.row])
                 cell?.artistText.text = getArtist(songURL: appDelegate.downloadLibrary[indexPath.row])
                 cell?.artwork.image = getImage(songURL: appDelegate.downloadLibrary[indexPath.row])
                 
-                cell?.editBTN.setTitle(appDelegate.downloadLibrary[indexPath.row].absoluteString, for: .normal)
+                cell?.editBTN.setTitle(appDelegate.downloadLibrary[indexPath.row].absoluteString, for: .normal)*/
                 cell?.editBTN.addTarget(self, action: #selector(goToMetadataVC), for: .touchUpInside)
             }
         
@@ -191,11 +187,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 1 {
-            currentSong = appDelegate.downloadLibrary[indexPath.row]
+            //currentSong = appDelegate.downloadLibrary[indexPath.row]
+            currentSong = appDelegate.selectedLibrary[indexPath.row]
             appDelegate.arrayPos = indexPath.row
             //populateNowPlayBar(url: currentSong!)
         
-            do { appDelegate.player = try AVAudioPlayer(contentsOf: appDelegate.downloadLibrary[indexPath.row]/*currentLibray[indexPath.row]*/)}
+            do { appDelegate.player = try AVAudioPlayer(contentsOf: /*appDelegate.downloadLibrary[indexPath.row]*/appDelegate.selectedLibrary[indexPath.row])}
             catch{print("Song does not exist.")}
             
             appDelegate.player.prepareToPlay()
@@ -373,12 +370,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let deleteAction = UITableViewRowAction(style: .normal, title: "Delete", handler: {(action, other) in
             openBoolAlert(title: "Delete Song", message: "Are you sure you want to delete this song?", view: self, action: {() in
                 print("Action Called: Delete", self.appDelegate.downloadLibrary[indexPath.row])
-                self.appDelegate.deleteFromLibrary(url: self.appDelegate.downloadLibrary[indexPath.row])
+                //self.appDelegate.deleteFromLibrary(url: self.appDelegate.downloadLibrary[indexPath.row])
+                self.appDelegate.deleteFromLibrary(url: self.appDelegate.selectedLibrary[indexPath.row])
                 tableView.reloadData()
             })
         })
         let editAction = UITableViewRowAction(style: .normal, title: "Edit", handler: {(action, other) in
-            self.selectedSong = self.appDelegate.downloadLibrary[indexPath.row]
+            //self.selectedSong = self.appDelegate.downloadLibrary[indexPath.row]
+            self.selectedSong = self.appDelegate.selectedLibrary[indexPath.row]
             self.performSegue(withIdentifier: "goToMetadata", sender: self)
         })
         
@@ -414,8 +413,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         userData.shuffledLibrary.shuffle()
         musicVC.isShuffled = true*/
         
-        if (appDelegate.downloadLibrary.isEmpty==false){
-            appDelegate.shuffledLibrary = appDelegate.downloadLibrary
+        if (appDelegate.selectedLibrary.isEmpty==false/*appDelegate.downloadLibrary.isEmpty==false*/){
+            //appDelegate.shuffledLibrary = appDelegate.downloadLibrary
+            appDelegate.shuffledLibrary = appDelegate.selectedLibrary
             appDelegate.shuffledLibrary.shuffle()
             appDelegate.isShuffled = true
             appDelegate.musicPlaying = true
@@ -443,28 +443,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
         }
         
-        /*
-        currentSong = userData.shuffledLibrary[0]
-        musicVC.playerExists = true
-        musicVC.arrayPos = 0
-        populateNowPlayBar(url: currentSong!)
-        (musicVC.nav.viewControllers.first as? LibraryViewController)?.populateNowPlyingBar(url: currentSong!)
-        (musicVC.nav.viewControllers.first as! LibraryViewController).nowPlaying = currentSong!
-        
-        do {musicVC.player = try AVAudioPlayer(contentsOf: currentSong!)}
-        catch{print("Song does not exist.")}
-        
-        musicVC.player?.prepareToPlay()
-        musicVC.player?.play()
-        
-        if musicVC.songVC.artwork != nil {
-            musicVC.songVC.url = currentSong!
-            musicVC.songVC.setup(theURL: currentSong!)
-            show(musicVC.songVC, sender: self)
-        }
-        else {
-            self.performSegue(withIdentifier: "showMusic", sender: self)
-        }*/
     }
 
     

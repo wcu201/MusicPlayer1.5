@@ -38,7 +38,8 @@ class MusicViewController: UIViewController {
     
     
     override func viewWillAppear(_ animated: Bool) {
-        self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.downloadLibrary.count)"
+        self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.selectedLibrary.count)"
+        //self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.downloadLibrary.count)"
         //appDelegate = UIApplication.shared.delegate as! AppDelegate
     }
     
@@ -58,6 +59,7 @@ class MusicViewController: UIViewController {
         //x.resizableImage(withCapInsets: UIEdgeInsets(top: 0, left: <#T##CGFloat#>, bottom: <#T##CGFloat#>, right: <#T##CGFloat#>))
         //musicProgress.thumbTintColor = UIColor(red: 206.0/255.0, green: 24.0/255.0, blue: 73.0/255.0, alpha: 1.0)
         musicProgress.setThumbImage(resizeImage(image: UIImage(named: "custom_thumb")!, targetSize: CGSize(width: 20, height: 20)), for: .normal)
+        volumeSlider.tintColor = UIColor(red: 206.0/255.0, green: 24.0/255.0, blue: 73.0/255.0, alpha: 1.0)
         //volumeSlider.setMinimumTrackImage(#imageLiteral(resourceName: "baseline_volume_mute_black_48dp"), for: .normal)
         //volumeSlider.setMaximumTrackImage(#imageLiteral(resourceName: "baseline_volume_up_black_48dp"), for: .normal)
         //volumeSlider.setMinimumTrackImage(resizeImage(image: #imageLiteral(resourceName: "baseline_volume_mute_black_48dp"), targetSize: CGSize(width: 20, height: 20)), for: .normal)
@@ -176,11 +178,11 @@ class MusicViewController: UIViewController {
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         
         //update the array position to that of the next song
-        if appDelegate.arrayPos+1 == appDelegate.downloadLibrary.count{appDelegate.arrayPos = 0}
+        if appDelegate.arrayPos+1 == appDelegate.selectedLibrary.count{appDelegate.arrayPos = 0}//appDelegate.downloadLibrary.count{appDelegate.arrayPos = 0}
         else {appDelegate.arrayPos += 1}
         
         if appDelegate.isShuffled {url = appDelegate.shuffledLibrary[appDelegate.arrayPos]}
-        else{url = appDelegate.downloadLibrary[appDelegate.arrayPos]}
+        else{url = appDelegate.selectedLibrary[appDelegate.arrayPos]/*appDelegate.downloadLibrary[appDelegate.arrayPos]*/}
  
         setup(theURL: url)
         
@@ -225,7 +227,8 @@ class MusicViewController: UIViewController {
         topArtwork.image = blurImage(usingImage: getImage(songURL: theURL), blurAmount: 60.0)
         songName.text = getTitle(songURL: theURL)
         artistName.text = getArtist(songURL: theURL)
-        self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.downloadLibrary.count)"
+        //self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.downloadLibrary.count)"
+        self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.selectedLibrary.count)"
         self.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
     } 
 

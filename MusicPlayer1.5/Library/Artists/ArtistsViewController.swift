@@ -10,6 +10,7 @@ import UIKit
 import AVKit
 
 class ArtistsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var artistDictionary: [String : [URL]] {
         var dict = [String: [URL]]()
         
@@ -28,11 +29,13 @@ class ArtistsViewController: UIViewController, UITableViewDataSource, UITableVie
     var selectedLibrary = [URL]()
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return artistDictionary.count
+        //return artistDictionary.count
+        return appDelegate.artistsLibraries.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var keys = Array(artistDictionary.keys)
+        //var keys = Array(artistDictionary.keys)
+        var keys = Array(appDelegate.artistsLibraries.keys)
         keys.sort()
         let cell = tableView.dequeueReusableCell(withIdentifier: "artistCell")
         cell?.textLabel?.text = keys[indexPath.row]
@@ -48,8 +51,9 @@ class ArtistsViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let vc = segue.destination as? ViewController
-        vc?.currentLibray = selectedLibrary
+        appDelegate.selectedLibrary = selectedLibrary
+        //let vc = segue.destination as? ViewController
+        //vc?.currentLibray = selectedLibrary
     }
     
 
