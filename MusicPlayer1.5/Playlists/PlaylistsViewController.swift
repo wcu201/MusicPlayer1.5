@@ -33,7 +33,11 @@ class PlaylistsViewController: UIViewController, UITableViewDelegate, UITableVie
         // Dispose of any resources that can be recreated.
     }
     
-
+    
+    @IBAction func goToCreatePlaylist(_ sender: Any) {
+        self.performSegue(withIdentifier: "goToCreatePlaylist", sender: self)
+        
+    }
     /*
     // MARK: - Navigation
 

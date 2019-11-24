@@ -11,7 +11,7 @@ import AVKit
 import AVFoundation
 import MediaPlayer
 
-class MusicViewController: UIViewController {
+class MusicViewController: UIViewController, AVAudioPlayerDelegate {
 
     @IBOutlet weak var artwork: UIImageView!
     @IBOutlet weak var flippedArtwork: UIImageView!
@@ -51,6 +51,7 @@ class MusicViewController: UIViewController {
         super.viewDidLoad()
         
         appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.player.delegate = self
         setup(theURL: url)
         setupRemoteTransportControls()
         setupNowPlaying()
@@ -110,11 +111,19 @@ class MusicViewController: UIViewController {
             try audioSession.setCategory(AVAudioSession.Category.playback)
         }
         catch{}
-
-       _ = Timer.scheduledTimer(timeInterval: 0.0, target: self, selector: #selector(MusicViewController.updateSlider), userInfo: nil, repeats: true)
+        
+        //VERY IMPORTANT - READ BELOW
+        //This timer below might be very energy inefficent. Timer calls a specific task that consistantly runs in the background if the user is just idly listening to music. Need to test more to be sure, but I'm almost certain this is the cause of my battery issue. I've commented it out for now
+        //After using some of the energy analytic tools it's pretty obvious that this timer is the cause of battery issues. The energy impact dips to 0 after I comment it out. Possible solution is to only have the scrubber active when the view is seen by the user
+        
+       //_ = Timer.scheduledTimer(timeInterval: 0.0, target: self, selector: #selector(MusicViewController.updateSlider), userInfo: nil, repeats: true)
         
         print(appDelegate.player.duration)
         musicProgress.maximumValue = Float((appDelegate.player.duration))
+    }
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        nextButton.sendActions(for: .touchUpInside)
     }
     
     deinit {

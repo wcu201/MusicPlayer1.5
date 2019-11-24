@@ -47,3 +47,32 @@ func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
     
     return newImage!
 }
+func openWarningAlert(){
+    
+}
+
+func openStringInPutAlert(vc: UIViewController, title: String, message: String){
+    var input = String()
+    let alert  = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    alert.addTextField(configurationHandler: {(textField) in
+        input = textField.text ?? ""
+    })
+    
+    vc.present(vc, animated: true, completion: nil)
+    
+    
+    
+}
+
+func openBoolInputAlert(vc: UIViewController, title: String, message: String)->Bool{
+    var response: Bool?
+    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    let yesAction = UIAlertAction(title: "Yes", style: .destructive, handler: {(action) in response = true})
+    let noAction = UIAlertAction(title: "No", style: .default, handler: {(action) in response = false})
+    
+    alert.addAction(yesAction)
+    alert.addAction(noAction)
+    vc.present(alert, animated: true)
+    while(true){if response==true || response==false{break}}
+    return response!
+}

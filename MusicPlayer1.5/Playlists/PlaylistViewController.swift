@@ -18,7 +18,9 @@ class PlaylistViewController: UIViewController, UITableViewDelegate, UITableView
         return cell!
     }
     
-
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("selected")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -30,7 +32,19 @@ class PlaylistViewController: UIViewController, UITableViewDelegate, UITableView
         // Dispose of any resources that can be recreated.
     }
     
-
+    func createPlaylist(songs: [URL], playlistName: String) {
+        if UserDefaults.standard.array(forKey: "playlist_\(playlistName)") != nil{
+            print("error")
+        }
+        else {
+            UserDefaults.standard.set(playlistName, forKey: "userPlaylists")
+            UserDefaults.standard.set(songs, forKey: "playlist_\(playlistName)")}
+    }
+    
+    @IBAction func addPlaylist(_ sender: Any) {
+        
+    }
+    
     /*
     // MARK: - Navigation
 
