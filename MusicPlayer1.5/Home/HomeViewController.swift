@@ -10,6 +10,12 @@ import UIKit
 
 class HomeViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
+    
+    @IBOutlet weak var scrollView: UIScrollView!
+    
+    
+    @IBOutlet weak var container: UIView!
+    
     @IBOutlet weak var nowPlayingBar: UIView!
     
     @IBOutlet weak var artworkPlaying: UIImageView!
@@ -102,8 +108,15 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         
         recentlyAddedCollection.delegate = self
         recentlyAddedCollection.dataSource = self
+        
+        refresh(v: container)
+        collection.backgroundColor = UIColor.clear
+        recentlyAddedCollection.backgroundColor = UIColor.clear
+        
         // Do any additional setup after loading the view.
     }
+    
+    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.identifier {

@@ -9,6 +9,8 @@
 import Foundation
 import AVKit
 
+let mainRed = UIColor(red: 206.0/255.0, green: 24.0/255.0, blue: 73.0/255.0, alpha: 1.0)
+
 struct musicVC{
     static var nav = UINavigationController()
     static var player: AVAudioPlayer?
@@ -133,6 +135,30 @@ func openBoolAlert(title: String, message: String, view: UIViewController, actio
     alert.addAction(no)
     
     view.present(alert, animated: true, completion: nil)
+}
+
+class Colors {
+    var gl:CAGradientLayer!
+    
+    init() {
+        let colorTop = UIColor(red: 38.0 / 255.0, green: 36.0 / 255.0, blue: 35.0 / 255.0, alpha: 1.0).cgColor
+        //let colorTop = mainRed.cgColor
+        let colorBottom = UIColor.black.cgColor
+        //let colorBottom = UIColor(red: 35.0 / 255.0, green: 2.0 / 255.0, blue: 2.0 / 255.0, alpha: 1.0).cgColor
+        
+        self.gl = CAGradientLayer()
+        self.gl.colors = [colorTop, colorBottom]
+        self.gl.locations = [0.0, 0.5, 1.0]
+    }
+}
+
+func refresh(v: UIView) {
+    let colors = Colors()
+    //v.backgroundColor = UIColor.clear
+    let backgroundLayer = colors.gl
+    backgroundLayer!.frame = CGRect(x: v.frame.minX, y: v.frame.minY, width: v.frame.width*2, height: v.frame.height)
+    v.layer.insertSublayer(backgroundLayer!, at: 0)
+    
 }
 
 /*

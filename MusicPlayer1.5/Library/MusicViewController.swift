@@ -194,6 +194,7 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         else{url = appDelegate.selectedLibrary[appDelegate.arrayPos]/*appDelegate.downloadLibrary[appDelegate.arrayPos]*/}
  
         setup(theURL: url)
+        setupNowPlaying()
         
         //load the url onto the avplayer
         do{appDelegate.player = try AVAudioPlayer(contentsOf: url)}
@@ -351,6 +352,18 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
             }
             return .commandFailed
         }
+        
+        // Add handler for Next Command
+        commandCenter.nextTrackCommand.addTarget(handler: {[unowned self] event in
+            self.nextButton.sendActions(for: .touchUpInside)
+            return .success
+        })
+        
+        // Add handler for Restart Command
+        commandCenter.previousTrackCommand.addTarget(handler: {[unowned self] event in
+            self.restart(self)
+            return .success
+        })
     }
     
     func setupNowPlaying() {
