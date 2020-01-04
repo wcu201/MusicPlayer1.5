@@ -115,8 +115,11 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         //VERY IMPORTANT - READ BELOW
         //This timer below might be very energy inefficent. Timer calls a specific task that consistantly runs in the background if the user is just idly listening to music. Need to test more to be sure, but I'm almost certain this is the cause of my battery issue. I've commented it out for now
         //After using some of the energy analytic tools it's pretty obvious that this timer is the cause of battery issues. The energy impact dips to 0 after I comment it out. Possible solution is to only have the scrubber active when the view is seen by the user
+        //Added it again but commented out the graphics portion of the updateSlider function
         
        //_ = Timer.scheduledTimer(timeInterval: 0.0, target: self, selector: #selector(MusicViewController.updateSlider), userInfo: nil, repeats: true)
+        
+        _ = Timer.scheduledTimer(timeInterval: 0.0, target: self, selector: #selector(MusicViewController.updateSlider), userInfo: nil, repeats: true)
         
         print(appDelegate.player.duration)
         musicProgress.maximumValue = Float((appDelegate.player.duration))
@@ -160,10 +163,27 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
     }
     
     @IBAction func restart(_ sender: Any) {
-        appDelegate.player.stop()
-        appDelegate.player.currentTime=0
-        playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
-        appDelegate.player.play()
+        if appDelegate.player.currentTime > 1 {
+            appDelegate.player.stop()
+            appDelegate.player.currentTime=0
+            playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+            appDelegate.player.play()
+        }
+        else {
+            appDelegate.player.stop()
+            if appDelegate.arrayPos == 0 {appDelegate.arrayPos = appDelegate.selectedLibrary.count-1}
+            else {appDelegate.arrayPos-=1}
+            
+            appDelegate.songPlaying = appDelegate.selectedLibrary[appDelegate.arrayPos]
+            setup(theURL: appDelegate.songPlaying!)
+            setupNowPlaying()
+            
+            do{appDelegate.player = try AVAudioPlayer(contentsOf: appDelegate.songPlaying!)}
+            catch{print("Song doesn't exist")}
+            
+            playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+            appDelegate.player.play()
+        }
     }
     
     @IBAction func changeAudioTime(_ sender: Any) {
@@ -191,7 +211,7 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         else {appDelegate.arrayPos += 1}
         
         if appDelegate.isShuffled {url = appDelegate.shuffledLibrary[appDelegate.arrayPos]}
-        else{url = appDelegate.selectedLibrary[appDelegate.arrayPos]/*appDelegate.downloadLibrary[appDelegate.arrayPos]*/}
+        else{url = appDelegate.selectedLibrary[appDelegate.arrayPos]}
  
         setup(theURL: url)
         setupNowPlaying()
@@ -302,9 +322,8 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
     
     
     @objc func updateSlider() {
-        //musicProgress.setValue(Float((musicVC.player?.currentTime)!), animated: true)
+        /*
         musicProgress.setValue(Float(appDelegate.player.currentTime), animated: true)
-        //timeAV = round(Float((musicVC.player?.currentTime)!))
         timeAV = round(Float(appDelegate.player.currentTime))
         leftAV = round(Float(appDelegate.player.duration)-Float(appDelegate.player.currentTime))
         sec = Int(timeAV)%60
@@ -318,7 +337,7 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         if sec<10
         {timeLeft.text = "\(min)"+":"+"0"+"\(sec)"}
         else
-        {timeLeft.text = "\(min)"+":"+"\(sec)"}
+        {timeLeft.text = "\(min)"+":"+"\(sec)"}*/
         if Int(appDelegate.player.currentTime) == Int(appDelegate.player.duration)
         {nextButton.sendActions(for: .touchUpInside)
             //tableVC.library.Console.text = "NEXT"

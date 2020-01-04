@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var currentPlaylist = [URL]()
     var artistsLibraries = [String : [URL]]()
     var albumLibraries = [String : [URL]]()
-    var playlistsLibraries = [String : URL]()
+    var playlistsLibraries = [String : [URL]]()
     var recentlyAddedQueue  = [URL]()
     
     var isShuffled = false
@@ -35,7 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        UIDeviceOrientation.portrait
+        //UIDeviceOrientation = UIDeviceOrientation.portrait
         populateDownloadLibrary()
         populateArtistLibraries()
         populateAlbumLibraries()

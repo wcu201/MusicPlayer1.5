@@ -9,6 +9,8 @@
 import UIKit
 
 class PlaylistViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    lazy var newPlaylist = [URL]()
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 0
     }
@@ -42,6 +44,12 @@ class PlaylistViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     @IBAction func addPlaylist(_ sender: Any) {
+        /*
+        if !newPlaylist.isEmpty {
+            let name = openStringInputAlert(vc: self, title: "Playlist Name", message: "Please enter the name of the playlist")
+            appDelegate.playlistsLibraries[name] = newPlaylist
+        }*/
+        
         
     }
     

@@ -157,7 +157,7 @@
             </objects>
             <point key="canvasLocation" x="2190" y="887"/>
         </scene>
-        <!--SONGS-->
+        <!--Songs-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController storyboardIdentifier="songs" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="ViewController" customModule="MusicPlayer1_5" customModuleProvider="target" sceneMemberID="viewController">
@@ -339,7 +339,7 @@
                             <constraint firstItem="3hH-Hf-EdL" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="yu1-h8-tFc"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="SONGS" id="5O1-V5-VTA">
+                    <navigationItem key="navigationItem" title="Songs" id="5O1-V5-VTA">
                         <barButtonItem key="rightBarButtonItem" style="plain" id="wlQ-pX-yrD">
                             <button key="customView" hidden="YES" opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="y4x-Oi-zj4">
                                 <rect key="frame" x="303" y="6" width="56" height="32"/>
@@ -373,10 +373,10 @@
             </objects>
             <point key="canvasLocation" x="1054" y="215"/>
         </scene>
-        <!--ALBUMS-->
+        <!--Albums-->
         <scene sceneID="6bL-KF-SCT">
             <objects>
-                <viewController title="ALBUMS" id="EEd-i8-vPK" customClass="AlbumsViewController" customModule="MusicPlayer1_5" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Albums" id="EEd-i8-vPK" customClass="AlbumsViewController" customModule="MusicPlayer1_5" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="AOe-ur-kcF"/>
                         <viewControllerLayoutGuide type="bottom" id="vT4-Pw-6uX"/>
@@ -461,10 +461,10 @@
             </objects>
             <point key="canvasLocation" x="2190" y="-609"/>
         </scene>
-        <!--ARTISTS-->
+        <!--Artists-->
         <scene sceneID="0lx-1K-2Uj">
             <objects>
-                <viewController title="ARTISTS" id="il0-xn-2uY" customClass="ArtistsViewController" customModule="MusicPlayer1_5" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Artists" id="il0-xn-2uY" customClass="ArtistsViewController" customModule="MusicPlayer1_5" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="loE-AR-5Yj"/>
                         <viewControllerLayoutGuide type="bottom" id="tLa-aZ-Tpn"/>
@@ -671,7 +671,7 @@
             </objects>
             <point key="canvasLocation" x="-1991" y="-608"/>
         </scene>
-        <!--PLAYLISTS-->
+        <!--Playlists-->
         <scene sceneID="Wi6-w8-Agf">
             <objects>
                 <viewController id="EL7-xh-phG" customClass="PlaylistsViewController" customModule="MusicPlayer1_5" customModuleProvider="target" sceneMemberID="viewController">
@@ -724,7 +724,7 @@
                     <tabBarItem key="tabBarItem" title="Playlists" image="outline_playlist_play_black_36dp" id="qS0-mR-UoW">
                         <inset key="imageInsets" minX="0.0" minY="4" maxX="0.0" maxY="0.0"/>
                     </tabBarItem>
-                    <navigationItem key="navigationItem" title="PLAYLISTS" id="3pD-Ts-VsZ">
+                    <navigationItem key="navigationItem" title="Playlists" id="3pD-Ts-VsZ">
                         <barButtonItem key="rightBarButtonItem" style="plain" id="brv-TN-jaq">
                             <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Hw7-O5-UJx">
                                 <rect key="frame" x="311" y="0.0" width="48" height="44"/>
@@ -744,10 +744,10 @@
             </objects>
             <point key="canvasLocation" x="2190" y="215"/>
         </scene>
-        <!--CREATE PLAYLIST-->
+        <!--Create Playlist-->
         <scene sceneID="Vk1-9Z-U2m">
             <objects>
-                <viewController title="CREATE PLAYLIST" id="U7d-Zz-bOZ" customClass="PlaylistViewController" customModule="MusicPlayer1_5" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Create Playlist" id="U7d-Zz-bOZ" customClass="PlaylistViewController" customModule="MusicPlayer1_5" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="lZH-tv-ZWZ"/>
                         <viewControllerLayoutGuide type="bottom" id="Wxw-A6-Cyg"/>
@@ -1225,7 +1225,7 @@
             </objects>
             <point key="canvasLocation" x="1054" y="887"/>
         </scene>
-        <!--HOME-->
+        <!--Home-->
         <scene sceneID="ztG-hF-mJH">
             <objects>
                 <viewController storyboardIdentifier="goToPlaylists" id="mKn-RL-Juq" customClass="HomeViewController" customModule="MusicPlayer1_5" customModuleProvider="target" sceneMemberID="viewController">
@@ -1269,10 +1269,10 @@
                                                             <autoresizingMask key="autoresizingMask"/>
                                                             <subviews>
                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0xa-PB-Qr8">
-                                                                    <rect key="frame" x="61.5" y="44" width="52.5" height="52.5"/>
+                                                                    <rect key="frame" x="61.5" y="7.5" width="52.5" height="9"/>
                                                                 </imageView>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qPP-vj-MV7">
-                                                                    <rect key="frame" x="0.0" y="107" width="175" height="20.5"/>
+                                                                    <rect key="frame" x="0.0" y="27" width="175" height="20.5"/>
                                                                     <fontDescription key="fontDescription" name="Avenir-Book" family="Avenir" pointSize="15"/>
                                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <nil key="highlightedColor"/>
@@ -1288,6 +1288,7 @@
                                                             <constraint firstItem="0xa-PB-Qr8" firstAttribute="height" secondItem="krj-8b-1Zk" secondAttribute="height" multiplier="0.3" id="gAd-OM-fDY"/>
                                                             <constraint firstItem="0xa-PB-Qr8" firstAttribute="width" secondItem="krj-8b-1Zk" secondAttribute="width" multiplier="0.3" id="udM-ki-ZSw"/>
                                                         </constraints>
+                                                        <size key="customSize" width="175" height="175"/>
                                                         <connections>
                                                             <outlet property="icon" destination="0xa-PB-Qr8" id="uXa-fN-6l8"/>
                                                             <outlet property="label" destination="qPP-vj-MV7" id="iS7-L1-i4h"/>
@@ -1460,7 +1461,7 @@
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Home" image="baseline_home_black_36dp" selectedImage="baseline_home_black_36dp" id="i7K-Vj-fSd"/>
-                    <navigationItem key="navigationItem" title="HOME" id="P1T-eO-9FS"/>
+                    <navigationItem key="navigationItem" title="Home" id="P1T-eO-9FS"/>
                     <size key="freeformSize" width="375" height="1000"/>
                     <connections>
                         <outlet property="artistPlaying" destination="9Xk-o1-GP8" id="bGi-oh-SJI"/>

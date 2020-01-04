@@ -51,7 +51,7 @@ func openWarningAlert(){
     
 }
 
-func openStringInPutAlert(vc: UIViewController, title: String, message: String){
+func openStringInputAlert(vc: UIViewController, title: String, message: String){
     var input = String()
     let alert  = UIAlertController(title: title, message: message, preferredStyle: .alert)
     alert.addTextField(configurationHandler: {(textField) in
