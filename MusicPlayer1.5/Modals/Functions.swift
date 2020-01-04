@@ -47,6 +47,11 @@ func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
     
     return newImage!
 }
+
+func flipImageDown(theImage: UIImage) -> UIImage {
+    return UIImage(cgImage: theImage.cgImage!, scale: theImage.scale, orientation: UIImage.Orientation.downMirrored)
+}
+
 func openWarningAlert(){
     
 }
