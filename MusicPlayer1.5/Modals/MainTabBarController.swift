@@ -2,167 +2,177 @@
 //  MainTabBarController.swift
 //  MusicPlayer1.5
 //
-//  Created by William  Uchegbu on 9/1/19.
-//  Copyright © 2019 William  Uchegbu. All rights reserved.
+//  Created by William Uchegbu on 9/1/19.
+//  Copyright © 2019 William Uchegbu. All rights reserved.
 //
 
 import UIKit
 
 class MainTabBarController: UITabBarController {
-    //let bar = UIToolbar()
-    var nowPlayingBar: UIView?
+
+    static var nowPlayingBar: UIView = {
+        let bar = UIView()
+        bar.translatesAutoresizingMaskIntoConstraints = false
+        return bar
+    }()
     
-    //var currentlyPlaying: CurrentlyPlayingView!
-    static let maxHeight = 100
-    static let minHeight = 49
-    static var tabbarHeight = maxHeight
+    var backgroundArtwork: UIImageView = {
+        let background = UIImageView()
+        background.clipsToBounds = true
+        background.contentMode = .scaleAspectFill
+        background.image = #imageLiteral(resourceName: "album-cover-placeholder-light")
+        background.translatesAutoresizingMaskIntoConstraints = false
+        return background
+    }()
+    
+    var blurView: UIVisualEffectView = {
+        let effect = UIBlurEffect(style: .dark)
+        let blur = UIVisualEffectView(effect: effect)
+        blur.translatesAutoresizingMaskIntoConstraints = false
+        return blur
+    }()
+    
+    var artwork: UIImageView = {
+        let art = UIImageView()
+        art.image = #imageLiteral(resourceName: "album-cover-placeholder-light")
+        art.translatesAutoresizingMaskIntoConstraints = false
+        return art
+    }()
+    
+    static var playPauseBTN: UIButton = {
+        let button = UIButton()
+        button.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
+        button.tintColor = mainRed
+        button.addTarget(self, action: #selector(playPause), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    var songTitle: UILabel = {
+        let title = UILabel()
+        title.textColor = .white
+        title.font = UIFont(name: "Avenir Book", size: 17.0)
+        title.text = "Title"
+        title.translatesAutoresizingMaskIntoConstraints = false
+        return title
+    }()
+    
+    var songArtist: UILabel = {
+        let artist = UILabel()
+        artist.textColor = mainRed
+        artist.font = UIFont(name: "Avenir Book", size: 12.0)
+        artist.text = "Artist"
+        artist.translatesAutoresizingMaskIntoConstraints = false
+        return artist
+    }()
+    
+    var noBar = true
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //nowPlayingBar = createNowPlayingBar()
-        //self.view.addSubview(nowPlayingBar!)
         
-        /*
-        tabBar.becomeFirstResponder()
+        self.view.insertSubview(MainTabBarController.nowPlayingBar, aboveSubview: tabBar)
+        MainTabBarController.nowPlayingBar.addSubview(backgroundArtwork)
+        MainTabBarController.nowPlayingBar.addSubview(blurView)
+        MainTabBarController.nowPlayingBar.addSubview(artwork)
+        MainTabBarController.nowPlayingBar.addSubview(MainTabBarController.playPauseBTN)
+        MainTabBarController.nowPlayingBar.addSubview(songTitle)
+        MainTabBarController.nowPlayingBar.addSubview(songArtist)
         
-        //let reset = UIBarButtonItem(title: "Reset", style: .plain, target: self, action: nil)
-        //bar.items = [reset]
-        //bar.sizeToFit()
-        nowPlayingBar = createNowPlayingBar()
-        //self.view.addSubview(tabBar)
-        tabBar.addSubview(nowPlayingBar!)
-        addConstraints()
-        //print("nowplaying frame: ", nowPlayingBar?.frame)
-        print(0)*/
-        // Do any additional setup after loading the view.
+        setupLayout()
+        MainTabBarController.nowPlayingBar.isHidden = true
+        NotificationCenter.default.addObserver(self, selector: #selector(populateNowPlayBar), name: .songChanged, object: nil)
     }
     
- 
-    
-    func createNowPlayingBar()->UIView{
-        let bar = UIView(frame: CGRect(x: 0, y: self.tabBar.frame.minY-83, width: self.tabBar.frame.width, height: self.tabBar.frame.height))
-        bar.backgroundColor = UIColor.white
-        let playPauseBTN = UIButton.init(type: .system)
-        playPauseBTN.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
-        playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
-        playPauseBTN.clipsToBounds = true
-        bar.addSubview(playPauseBTN)
-        /*
-        let bar = UIView(frame: CGRect(x: 0, y: -100, width: self.view.frame.width, height: self.view.frame.height))
-        let artwork = UIImageView(image: UIImage(named: "album-cover-placeholder-light"))
-        let backgroundArtwork = UIImageView(image: UIImage(named: "album-cover-placeholder-light"))
-        let filterView = UIView()
-        let title = UILabel()
-        let artist = UILabel()
-        let playPauseBTN = UIButton.init(type: .system)
-        playPauseBTN.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
-        
-        
-        bar.sizeToFit()
-        backgroundArtwork.contentMode = .scaleAspectFill
-        backgroundArtwork.clipsToBounds = true
-        filterView.backgroundColor = UIColor.black
-        filterView.alpha = 0.75
-        playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
-        //playPauseBTN.setTitle("A", for: .normal)
-        
-        title.text = "Song"
-        title.textColor = UIColor.white
-        artist.text = "Artist"
-        artist.textColor = UIColor(red: 206.0/255.0, green: 24.0/255.0, blue: 73.0/255.0, alpha: 1.0)
-        artist.font = UIFont(name: "System", size: 12.0)
-        bar.backgroundColor = UIColor.white
-        /*
-        bar.addSubview(backgroundArtwork)
-        bar.addSubview(filterView)
-        bar.addSubview(artwork)
-        
-        bar.addSubview(title)
-        bar.addSubview(artist)*/
-        bar.addSubview(playPauseBTN)
-        
-        let test2 = UIButton.init(type: .system)
-        test2.frame = CGRect(x: 160, y: 0, width: 100, height: 50)
-        test2.setTitle("testing", for: .normal)
-        bar.addSubview(test2)
-        test2.addTarget(self, action: #selector(self.press), for: .touchUpInside)
-        
-        playPauseBTN.translatesAutoresizingMaskIntoConstraints = false
-        
-        let playPauseBTNTrailingAnchor = NSLayoutConstraint(item: playPauseBTN, attribute: .trailing, relatedBy: .equal, toItem: bar, attribute: .trailing, multiplier: 1, constant: -8)
-        let playPauseBTNVerticalAnchor = NSLayoutConstraint(item: playPauseBTN, attribute: .centerY, relatedBy: .equal, toItem: bar, attribute: .centerY, multiplier: 1, constant: 0)
-        let playPauseBTNHeightAnchor = NSLayoutConstraint(item: playPauseBTN, attribute: .height, relatedBy: .equal, toItem: bar, attribute: .height, multiplier: 0.5, constant: 0)
-        let playPauseBTNAspectRatio = NSLayoutConstraint(item: playPauseBTN, attribute: .width, relatedBy: .equal, toItem: playPauseBTN, attribute: .height, multiplier: 1, constant: 0)
-        */
-        //bar.addConstraints([playPauseBTNAspectRatio, playPauseBTNHeightAnchor, playPauseBTNTrailingAnchor, playPauseBTNVerticalAnchor])
-        
-        /*
-        artwork.translatesAutoresizingMaskIntoConstraints = false
-        title.translatesAutoresizingMaskIntoConstraints = false
-        artist.translatesAutoresizingMaskIntoConstraints = false
-        backgroundArtwork.translatesAutoresizingMaskIntoConstraints = false
-        playPauseBTN.translatesAutoresizingMaskIntoConstraints = false
-        filterView.translatesAutoresizingMaskIntoConstraints = false
-        
-        
-        let backgroundArtworkLeadingAnchor = NSLayoutConstraint(item: backgroundArtwork, attribute: .leading, relatedBy: .equal, toItem: bar, attribute: .leading, multiplier: 1, constant: 0)
-        let backgroundArtworkBottomAnchor = NSLayoutConstraint(item: backgroundArtwork, attribute: .bottom, relatedBy: .equal, toItem: bar, attribute: .bottom, multiplier: 1, constant: 0)
-        let backgroundArtworkTopAnchor = NSLayoutConstraint(item: backgroundArtwork, attribute: .top, relatedBy: .equal, toItem: bar, attribute: .top, multiplier: 1, constant: 0)
-        let backgroundArtworkTrailing = NSLayoutConstraint(item: backgroundArtwork, attribute: .trailing, relatedBy: .equal, toItem: bar, attribute: .trailing, multiplier: 1, constant: 0)
-        
-        let filterViewLeadingAnchor = NSLayoutConstraint(item: filterView, attribute: .leading, relatedBy: .equal, toItem: bar, attribute: .leading, multiplier: 1, constant: 0)
-        let filterViewBottomAnchor = NSLayoutConstraint(item: filterView, attribute: .bottom, relatedBy: .equal, toItem: bar, attribute: .bottom, multiplier: 1, constant: 0)
-        let filterViewTopAnchor = NSLayoutConstraint(item: filterView, attribute: .top, relatedBy: .equal, toItem: bar, attribute: .top, multiplier: 1, constant: 0)
-        let filterViewTrailingAnchor = NSLayoutConstraint(item: filterView, attribute: .trailing, relatedBy: .equal, toItem: bar, attribute: .trailing, multiplier: 1, constant: 0)
-        
-        let artworkLeadingAnchor = NSLayoutConstraint(item: artwork, attribute: .leading, relatedBy: .equal, toItem: bar, attribute: .leading, multiplier: 1, constant: 0)
-        let artworkBottomAnchor = NSLayoutConstraint(item: artwork, attribute: .bottom, relatedBy: .equal, toItem: bar, attribute: .bottom, multiplier: 1, constant: 0)
-        let artworkTopAnchor = NSLayoutConstraint(item: artwork, attribute: .top, relatedBy: .equal, toItem: bar, attribute: .top, multiplier: 1, constant: 0)
-        let artworkAspectRatio = NSLayoutConstraint(item: artwork, attribute: .width, relatedBy: .equal, toItem: bar, attribute: .height, multiplier: 1, constant: 0)
-        
-        
-        let playPauseBTNTrailingAnchor = NSLayoutConstraint(item: playPauseBTN, attribute: .trailing, relatedBy: .equal, toItem: bar, attribute: .trailing, multiplier: 1, constant: -8)
-        let playPauseBTNVerticalAnchor = NSLayoutConstraint(item: playPauseBTN, attribute: .centerY, relatedBy: .equal, toItem: bar, attribute: .centerY, multiplier: 1, constant: 0)
-        let playPauseBTNHeightAnchor = NSLayoutConstraint(item: playPauseBTN, attribute: .height, relatedBy: .equal, toItem: bar, attribute: .height, multiplier: 0.5, constant: 0)
-        let playPauseBTNAspectRatio = NSLayoutConstraint(item: playPauseBTN, attribute: .width, relatedBy: .equal, toItem: playPauseBTN, attribute: .height, multiplier: 1, constant: 0)
-        
-        let titleLeadingAnchor = NSLayoutConstraint(item: title, attribute: .leading, relatedBy: .equal, toItem: artwork, attribute: .trailing, multiplier: 1, constant: 16)
-        let titleVerticalAnchor = NSLayoutConstraint(item: title, attribute: .centerY, relatedBy: .equal, toItem: bar, attribute: .centerY, multiplier: 0.75, constant: 0)
-        let titleTrailingAnchor = NSLayoutConstraint(item: title, attribute: .trailing, relatedBy: .equal, toItem: playPauseBTN, attribute: .leading, multiplier: 1, constant: -8)
-        
-        let artistLeadingAnchor = NSLayoutConstraint(item: artist, attribute: .leading, relatedBy: .equal, toItem: artwork, attribute: .trailing, multiplier: 1, constant: 16)
-        let artistVerticalAnchor = NSLayoutConstraint(item: artist, attribute: .centerY, relatedBy: .equal, toItem: bar, attribute: .centerY, multiplier: 1.5, constant: 0)
-        let artistTrailingAnchor = NSLayoutConstraint(item: artist, attribute: .trailing, relatedBy: .equal, toItem: playPauseBTN, attribute: .leading, multiplier: 1, constant: -8)
-        
-        
-        bar.addConstraints([artworkTopAnchor, artworkAspectRatio, artworkBottomAnchor, artworkLeadingAnchor, backgroundArtworkTrailing, backgroundArtworkTopAnchor, backgroundArtworkBottomAnchor, backgroundArtworkLeadingAnchor, filterViewTrailingAnchor, filterViewTopAnchor, filterViewBottomAnchor, filterViewLeadingAnchor,playPauseBTNAspectRatio, playPauseBTNTrailingAnchor, playPauseBTNHeightAnchor, playPauseBTNVerticalAnchor, titleLeadingAnchor, titleTrailingAnchor, titleVerticalAnchor, artistTrailingAnchor, artistLeadingAnchor, artistVerticalAnchor])*/
-        return bar
+    @objc func playPause(){
+        if !(AppDelegate.sharedPlayer.isPlaying) {
+            AppDelegate.sharedPlayer.play()
+            MainTabBarController.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
+            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+        }
+            
+        else {
+            AppDelegate.sharedPlayer.pause()
+            MainTabBarController.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
+            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
+        }
     }
     
-    @objc func press(){
-        print("tapped")
+    @objc func populateNowPlayBar(){
+        let url = AppDelegate.sharedPlayer.url!
+        
+        // Workaround
+        if noBar {
+            MainTabBarController.nowPlayingBar.isHidden = false
+            noBar = false
+        }
+        
+        artwork.image = getImage(songURL: url)
+        backgroundArtwork.image = getImage(songURL: url)
+        songTitle.text = getTitle(songURL: url)
+        songArtist.text = getArtist(songURL: url)
     }
     
-    func addConstraints(){
+    private func setupLayout(){
+        // Now Playing Bar
+        self.view.addConstraints([
+            NSLayoutConstraint(item: MainTabBarController.nowPlayingBar, attribute: .leading, relatedBy: .equal, toItem: tabBar, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: MainTabBarController.nowPlayingBar, attribute: .trailing, relatedBy: .equal, toItem: tabBar, attribute: .trailing, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: MainTabBarController.nowPlayingBar, attribute: .top, relatedBy: .equal, toItem: tabBar, attribute: .top, multiplier: 1, constant: -60),
+            NSLayoutConstraint(item: MainTabBarController.nowPlayingBar, attribute: .bottom, relatedBy: .equal, toItem: tabBar, attribute: .top, multiplier: 1, constant: 0)
+            ])
         
-        /*nowPlayingBar?.translatesAutoresizingMaskIntoConstraints = false
+        // Background
+        self.view.addConstraints([
+            NSLayoutConstraint(item: backgroundArtwork, attribute: .leading, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: backgroundArtwork, attribute: .trailing, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .trailing, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: backgroundArtwork, attribute: .top, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .top, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: backgroundArtwork, attribute: .bottom, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .bottom, multiplier: 1, constant: 0)
+            ])
         
-        let leadingAnchor = NSLayoutConstraint(item: nowPlayingBar, attribute: .leading, relatedBy: .equal, toItem: tabBar, attribute: .leading, multiplier: 1, constant: 0)
-        let trailingAnchor = NSLayoutConstraint(item: nowPlayingBar, attribute: .trailing, relatedBy: .equal, toItem: tabBar, attribute: .trailing, multiplier: 1, constant: 0)
-        let bottomAnchor = NSLayoutConstraint(item: nowPlayingBar, attribute: .bottom, relatedBy: .equal, toItem: tabBar, attribute: .top, multiplier: 1, constant: 0)
-        let heightAnchor = NSLayoutConstraint(item: nowPlayingBar, attribute: .height, relatedBy: .equal, toItem: tabBar, attribute: .height, multiplier: 0.75, constant: 0)
+        // Blur
+        self.view.addConstraints([
+            NSLayoutConstraint(item: blurView, attribute: .leading, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: blurView, attribute: .trailing, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .trailing, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: blurView, attribute: .top, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .top, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: blurView, attribute: .bottom, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .bottom, multiplier: 1, constant: 0)
+            ])
         
-        self.view.addConstraints([leadingAnchor, trailingAnchor, bottomAnchor, heightAnchor])*/
+        // Artwork
+        self.view.addConstraints([
+            NSLayoutConstraint(item: artwork, attribute: .leading, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: artwork, attribute: .height, relatedBy: .equal, toItem: artwork, attribute: .width, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: artwork, attribute: .top, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .top, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: artwork, attribute: .bottom, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .bottom, multiplier: 1, constant: 0)
+            ])
+        
+        // Play/Pause Button
+        self.view.addConstraints([
+            NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .trailing, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .trailing, multiplier: 1, constant: -8),
+            NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .height, relatedBy: .equal, toItem: MainTabBarController.playPauseBTN, attribute: .width, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .top, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .top, multiplier: 1, constant: 8),
+            NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .bottom, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .bottom, multiplier: 1, constant: -8)
+            ])
+        
+        // Title
+        self.view.addConstraints([
+            NSLayoutConstraint(item: songTitle, attribute: .leading, relatedBy: .equal, toItem: artwork, attribute: .trailing, multiplier: 1, constant: 8),
+            NSLayoutConstraint(item: songTitle, attribute: .trailing, relatedBy: .equal, toItem: MainTabBarController.playPauseBTN, attribute: .leading, multiplier: 1, constant: -8),
+            NSLayoutConstraint(item: songTitle, attribute: .top, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .top, multiplier: 1, constant: 8),
+            NSLayoutConstraint(item: songTitle, attribute: .height, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .height, multiplier: 0.5, constant: 0)
+            ])
+        
+        // Artist
+        self.view.addConstraints([
+            NSLayoutConstraint(item: songArtist, attribute: .leading, relatedBy: .equal, toItem: artwork, attribute: .trailing, multiplier: 1, constant: 8),
+            NSLayoutConstraint(item: songArtist, attribute: .trailing, relatedBy: .equal, toItem: MainTabBarController.playPauseBTN, attribute: .leading, multiplier: 1, constant: -8),
+            NSLayoutConstraint(item: songArtist, attribute: .top, relatedBy: .equal, toItem: songTitle, attribute: .bottom, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: songArtist, attribute: .bottom, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .bottom, multiplier: 1, constant: -8)
+            ])
+        
+        
+        
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

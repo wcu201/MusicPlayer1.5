@@ -10,7 +10,7 @@ import UIKit
 import AVKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
 
     var window: UIWindow?
     
@@ -26,7 +26,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var isShuffled = false
     var musicPlaying = false
-    var player = AVAudioPlayer()
+    
+    public static var sharedPlayer = AVAudioPlayer() {
+        didSet {
+            NotificationCenter.default.post(name: .songChanged, object: self, userInfo: nil)
+        }
+    }
+    
+    var songsVC: ViewController?
     var playerVC: MusicViewController?
     var songPlaying: URL?
     var arrayPos = Int()
@@ -39,6 +46,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         populateDownloadLibrary()
         populateArtistLibraries()
         populateAlbumLibraries()
+        
+        /*
+        AppDelegate.sharedPlayer.observe(\.isPlaying, changeHandler: {(player, change) in
+            print(0)
+        })*/
+        
+        //AppDelegate.sharedPlayer.observe(\.isPlaying, options: [.old], changeHandler: {(player, change) in
+        //    print(0)
+        //})
+        
+        //AppDelegate.sharedPlayer.observeValue(forKeyPath: "isPlaying", of: <#T##Any?#>, change: <#T##[NSKeyValueChangeKey : Any]?#>, context: <#T##UnsafeMutableRawPointer?#>)
+        AppDelegate.sharedPlayer.addObserver(self, forKeyPath: "isPlaying", options: .new, context: nil)
+        
+        
+        //let label = UILabel()
+        //label.text = "hello"
+        //label.observe(\.text, options: [.new, .initial], changeHandler: {(label, change) in
+        //   print(0)
+        //})
+        //label.o
+        
+        //AppDelegate.sharedPlayer.delegate = self
         /*
         let mp3FileReader = Mp3FileReader()
         do {
@@ -53,6 +82,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //print("Player Status: ")
         //playerVC = UIStoryboard(name: "Main", bundle: Bundle.main).instantiateViewController(withIdentifier: "MusicViewController") 
         return true
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath=="isPlaying" {
+            print(0)
+        }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
@@ -76,6 +111,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        print(0)
+    }
+    
     
     func populateDownloadLibrary(){
         //Gathers all downloaded files and returns their urls
@@ -120,13 +160,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func deleteFromLibrary(url: URL){
+        //This is probably broken
         do {
             //stop everything before removing item from library
             print("Deleting from library")
             /*if(player.data != nil){
                 player.stop()
             }*/
-            player = AVAudioPlayer()
+            AppDelegate.sharedPlayer = AVAudioPlayer()
             
             try FileManager.default.removeItem(at: url)
         }

@@ -9,19 +9,6 @@
 import Foundation
 import UIKit
 
-func blurImage(usingImage image: UIImage, blurAmount: CGFloat) -> UIImage? {
-    guard let ciImage = CIImage(image: image) else{
-        return nil
-    }
-    
-    let blurFilter = CIFilter(name: "CIGaussianBLur")
-    blurFilter?.setValue(ciImage, forKey: kCIInputImageKey)
-    blurFilter?.setValue(blurAmount, forKey: kCIInputRadiusKey)
-    
-    guard let outputImage = blurFilter?.outputImage else {return nil}
-    return UIImage(ciImage: outputImage)
-}
-
 func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
     let size = image.size
     

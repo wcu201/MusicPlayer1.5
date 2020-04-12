@@ -29,6 +29,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
     @IBOutlet weak var playPauseBTN: UIButton!
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    var test: ViewController?
     
     
     let sections = ["Songs", "Artists", "Albums", "Playlists"]
@@ -74,7 +75,18 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
             case collection:
                 switch indexPath.row {
                     case 0:
-                        self.performSegue(withIdentifier: "goToSongs", sender: self)
+                        if let vc = appDelegate.songsVC {
+                            //self.navigationController?.pushViewController(vc, animated: true)
+                            show(vc, sender: self)
+                        }
+                        else {
+                            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                            let vc = storyboard.instantiateViewController(withIdentifier: "songs") as! ViewController
+                            appDelegate.selectedLibrary = appDelegate.downloadLibrary
+                            appDelegate.songsVC = vc
+                            self.navigationController?.pushViewController(vc, animated: true)
+                            //self.performSegue(withIdentifier: "goToSongs", sender: self)
+                    }
                     case 1:
                         self.performSegue(withIdentifier: "goToArtists", sender: self)
                     case 2:
@@ -98,7 +110,8 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
             return
         }
         
-        self.populateNowPlayBar(url: appDelegate.songPlaying!)
+        //Deprecated trying to have this get handled by the notification center. Once implemented I can get rid of viewWillAppear until I needd it again
+        //self.populateNowPlayBar(url: appDelegate.songPlaying!)
     }
     
     override func viewDidLoad() {
@@ -113,6 +126,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         collection.backgroundColor = UIColor.clear
         recentlyAddedCollection.backgroundColor = UIColor.clear
         
+        //NotificationCenter.default.addObserver(self, selector: #selector(populateNowPlayBar), name: .songChanged, object: nil)
         // Do any additional setup after loading the view.
     }
     
@@ -132,24 +146,27 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         // Dispose of any resources that can be recreated.
     }
     
-    func populateNowPlayBar(url: URL){
+    @objc func populateNowPlayBar(){
+        let url = AppDelegate.sharedPlayer.url!
         nowPlayingBar.isHidden = false
         artworkPlaying.image = getImage(songURL: url)
         backgroundArtworkPlaying.image = getImage(songURL: url)
         titlePlaying.text = getTitle(songURL: url)
         artistPlaying.text = getArtist(songURL: url)
-        if appDelegate.player.isPlaying {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)}
-        else {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)}
+        
+        
+        //Will need another notification that updates the play pause buttons as well
+        //if AppDelegate.sharedPlayer.isPlaying {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)}
+        //else {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)}
     }
     
-    
     @IBAction func playPauseMusic(_ sender: Any) {
-        if appDelegate.player.isPlaying{
-            appDelegate.player.pause()
+        if AppDelegate.sharedPlayer.isPlaying{
+            AppDelegate.sharedPlayer.pause()
             playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
         }
         else{
-            appDelegate.player.play()
+            AppDelegate.sharedPlayer.play()
             playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
         }
     }

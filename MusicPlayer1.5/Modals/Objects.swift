@@ -161,6 +161,10 @@ func refresh(v: UIView) {
     
 }
 
+extension Notification.Name {
+    static let songChanged = Notification.Name("songChanged")
+}
+
 /*
 func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
     let size = image.size

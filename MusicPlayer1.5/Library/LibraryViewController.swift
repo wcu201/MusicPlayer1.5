@@ -90,22 +90,20 @@ class LibraryViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     @IBAction func playPause(_ sender: Any) {
-        if !(appDelegate.player.isPlaying/*musicVC.player?.isPlaying*/) {
-            //musicVC.player?.play()
-            appDelegate.player.play()
+        //guard let audioPlayer = appDelegate.player else {return}
+        
+        if !(AppDelegate.sharedPlayer.isPlaying) {
+            AppDelegate.sharedPlayer.play()
             playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
-            //musicVC.songVC.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
             appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
         }
             
         else {
-            //musicVC.player?.pause()
-            appDelegate.player.pause()
+            AppDelegate.sharedPlayer.pause()
             playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
-            //musicVC.songVC.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
             appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
         }
-        
+         
         
     }
     

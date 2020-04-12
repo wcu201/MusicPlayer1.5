@@ -1156,7 +1156,7 @@
                                             <constraint firstItem="k8h-T6-Gqf" firstAttribute="width" secondItem="gkB-ku-Hqh" secondAttribute="width" multiplier="0.33" id="umU-3n-7y6"/>
                                         </constraints>
                                     </stackView>
-                                    <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" minimumValueImage="outline_desktop_windows_black_36dp" maximumValueImage="baseline_volume_up_black_48dp" translatesAutoresizingMaskIntoConstraints="NO" id="AGK-Fz-fic">
+                                    <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="AGK-Fz-fic">
                                         <rect key="frame" x="26" y="259" width="323" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="29" id="BJJ-IJ-0Ma"/>
@@ -1166,7 +1166,6 @@
                                         </connections>
                                     </slider>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="gkB-ku-Hqh" firstAttribute="centerX" secondItem="UNU-Gz-wGd" secondAttribute="centerX" id="1iX-1n-LrO"/>
                                     <constraint firstItem="Prq-HT-nYY" firstAttribute="centerX" secondItem="UNU-Gz-wGd" secondAttribute="centerX" id="6YL-jf-Rud"/>
@@ -1269,10 +1268,10 @@
                                                             <autoresizingMask key="autoresizingMask"/>
                                                             <subviews>
                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0xa-PB-Qr8">
-                                                                    <rect key="frame" x="61.5" y="7.5" width="52.5" height="9"/>
+                                                                    <rect key="frame" x="61.5" y="44" width="52.5" height="52.5"/>
                                                                 </imageView>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qPP-vj-MV7">
-                                                                    <rect key="frame" x="0.0" y="27" width="175" height="20.5"/>
+                                                                    <rect key="frame" x="0.0" y="107" width="175" height="20.5"/>
                                                                     <fontDescription key="fontDescription" name="Avenir-Book" family="Avenir" pointSize="15"/>
                                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <nil key="highlightedColor"/>
@@ -1543,7 +1542,6 @@
         <image name="baseline_keyboard_arrow_right_black_18pt_3x" width="54" height="54"/>
         <image name="baseline_pause_circle_filled_black_48pt" width="48" height="48"/>
         <image name="baseline_settings_black_48dp" width="48" height="48"/>
-        <image name="baseline_volume_up_black_48dp" width="24" height="24"/>
         <image name="black-rectangle-24x16" width="300" height="200"/>
         <image name="outline_desktop_windows_black_36dp" width="36" height="36"/>
         <image name="outline_keyboard_arrow_left_black_48pt" width="48" height="48"/>
@@ -1554,6 +1552,6 @@
         <image name="skip_forward_icon" width="54" height="54"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="Ydy-pi-zuh"/>
+        <segue reference="SoD-rt-pS1"/>
     </inferredMetricsTieBreakers>
 </document>

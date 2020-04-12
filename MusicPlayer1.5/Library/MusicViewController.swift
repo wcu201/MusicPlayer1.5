@@ -39,27 +39,30 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.selectedLibrary.count)"
-        //appDelegate = UIApplication.shared.delegate as! AppDelegate
+        MainTabBarController.nowPlayingBar.isHidden = true
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-
+        MainTabBarController.nowPlayingBar.isHidden = false
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.player.delegate = self
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(setup2), name: .songChanged, object: nil)
+        
         setup(theURL: url)
         setupRemoteTransportControls()
         setupNowPlaying()
-        //let thumb = UIImage(named: "Image")!
+        appDelegate.songsVC?.showNowPlaying()
         //var x = #imageLiteral(resourceName: "baseline_volume_mute_black_48dp")
         //x.resizableImage(withCapInsets: UIEdgeInsets(top: 0, left: <#T##CGFloat#>, bottom: <#T##CGFloat#>, right: <#T##CGFloat#>))
         //musicProgress.thumbTintColor = UIColor(red: 206.0/255.0, green: 24.0/255.0, blue: 73.0/255.0, alpha: 1.0)
         musicProgress.setThumbImage(resizeImage(image: UIImage(named: "custom_thumb")!, targetSize: CGSize(width: 20, height: 20)), for: .normal)
         volumeSlider.tintColor = UIColor(red: 206.0/255.0, green: 24.0/255.0, blue: 73.0/255.0, alpha: 1.0)
+        addBlur()
         //volumeSlider.setMinimumTrackImage(#imageLiteral(resourceName: "baseline_volume_mute_black_48dp"), for: .normal)
         //volumeSlider.setMaximumTrackImage(#imageLiteral(resourceName: "baseline_volume_up_black_48dp"), for: .normal)
         //volumeSlider.setMinimumTrackImage(resizeImage(image: #imageLiteral(resourceName: "baseline_volume_mute_black_48dp"), targetSize: CGSize(width: 20, height: 20)), for: .normal)
@@ -70,13 +73,17 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         let commandCenter = MPRemoteCommandCenter.shared()
         
         commandCenter.pauseCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
-            self.appDelegate.player.pause()
+            //guard let audioPlayer = self.appDelegate.player else {return .commandFailed}
+
+            AppDelegate.sharedPlayer.pause()
             self.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
             return .success
         }
         
         commandCenter.playCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
-            self.appDelegate.player.play()
+            //guard let audioPlayer = self.appDelegate.player else {return .commandFailed}
+
+            AppDelegate.sharedPlayer.play()
             self.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
             return .success
         }
@@ -116,12 +123,12 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         
         _ = Timer.scheduledTimer(timeInterval: 0.0, target: self, selector: #selector(MusicViewController.updateSlider), userInfo: nil, repeats: true)
         
-        print(appDelegate.player.duration)
-        musicProgress.maximumValue = Float((appDelegate.player.duration))
+        musicProgress.maximumValue = Float((AppDelegate.sharedPlayer.duration))
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         nextButton.sendActions(for: .touchUpInside)
+        print(0)
     }
     
     deinit {
@@ -134,116 +141,128 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
     }
     
     @IBAction func playPause(_ sender: Any) {
-        if !(appDelegate.player.isPlaying) {
-            appDelegate.player.play()
+
+        if !(AppDelegate.sharedPlayer.isPlaying) {
+            AppDelegate.sharedPlayer.play()
             playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+            MainTabBarController.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
         }
             
         else {
-            appDelegate.player.pause()
+            AppDelegate.sharedPlayer.pause()
             playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
+            MainTabBarController.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
         }
     }
     
     @IBAction func restart(_ sender: Any) {
-        if appDelegate.player.currentTime > 1 {
-            appDelegate.player.stop()
-            appDelegate.player.currentTime=0
+        //guard let audioPlayer = appDelegate.player else {return}
+
+        if AppDelegate.sharedPlayer.currentTime > 1 {
+            AppDelegate.sharedPlayer.stop()
+            AppDelegate.sharedPlayer.currentTime=0
             playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
-            appDelegate.player.play()
+            AppDelegate.sharedPlayer.play()
         }
         else {
-            appDelegate.player.stop()
-            if appDelegate.arrayPos == 0 {appDelegate.arrayPos = appDelegate.selectedLibrary.count-1}
-            else {appDelegate.arrayPos-=1}
+            var index = appDelegate.arrayPos
+            if appDelegate.arrayPos == 0 {index = appDelegate.selectedLibrary.count-1}
+            else {index-=1}
             
-            appDelegate.songPlaying = appDelegate.selectedLibrary[appDelegate.arrayPos]
-            setup(theURL: appDelegate.songPlaying!)
-            setupNowPlaying()
-            
-            do{appDelegate.player = try AVAudioPlayer(contentsOf: appDelegate.songPlaying!)}
-            catch{print("Song doesn't exist")}
-            
-            playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
-            appDelegate.player.play()
+            changeSong(index: index)
         }
     }
     
     @IBAction func changeAudioTime(_ sender: Any) {
-        if (appDelegate.player.isPlaying) {
-            appDelegate.player.stop()
-            appDelegate.player.currentTime = TimeInterval(musicProgress.value)
-            appDelegate.player.prepareToPlay()
-            appDelegate.player.play()
+        //guard let audioPlayer = appDelegate.player else {return}
+        
+        if (AppDelegate.sharedPlayer.isPlaying) {
+            AppDelegate.sharedPlayer.stop()
+            AppDelegate.sharedPlayer.currentTime = TimeInterval(musicProgress.value)
+            AppDelegate.sharedPlayer.prepareToPlay()
+            AppDelegate.sharedPlayer.play()
         }
         else {
-            appDelegate.player.stop()
-            appDelegate.player.currentTime = TimeInterval(musicProgress.value)
-            appDelegate.player.prepareToPlay()
+            AppDelegate.sharedPlayer.stop()
+            AppDelegate.sharedPlayer.currentTime = TimeInterval(musicProgress.value)
+            AppDelegate.sharedPlayer.prepareToPlay()
         }
     }
     
     @IBAction func nextSong(_ sender: Any) {
-        appDelegate.player.stop()
-        
         //WARNING: Underneath is a lot of deprecated code that needs fixing. May be the source of future problems
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         
         //update the array position to that of the next song
-        if appDelegate.arrayPos+1 == appDelegate.selectedLibrary.count{appDelegate.arrayPos = 0}
-        else {appDelegate.arrayPos += 1}
+        var index = appDelegate.arrayPos
+        if appDelegate.arrayPos+1 == appDelegate.selectedLibrary.count{index = 0}
+        else {index += 1}
         
         if appDelegate.isShuffled {url = appDelegate.shuffledLibrary[appDelegate.arrayPos]}
         else{url = appDelegate.selectedLibrary[appDelegate.arrayPos]}
  
+        changeSong(index: index)
+    }
+    
+    func changeSong(index: Int) {
+        //guard let audioPlayer = appDelegate.player else {return}
+        AppDelegate.sharedPlayer.stop()
+        appDelegate.arrayPos = index
+        url = appDelegate.selectedLibrary[index]
+        
         setup(theURL: url)
         setupNowPlaying()
         
         //load the url onto the avplayer
-        do{appDelegate.player = try AVAudioPlayer(contentsOf: url)}
+        do{AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf: url)}
         catch{print("Song doesn't exist")}
-
-        //Start the play song process 
-        musicProgress.maximumValue = Float((appDelegate.player.duration))
-        appDelegate.player.prepareToPlay()
+        
+        //Start the play song process
+        musicProgress.maximumValue = Float((AppDelegate.sharedPlayer.duration))
+        AppDelegate.sharedPlayer.prepareToPlay()
         playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
-        appDelegate.player.play()
+        AppDelegate.sharedPlayer.play()
         appDelegate.songPlaying = url
     }
     
-    func next() {
-        self.appDelegate.player.stop()
-        
-        if musicVC.arrayPos+1 == userData.songLibrary.count {
-            musicVC.arrayPos = 0
-        }
-        else {
-            musicVC.arrayPos += 1
-        }
-        
-        setup(theURL: userData.songLibrary[musicVC.arrayPos])
-        
-        
-        do{
-            musicVC.player = try AVAudioPlayer(contentsOf: userData.songLibrary[musicVC.arrayPos])}
-        catch{print("Song does not exist.")}
-        
-        musicProgress.maximumValue = Float((musicVC.player?.duration)!)
-        musicVC.player?.prepareToPlay()
-        musicVC.player?.play()
-    }
-    
     func setup(theURL: URL){
+        /*
+        let blurEffect = UIBlurEffect(style: .prominent)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = flippedArtwork.frame
+       // self.view.addSubview(blurEffectView)
+        self.view.insertSubview(blurEffectView, aboveSubview: flippedArtwork)*/
         artwork.image = getImage(songURL: theURL)
         flippedArtwork.image = flipImageDown(theImage: getImage(songURL: theURL))
-        topArtwork.image = blurImage(usingImage: getImage(songURL: theURL), blurAmount: 60.0)
+        //flippedArtwork.image = blurImage(usingImage: flippedArtwork.image!, blurAmount: 100.0)
+        //topArtwork.image = blurImage(usingImage: getImage(songURL: theURL), blurAmount: 60.0)
         songName.text = getTitle(songURL: theURL)
         artistName.text = getArtist(songURL: theURL)
         self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.selectedLibrary.count)"
         self.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
     }
     
+    func addBlur(){
+        let blurEffect = UIBlurEffect(style: .dark)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.view.insertSubview(blurEffectView, aboveSubview: flippedArtwork)
+        
+        self.view.addConstraints([
+            NSLayoutConstraint(item: blurEffectView, attribute: .leading, relatedBy: .equal, toItem: flippedArtwork, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: blurEffectView, attribute: .trailing, relatedBy: .equal, toItem: flippedArtwork, attribute: .trailing, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: blurEffectView, attribute: .top, relatedBy: .equal, toItem: flippedArtwork, attribute: .top, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: blurEffectView, attribute: .bottom, relatedBy: .equal, toItem: flippedArtwork, attribute: .bottom, multiplier: 1, constant: 0)
+            ])
+    }
+    
+    @objc func setup2(){
+        print(0)
+    }
+    
     @objc func updateSlider() {
+        //guard let audioPlayer = appDelegate.player else {return}
         /*
         musicProgress.setValue(Float(appDelegate.player.currentTime), animated: true)
         timeAV = round(Float(appDelegate.player.currentTime))
@@ -260,13 +279,13 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         {timeLeft.text = "\(min)"+":"+"0"+"\(sec)"}
         else
         {timeLeft.text = "\(min)"+":"+"\(sec)"}*/
-        if Int(appDelegate.player.currentTime) == Int(appDelegate.player.duration)
+        if Int(AppDelegate.sharedPlayer.currentTime) == Int(AppDelegate.sharedPlayer.duration)
         {nextButton.sendActions(for: .touchUpInside)}
     }
     
     
     @IBAction func changeVolume(_ sender: Any) {
-        appDelegate.player.volume = volumeSlider.value
+        AppDelegate.sharedPlayer.volume = volumeSlider.value
     }
     
     func setupRemoteTransportControls() {
@@ -275,8 +294,8 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         
         // Add handler for Play Command
         commandCenter.playCommand.addTarget { [unowned self] event in
-            if self.appDelegate.player.rate == 0.0 {
-                self.appDelegate.player.play()
+            if AppDelegate.sharedPlayer.rate == 0.0 {
+                AppDelegate.sharedPlayer.play()
                 return .success
             }
             return .commandFailed
@@ -284,8 +303,8 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         
         // Add handler for Pause Command
         commandCenter.pauseCommand.addTarget { [unowned self] event in
-            if self.appDelegate.player.rate == 1.0 {
-                self.appDelegate.player.pause()
+            if AppDelegate.sharedPlayer.rate == 1.0 {
+                AppDelegate.sharedPlayer.pause()
                 return .success
             }
             return .commandFailed
@@ -318,7 +337,7 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = item.currentTime().seconds
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = item.asset.duration.seconds
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.appDelegate.player.rate
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = AppDelegate.sharedPlayer.rate
         
         // Set the Metadata
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo

@@ -12,11 +12,6 @@ import AVFoundation
 import ID3TagEditor
 
 
-
-struct tableVC {
-    //static var library = ViewController()
-}
-
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, AVAudioPlayerDelegate {
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var nowPlaying: UIButton!
@@ -36,7 +31,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var isSearching: Bool = false
     var selectedSong: URL?
     var currentLibray = [URL]()
-    //var songLibrary: [URL] = Bundle.main.urls(forResourcesWithExtension: "mp3", subdirectory: "Music Library")!
     
     override func viewWillAppear(_ animated: Bool) {
         //isSearching = false
@@ -47,8 +41,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             return
         }
         
-        self.populateNowPlayBar(url: appDelegate.songPlaying!)
-        self.nowPlaying.isHidden = false
+        //self.populateNowPlayBar(url: appDelegate.songPlaying!)
+        //self.nowPlaying.isHidden = false
         /*do {
             let id3TagEditor = ID3TagEditor()
             let tag = ID3Tag(version: .version3,
@@ -79,8 +73,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.dataSource = self
         
         //self.tabBarController?.tabBar.addSubview(nowPlayingBar)
-        
-        //tableVC.library = self
 
         //appDelegate.player.delegate = self
         
@@ -89,7 +81,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             //nowPlaying.isHidden = false
         }
         
-        
+        //NotificationCenter.default.addObserver(self, selector: #selector(populateNowPlayBar), name: .songChanged, object: nil)
     }
     
     override func didReceiveMemoryWarning() {
@@ -105,7 +97,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         userData.filteredMap.removeAll()
         userData.filteredLibrary.removeAll()
         userData.filteredPositions.removeAll()
-        //for (index, song) in userData.downloadLibrary.enumerated(){
         for (index, song) in (currentLibray.enumerated()){
             if (getTitle(songURL: song).lowercased()).range(of: searchText.lowercased()) != nil {
                 userData.filteredMap[index] = song
@@ -134,7 +125,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             case 1:
                 if isSearching{return userData.filteredLibrary.count}
                 return appDelegate.selectedLibrary.count
-                //return appDelegate.downloadLibrary.count
             default:
                 return 0
         }
@@ -162,12 +152,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 cell?.artwork.image = getImage(songURL: appDelegate.selectedLibrary[indexPath.row])
                 
                 cell?.editBTN.setTitle(appDelegate.selectedLibrary[indexPath.row].absoluteString, for: .normal)
-                /*
-                cell?.titleText.text = getTitle(songURL: appDelegate.downloadLibrary[indexPath.row])
-                cell?.artistText.text = getArtist(songURL: appDelegate.downloadLibrary[indexPath.row])
-                cell?.artwork.image = getImage(songURL: appDelegate.downloadLibrary[indexPath.row])
                 
-                cell?.editBTN.setTitle(appDelegate.downloadLibrary[indexPath.row].absoluteString, for: .normal)*/
                 cell?.editBTN.addTarget(self, action: #selector(goToMetadataVC), for: .touchUpInside)
             }
         
@@ -187,17 +172,18 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 1 {
-            //currentSong = appDelegate.downloadLibrary[indexPath.row]
             currentSong = appDelegate.selectedLibrary[indexPath.row]
             appDelegate.arrayPos = indexPath.row
-            //populateNowPlayBar(url: currentSong!)
         
-            do { appDelegate.player = try AVAudioPlayer(contentsOf: /*appDelegate.downloadLibrary[indexPath.row]*/appDelegate.selectedLibrary[indexPath.row])}
+            do {AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf:  appDelegate.selectedLibrary[indexPath.row])}
             catch{print("Song does not exist.")}
             
-            appDelegate.player.prepareToPlay()
+            //guard let audioPlayer = appDelegate.player else {return}
+            
+            AppDelegate.sharedPlayer.delegate = appDelegate
+            AppDelegate.sharedPlayer.prepareToPlay()
             appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
-            appDelegate.player.play()
+            AppDelegate.sharedPlayer.play()
             appDelegate.musicPlaying = true
             appDelegate.songPlaying = currentSong
             
@@ -212,8 +198,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 self.performSegue(withIdentifier: "showMusic", sender: self)
     
             }
-        //let Storyboard = UIStoryboard(name: "Main", bundle: nil)
-        //let MvC = Storyboard.instantiateViewController(withIdentifier: "MusicViewController") as! MusicViewController
+
         /*
         if(isSearching){
             //MvC.url = (userData.filteredLibrary[indexPath.row])
@@ -284,60 +269,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     
     @IBAction func nowPlaying(_ sender: Any) {
-        show(appDelegate.playerVC! /*musicVC.songVC*/, sender: self)
+        show(appDelegate.playerVC!, sender: self)
         //performSegue(withIdentifier: "showMusic", sender: self)
         //self.present((self.navigationController?.viewControllers.last)!, animated: true, completion: nil)
         //self.show((self.navigationController?.viewControllers.last)!, sender: self)
     }
-    
-    func getArtist(songURL: URL) -> String {
-        var theArtist: String = "Unknow Artist"
-        
-        let item = AVPlayerItem(url: songURL)
-        let metadata = item.asset.metadata
-        
-        for theItem in metadata {
-            if theItem.commonKey == nil { continue }
-            if let key = theItem.commonKey, let value = theItem.value {
-                if key.rawValue == "artist"
-                {theArtist = value as! String}
-            }
-        }
-        return theArtist
-    }
-    
-    func getTitle(songURL: URL) -> String {
-        var theTitle: String = "No Title"
-        
-        let item = AVPlayerItem(url: songURL)
-        let metadata = item.asset.metadata
-        
-        for theItem in metadata {
-            if theItem.commonKey == nil { continue }
-            if let key = theItem.commonKey, let value = theItem.value {
-                if key.rawValue == "title"
-                {theTitle = value as! String}
-            }
-        }
-        return theTitle
-    }
-    
-    func getImage(songURL: URL) -> UIImage {
-        var theImage: UIImage = #imageLiteral(resourceName: "album-cover-placeholder-light")
-        
-        let item = AVPlayerItem(url: songURL)
-        let metadata = item.asset.metadata
-    
-        for theItem in metadata {
-            if theItem.commonKey == nil {continue}
-            if let key = theItem.commonKey, let value = theItem.value{
-                if key.rawValue == "artwork"{
-                    theImage = UIImage(data: value as! Data)!
-                }
-            }
-        }
-        return theImage
-    }
+
     
     func showNowPlaying(){
       nowPlaying.isHidden = false
@@ -356,13 +293,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
     }
     
-    func populateNowPlayBar(url: URL){
+    @objc func populateNowPlayBar(){
+        let url = AppDelegate.sharedPlayer.url!
         nowPlayingBar.isHidden = false
         artworkPlaying.image = getImage(songURL: url)
         backgroundArt.image = getImage(songURL: url)
         titlePlaying.text = getTitle(songURL: url)
         artistPlaying.text = getArtist(songURL: url)
-        if appDelegate.player.isPlaying {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)}
+        if AppDelegate.sharedPlayer.isPlaying {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)}
         else {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)}
     }
     
@@ -370,13 +308,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let deleteAction = UITableViewRowAction(style: .normal, title: "Delete", handler: {(action, other) in
             openBoolAlert(title: "Delete Song", message: "Are you sure you want to delete this song?", view: self, action: {() in
                 print("Action Called: Delete", self.appDelegate.downloadLibrary[indexPath.row])
-                //self.appDelegate.deleteFromLibrary(url: self.appDelegate.downloadLibrary[indexPath.row])
                 self.appDelegate.deleteFromLibrary(url: self.appDelegate.selectedLibrary[indexPath.row])
                 tableView.reloadData()
             })
         })
         let editAction = UITableViewRowAction(style: .normal, title: "Edit", handler: {(action, other) in
-            //self.selectedSong = self.appDelegate.downloadLibrary[indexPath.row]
             self.selectedSong = self.appDelegate.selectedLibrary[indexPath.row]
             self.performSegue(withIdentifier: "goToMetadata", sender: self)
         })
@@ -398,7 +334,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             print("current song: ", (currentSong?.absoluteString))
             vc?.url  = currentSong!
             appDelegate.playerVC = vc
-            //musicVC.songVC = vc!
         }
     }
     
@@ -407,14 +342,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     @objc func shufflePlay() {
-        /*
-        //userData.shuffledLibrary = userData.downloadLibrary
-        userData.shuffledLibrary = currentLibray
-        userData.shuffledLibrary.shuffle()
-        musicVC.isShuffled = true*/
-        
-        if (appDelegate.selectedLibrary.isEmpty==false/*appDelegate.downloadLibrary.isEmpty==false*/){
-            //appDelegate.shuffledLibrary = appDelegate.downloadLibrary
+        if (appDelegate.selectedLibrary.isEmpty==false){
             appDelegate.shuffledLibrary = appDelegate.selectedLibrary
             appDelegate.shuffledLibrary.shuffle()
             appDelegate.isShuffled = true
@@ -427,11 +355,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             
             //populateNowPlayBar(url: currentSong!)
             
-            do {appDelegate.player = try AVAudioPlayer(contentsOf: currentSong!)}
+            do {AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf: currentSong!)}
             catch{print("Song does not exist.")}
             
-            appDelegate.player.prepareToPlay()
-            appDelegate.player.play()
+            AppDelegate.sharedPlayer.delegate = appDelegate
+            AppDelegate.sharedPlayer.prepareToPlay()
+            AppDelegate.sharedPlayer.play()
             
             if appDelegate.playerVC?.artwork != nil {
                 appDelegate.playerVC?.url = currentSong!
@@ -447,17 +376,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     
     @IBAction func playPause(_ sender: Any) {
-        if !(appDelegate.player.isPlaying) {
-            appDelegate.player.play()
+        if !(AppDelegate.sharedPlayer.isPlaying) {
+            AppDelegate.sharedPlayer.play()
             playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
             appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
         }
             
         else {
-            appDelegate.player.pause()
+            AppDelegate.sharedPlayer.pause()
             playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
-            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
-            //musicVC.songVC.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
         }
     }
     

@@ -24,6 +24,9 @@ class MusicPlayer1_5Tests: XCTestCase {
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let x = appDelegate.arrayPos
+        XCTAssertEqual(x, 5, "Error: array index out of bounds")
     }
     
     func testPerformanceExample() {
