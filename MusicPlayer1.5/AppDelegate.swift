@@ -8,6 +8,7 @@
 
 import UIKit
 import AVKit
+import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
@@ -47,6 +48,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         populateArtistLibraries()
         populateAlbumLibraries()
         
+        
+//        NotificationCenter.default.addObserver(self, selector: #selector(testing), name: UIAccessibility.announcementDidFinishNotification, object: nil)
+        UIAccessibility.post(notification: UIAccessibility.Notification.screenChanged, argument: nil)
+        //UIAccessibility.
         /*
         AppDelegate.sharedPlayer.observe(\.isPlaying, changeHandler: {(player, change) in
             print(0)
@@ -60,13 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         AppDelegate.sharedPlayer.addObserver(self, forKeyPath: "isPlaying", options: .new, context: nil)
         
         
-        //let label = UILabel()
-        //label.text = "hello"
-        //label.observe(\.text, options: [.new, .initial], changeHandler: {(label, change) in
-        //   print(0)
-        //})
-        //label.o
-        
+       
         //AppDelegate.sharedPlayer.delegate = self
         /*
         let mp3FileReader = Mp3FileReader()
@@ -84,11 +83,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         return true
     }
     
+
+    
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath=="isPlaying" {
             print(0)
         }
     }
+    
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "DataModel")
+        container.loadPersistentStores { description, error in
+            if let error = error {
+                fatalError("Unable to load persistent stores: \(error)")
+            }
+        }
+        return container
+    }()
 
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -113,7 +124,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        print(0)
+        MusicController().nextSong()
     }
     
     

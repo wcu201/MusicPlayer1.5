@@ -140,6 +140,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let cell = tableView.dequeueReusableCell(withIdentifier: "songCell", for: indexPath) as? songTableViewCell
         
             if isSearching {
+                // Ignore until I fix searching
                 cell?.titleText.text = getTitle(songURL: (userData.filteredLibrary[indexPath.row]))
                 cell?.artistText.text = getArtist(songURL: (userData.filteredLibrary[indexPath.row]))
                 cell?.artwork.image = getImage(songURL: (userData.filteredLibrary[indexPath.row]))
@@ -147,12 +148,25 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 cell?.editBTN.addTarget(self, action: #selector(goToMetadataVC), for: .touchUpInside)
             }
             else {
-                cell?.titleText.text = getTitle(songURL: appDelegate.selectedLibrary[indexPath.row])
-                cell?.artistText.text = getArtist(songURL: appDelegate.selectedLibrary[indexPath.row])
-                cell?.artwork.image = getImage(songURL: appDelegate.selectedLibrary[indexPath.row])
+                // This helps agains tableview scroll slowdown but makes a weird effect when scrolling fast. I consider this an improvment from the previous behavior but can definitely be improved upon
+                cell?.artwork.image = #imageLiteral(resourceName: "album-cover-placeholder-light")
+                DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                    guard let self = self else {
+                      return
+                    }
+                    let url = self.appDelegate.selectedLibrary[indexPath.row]
+                     
+                    let image = getImage(songURL: url)
+                    let title = getTitle(songURL: url)
+                    let artist = getArtist(songURL: url)
+                    DispatchQueue.main.async {
+                        cell?.artwork.image = image
+                        cell?.titleText.text = title
+                        cell?.artistText.text = artist
+                    }
+                }
                 
                 cell?.editBTN.setTitle(appDelegate.selectedLibrary[indexPath.row].absoluteString, for: .normal)
-                
                 cell?.editBTN.addTarget(self, action: #selector(goToMetadataVC), for: .touchUpInside)
             }
         
@@ -188,6 +202,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             appDelegate.songPlaying = currentSong
             
             musicVC.isShuffled = false
+            
+            let vc = MusicPlayerViewController(songURL: currentSong!)
+            self.show(vc, sender: self)
+            return
+            
             if appDelegate.playerVC?.artwork != nil {
                 appDelegate.playerVC?.url = currentSong!
                 appDelegate.playerVC?.setup(theURL: currentSong!)
@@ -342,7 +361,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     @objc func shufflePlay() {
-        if (appDelegate.selectedLibrary.isEmpty==false){
+        if (!appDelegate.selectedLibrary.isEmpty){
             appDelegate.shuffledLibrary = appDelegate.selectedLibrary
             appDelegate.shuffledLibrary.shuffle()
             appDelegate.isShuffled = true

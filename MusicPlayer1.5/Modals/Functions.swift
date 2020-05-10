@@ -68,3 +68,31 @@ func openBoolInputAlert(vc: UIViewController, title: String, message: String)->B
     while(true){if response==true || response==false{break}}
     return response!
 }
+
+
+var customURLScheme = "nflx://"
+let huluURLScheme = "hulu://www.hulu.com/watch/a262550f-b93e-4f37-bd69-c10a63cbcbfe"
+
+func openCustomApp() {
+    customURLScheme = "nflx://www.netflix.com/title/70126238"
+    if openCustomURLScheme(customURLScheme: huluURLScheme) {
+        // app was opened successfully
+    } else {
+        // handle unable to open the app, perhaps redirect to the App Store
+    }
+}
+
+
+func openCustomURLScheme(customURLScheme: String) -> Bool {
+    let customURL = URL(string: customURLScheme)!
+    if UIApplication.shared.canOpenURL(customURL) {
+        if #available(iOS 10.0, *) {
+            UIApplication.shared.open(customURL)
+        } else {
+            UIApplication.shared.openURL(customURL)
+        }
+        return true
+    }
+
+    return false
+}

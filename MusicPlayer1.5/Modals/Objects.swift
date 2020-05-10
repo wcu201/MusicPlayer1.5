@@ -163,6 +163,8 @@ func refresh(v: UIView) {
 
 extension Notification.Name {
     static let songChanged = Notification.Name("songChanged")
+    static let songPlayed = Notification.Name("songPlayed")
+    static let songPaused = Notification.Name("songPaused")
 }
 
 /*

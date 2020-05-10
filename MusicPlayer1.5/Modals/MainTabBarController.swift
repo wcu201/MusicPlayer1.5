@@ -68,6 +68,7 @@ class MainTabBarController: UITabBarController {
     
     var noBar = true
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    let controller = MusicController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,21 +83,38 @@ class MainTabBarController: UITabBarController {
         
         setupLayout()
         MainTabBarController.nowPlayingBar.isHidden = true
-        NotificationCenter.default.addObserver(self, selector: #selector(populateNowPlayBar), name: .songChanged, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(populateNowPlayBar),
+                                               name: .songChanged,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(changeToPlayBTN),
+                                               name: .songPaused,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(changeToPauseBTN),
+                                               name: .songPlayed,
+                                               object: nil)
+        
     }
     
     @objc func playPause(){
         if !(AppDelegate.sharedPlayer.isPlaying) {
-            AppDelegate.sharedPlayer.play()
-            MainTabBarController.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
-            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
+            controller.playSong()
         }
-            
         else {
-            AppDelegate.sharedPlayer.pause()
-            MainTabBarController.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
-            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
+            controller.pauseSong()
         }
+    }
+    
+    @objc func changeToPlayBTN(){
+        MainTabBarController.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
+        appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
+    }
+    
+    @objc func changeToPauseBTN(){
+        MainTabBarController.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
+        appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
     }
     
     @objc func populateNowPlayBar(){
