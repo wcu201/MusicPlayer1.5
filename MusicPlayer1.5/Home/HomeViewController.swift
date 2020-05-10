@@ -105,13 +105,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        guard appDelegate.musicPlaying else {
-            print("no music")
-            return
-        }
-        
-        //Deprecated trying to have this get handled by the notification center. Once implemented I can get rid of viewWillAppear until I needd it again
-        //self.populateNowPlayBar(url: appDelegate.songPlaying!)
+
     }
     
     override func viewDidLoad() {
@@ -126,7 +120,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         collection.backgroundColor = UIColor.clear
         recentlyAddedCollection.backgroundColor = UIColor.clear
         
-        //NotificationCenter.default.addObserver(self, selector: #selector(populateNowPlayBar), name: .songChanged, object: nil)
+        self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
         // Do any additional setup after loading the view.
     }
     

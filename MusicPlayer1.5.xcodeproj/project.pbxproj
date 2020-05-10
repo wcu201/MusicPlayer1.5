@@ -32,7 +32,6 @@
 		54ED74F3210139CE00326880 /* BrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54ED74F2210139CE00326880 /* BrowserViewController.swift */; };
 		54ED74F52101A1E100326880 /* PlaylistsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54ED74F42101A1E100326880 /* PlaylistsViewController.swift */; };
 		54ED74F72101A26F00326880 /* DownloadsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54ED74F62101A26F00326880 /* DownloadsViewController.swift */; };
-		54ED74FB2102493E00326880 /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54ED74FA2102493E00326880 /* LibraryViewController.swift */; };
 		54F5D9B32443B2E200AB2FF1 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54F5D9B22443B2E200AB2FF1 /* ImageCache.swift */; };
 		54F5D9CC244971A800AB2FF1 /* MusicPlayerEGUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54F5D9CB244971A800AB2FF1 /* MusicPlayerEGUITests.swift */; };
 		54F5D9D3244971F400AB2FF1 /* libTestLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 54F5D9C4244970FF00AB2FF1 /* libTestLib.a */; };
@@ -144,7 +143,6 @@
 		54ED74F2210139CE00326880 /* BrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserViewController.swift; sourceTree = "<group>"; };
 		54ED74F42101A1E100326880 /* PlaylistsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsViewController.swift; sourceTree = "<group>"; };
 		54ED74F62101A26F00326880 /* DownloadsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsViewController.swift; sourceTree = "<group>"; };
-		54ED74FA2102493E00326880 /* LibraryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		54F5D9B22443B2E200AB2FF1 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		54F5D9B5244970FE00AB2FF1 /* EarlGrey.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = EarlGrey.xcodeproj; path = ../EarlGrey/EarlGrey.xcodeproj; sourceTree = "<group>"; };
 		54F5D9C9244971A800AB2FF1 /* MusicPlayerEGUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MusicPlayerEGUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -215,7 +213,6 @@
 		543B774121041947003A1EE9 /* Library */ = {
 			isa = PBXGroup;
 			children = (
-				54ED74FA2102493E00326880 /* LibraryViewController.swift */,
 				54A3A2BA2107AA96006C4881 /* All Songs */,
 				54A3A2BB2107AADA006C4881 /* Albums */,
 				54A3A2BC2107AAED006C4881 /* Artists */,
@@ -752,7 +749,6 @@
 				543B774B2104D5FD003A1EE9 /* songTableViewCell.swift in Sources */,
 				54F5D9B32443B2E200AB2FF1 /* ImageCache.swift in Sources */,
 				54ED74F3210139CE00326880 /* BrowserViewController.swift in Sources */,
-				54ED74FB2102493E00326880 /* LibraryViewController.swift in Sources */,
 				BE819D6B1F5CE4C900B9DE60 /* ViewController.swift in Sources */,
 				54941856224FFFD900E2F097 /* HomeCollectionViewCell.swift in Sources */,
 				BE819D691F5CE4C900B9DE60 /* AppDelegate.swift in Sources */,

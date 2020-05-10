@@ -12,6 +12,7 @@ import UIKit
 class MusicPlayerViewController: UIViewController {
     var songURL: URL?
     var artworkImage = #imageLiteral(resourceName: "album-cover-placeholder-light")
+    var trackLabel = UILabel()
     var mainArtwork = UIImageView()
     var backgroundArtwork = UIImageView()
     var blurView = UIVisualEffectView()
@@ -34,8 +35,8 @@ class MusicPlayerViewController: UIViewController {
     let controller = MusicController()
     
     init(songURL: URL){
-        self.songURL = songURL
         let delegate = UIApplication.shared.delegate as! AppDelegate
+        self.songURL = songURL
         
         self.artworkImage = getImage(songURL: songURL)
         self.songTitle.text = getTitle(songURL: songURL)
@@ -44,7 +45,8 @@ class MusicPlayerViewController: UIViewController {
         mainArtwork.image = artworkImage
         
         super.init(nibName: nil, bundle: nil)
-        self.title = "\(delegate.arrayPos+1) of \(delegate.selectedLibrary.count)"
+        //self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.selectedLibrary.count)"
+        self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.currentPlaylist.count)"
     }
     
     required init?(coder: NSCoder) {
@@ -68,20 +70,26 @@ class MusicPlayerViewController: UIViewController {
                                                selector: #selector(changeToPauseBTN),
                                                name: .songPlayed,
                                                object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(highlightShuffleBTN),
+                                               name: .shuffleOn,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(unhighlightShuffleBTN),
+                                               name: .shuffleOff,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateTrackLabel),
+                                               name: .arrayPosChanged, 
+                                               object: nil)
         
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        MainTabBarController.nowPlayingBar.isHidden = true
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-           MainTabBarController.nowPlayingBar.isHidden = false
+        
     }
     
     @objc func setup(){
         let delegate = UIApplication.shared.delegate as! AppDelegate
-        self.songURL = delegate.selectedLibrary[delegate.arrayPos]
+        //self.songURL = delegate.selectedLibrary[delegate.arrayPos]
+        self.songURL = (delegate.currentPlaylist[delegate.arrayPos] as! URL)
         
         guard let url = songURL else {return}
         artworkImage = getImage(songURL: url)
@@ -90,7 +98,8 @@ class MusicPlayerViewController: UIViewController {
         backgroundArtwork.image = artworkImage
         mainArtwork.image = artworkImage
         
-        self.title = "\(delegate.arrayPos+1) of \(delegate.selectedLibrary.count)"
+        //self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.selectedLibrary.count)"
+        //self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.currentPlaylist.count)"
     }
     
     @objc func changeToPlayBTN(){
@@ -107,6 +116,19 @@ class MusicPlayerViewController: UIViewController {
         }
     }
     
+    @objc func highlightShuffleBTN(){
+        shuffleBTN.tintColor = mainRed
+    }
+    
+    @objc func unhighlightShuffleBTN(){
+        shuffleBTN.tintColor = .white
+    }
+    
+    @objc func updateTrackLabel(){
+        let delegate = UIApplication.shared.delegate as! AppDelegate
+        self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.currentPlaylist.count)"
+    }
+    
     @objc func playPause(){
         if AppDelegate.sharedPlayer.isPlaying {
             controller.pauseSong()
@@ -121,17 +143,19 @@ class MusicPlayerViewController: UIViewController {
     }
     
     @objc func skipForward(){
-        controller.nextSong()
+        MusicController.nextSong()
     }
     
     @objc func shuffle(){
-        
+        MusicController().shuffle()
     }
     
     @objc func repeatAction(){
     }
     
     func setupUI(){
+        let delegate = UIApplication.shared.delegate as! AppDelegate
+        
         //Background Artwork
         backgroundArtwork.contentMode = .scaleAspectFill
         backgroundArtwork.clipsToBounds = true
@@ -143,6 +167,15 @@ class MusicPlayerViewController: UIViewController {
         blurView = UIVisualEffectView(effect: effect)
         blurView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(blurView)
+        
+        //Track Label
+        //trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.selectedLibrary.count)"
+        self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.currentPlaylist.count)"
+        trackLabel.font = UIFont(name: "Avenir Book", size: 25.0)
+        trackLabel.textColor = mainRed
+        trackLabel.textAlignment = .center
+        trackLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(trackLabel)
         
         //Main Artwork
         mainArtwork.translatesAutoresizingMaskIntoConstraints = false
@@ -252,11 +285,19 @@ class MusicPlayerViewController: UIViewController {
             NSLayoutConstraint(item: blurView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1, constant: 0)
         ])
         
+        //Track Label
+        self.view.addConstraints([
+            NSLayoutConstraint(item: trackLabel, attribute: .centerX, relatedBy: .equal, toItem: self.view, attribute: .centerX, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: trackLabel, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 8),
+            NSLayoutConstraint(item: trackLabel, attribute: .width, relatedBy: .equal, toItem: self.view, attribute: .width, multiplier: 1, constant: 0),
+            //NSLayoutConstraint(item: trackLabel, attribute: .height, relatedBy: .equal, toItem: mainArtwork, attribute: .width, multiplier: 1, constant: 0)
+        ])
+        
         //Main Artwork
         self.view.addConstraints([
             NSLayoutConstraint(item: mainArtwork, attribute: .centerX, relatedBy: .equal, toItem: self.view, attribute: .centerX, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: mainArtwork, attribute: .centerY, relatedBy: .equal, toItem: self.view, attribute: .centerY, multiplier: 0.75, constant: 0),
-            NSLayoutConstraint(item: mainArtwork, attribute: .width, relatedBy: .equal, toItem: self.view, attribute: .width, multiplier: 0.4, constant: 0),
+            NSLayoutConstraint(item: mainArtwork, attribute: .centerY, relatedBy: .equal, toItem: self.view, attribute: .centerY, multiplier: 0.65, constant: 0),
+            NSLayoutConstraint(item: mainArtwork, attribute: .width, relatedBy: .equal, toItem: self.view, attribute: .width, multiplier: 0.5, constant: 0),
             NSLayoutConstraint(item: mainArtwork, attribute: .height, relatedBy: .equal, toItem: mainArtwork, attribute: .width, multiplier: 1, constant: 0)
         ])
         

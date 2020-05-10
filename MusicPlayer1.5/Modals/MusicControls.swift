@@ -9,6 +9,7 @@
 import Foundation
 import AVKit
 import UIKit
+import MediaPlayer
 
 class MusicController {
     private let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -30,7 +31,7 @@ class MusicController {
     }
     public func skipBack() {
         if AppDelegate.sharedPlayer.currentTime < 2 {
-            previousSong()
+            MusicController.previousSong()
         }
         else {
             restartSong()
@@ -57,27 +58,33 @@ class MusicController {
             userInfo: nil)
     }
     
-    public func previousSong() {
+    public static func previousSong() {
         AppDelegate.sharedPlayer.stop()
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         var index = appDelegate.arrayPos
-        if appDelegate.arrayPos == 0 {index = appDelegate.selectedLibrary.count-1}
-        else {index-=1}
+        if appDelegate.arrayPos == 0 {
+            //index = appDelegate.selectedLibrary.count-1
+            index = appDelegate.currentPlaylist.count-1
+        }
+        else {
+            index-=1
+        }
         
         appDelegate.arrayPos = index
-        let url = appDelegate.selectedLibrary[index]
-        
-        //Need to add observers/listeners
-        //setup(theURL: url)
-        //setupNowPlaying()
+        //let url = appDelegate.selectedLibrary[index]
+        let url = appDelegate.currentPlaylist[index] as! URL
         
         //load the url onto the avplayer
-        do{AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf: url)}
-        catch{print("Song doesn't exist")}
+        do {
+            AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf: url)
+        }
+        catch{
+            // TODO: Handle URL error
+        }
         
         //Start the play song process
-        //musicProgress.maximumValue = Float((audioPlayer.duration))
         AppDelegate.sharedPlayer.prepareToPlay()
-        //playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
         AppDelegate.sharedPlayer.play()
         NotificationCenter.default.post(
             name: .songPlayed,
@@ -86,30 +93,34 @@ class MusicController {
         appDelegate.songPlaying = url
     }
     
-    public func nextSong() {
+    public static func nextSong() {
         AppDelegate.sharedPlayer.stop()
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         var index = appDelegate.arrayPos
-        if appDelegate.arrayPos == appDelegate.selectedLibrary.count-1 {
+        if appDelegate.arrayPos == appDelegate.currentPlaylist.count-1 /*appDelegate.selectedLibrary.count-1*/{
             index = 0
         }
-        else {index+=1}
+        else {
+            index += 1
+        }
         
         appDelegate.arrayPos = index
-        let url = appDelegate.selectedLibrary[index]
-        
-        //Need to add observers/listenersz
-        //setup(theURL: url)
-        //setupNowPlaying()
+        //let url = appDelegate.selectedLibrary[index]
+        let url = appDelegate.currentPlaylist[index] as! URL
         
         //load the url onto the avplayer
-        do{AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf: url)}
-        catch{print("Song doesn't exist")}
+        do{
+            AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf: url)
+        }
+        catch{
+            // TODO: Handle URL error
+        }
         
         AppDelegate.sharedPlayer.delegate = appDelegate
+        
         //Start the play song process
-        //musicProgress.maximumValue = Float((audioPlayer.duration))
         AppDelegate.sharedPlayer.prepareToPlay()
-        //playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
         AppDelegate.sharedPlayer.play()
         NotificationCenter.default.post(
             name: .songPlayed,
@@ -119,7 +130,26 @@ class MusicController {
     }
     
     public func shuffle(){
-        
+        if appDelegate.isShuffled {
+            let currentURL = AppDelegate.sharedPlayer.url
+            let currentIndex = appDelegate.currentUnshuffledPlaylist?.index(of: currentURL!)
+            appDelegate.arrayPos = currentIndex!
+            appDelegate.currentPlaylist = appDelegate.currentUnshuffledPlaylist!
+            appDelegate.isShuffled = false
+        }
+        else {
+            appDelegate.currentUnshuffledPlaylist = appDelegate.currentPlaylist
+            var shuffledPlaylist = appDelegate.currentPlaylist.array.shuffled() as! [URL]
+            appDelegate.currentPlaylist = NSMutableOrderedSet(array: shuffledPlaylist)
+            
+            let currentURL = AppDelegate.sharedPlayer.url
+            let currentIndex = appDelegate.currentPlaylist.index(of: currentURL!)
+            shuffledPlaylist.swapAt(0, currentIndex)
+            appDelegate.currentPlaylist = NSMutableOrderedSet(array: shuffledPlaylist)
+            
+            appDelegate.arrayPos = 0
+            appDelegate.isShuffled = true
+        }
     }
     
     public func changeSongTime(time: TimeInterval) {
@@ -128,5 +158,103 @@ class MusicController {
     
     public func playSongAtTime(time: TimeInterval) {
 
+    }
+    
+    public func attachToCommandCenter(){
+        setupRemoteTransportControls()
+        setupNowPlaying()
+        
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+        let commandCenter = MPRemoteCommandCenter.shared()
+        
+        commandCenter.pauseCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
+            AppDelegate.sharedPlayer.pause()
+            return .success
+        }
+        
+        commandCenter.playCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
+            AppDelegate.sharedPlayer.play()
+            return .success
+        }
+        
+        commandCenter.changePlaybackPositionCommand.addTarget{(event) in
+            /*
+            if (self.appDelegate.player.isPlaying) {
+                self.appDelegate.player.stop()
+                self.appDelegate.player.currentTime = event.timestamp
+                self.appDelegate.player.prepareToPlay()
+                self.appDelegate.player.play()
+            }
+            else {
+                self.appDelegate.player.stop()
+                self.appDelegate.player.currentTime = event.timestamp
+                self.appDelegate.player.prepareToPlay()
+            }
+             */
+            return .success
+        }
+        
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        do{try audioSession.setCategory(AVAudioSession.Category.playback)}
+        catch{}
+    }
+    
+    func setupRemoteTransportControls() {
+        // Get the shared MPRemoteCommandCenter
+        let commandCenter = MPRemoteCommandCenter.shared()
+        
+        // Add handler for Play Command
+        commandCenter.playCommand.addTarget { event in
+            if AppDelegate.sharedPlayer.rate == 0.0 {
+                AppDelegate.sharedPlayer.play()
+                return .success
+            }
+            return .commandFailed
+        }
+        
+        // Add handler for Pause Command
+        commandCenter.pauseCommand.addTarget { event in
+            if AppDelegate.sharedPlayer.rate == 1.0 {
+                AppDelegate.sharedPlayer.pause()
+                return .success
+            }
+            return .commandFailed
+        }
+        
+        // Add handler for Next Command
+        commandCenter.nextTrackCommand.addTarget(handler: { event in
+            MusicController.nextSong()
+            return .success
+        })
+        
+        // Add handler for Restart Command
+        commandCenter.previousTrackCommand.addTarget(handler: { event in
+            MusicController.previousSong()
+            return .success
+        })
+    }
+    
+    func setupNowPlaying() {
+        // Define Now Playing Info
+        //let url = appDelegate.selectedLibrary[appDelegate.arrayPos]
+        let url = appDelegate.currentPlaylist[appDelegate.arrayPos] as! URL
+
+        let item = AVPlayerItem(url: url)
+        var nowPlayingInfo = [String : Any]()
+        nowPlayingInfo[MPMediaItemPropertyTitle] = getTitle(songURL: url)
+        nowPlayingInfo[MPMediaItemPropertyArtist] = getArtist(songURL: url)
+        nowPlayingInfo[MPMediaItemPropertyArtwork] =
+            MPMediaItemArtwork(boundsSize: getImage(songURL: url).size) { size in
+                return getImage(songURL: url)
+        }
+
+        
+        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = item.currentTime().seconds
+        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = item.asset.duration.seconds
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = AppDelegate.sharedPlayer.rate
+        
+        // Set the Metadata
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
 }

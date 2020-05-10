@@ -48,6 +48,7 @@ class AlbumsViewController: UIViewController, UICollectionViewDelegateFlowLayout
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //Should change logic
         var keys = Array(albumDictionary.keys)
         keys.sort()
         selectedLibrary = albumDictionary[keys[indexPath.row]]!

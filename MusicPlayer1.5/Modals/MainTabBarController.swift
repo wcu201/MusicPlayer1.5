@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MainTabBarController: UITabBarController {
+class MainTabBarController: UITabBarController, UIGestureRecognizerDelegate {
 
     static var nowPlayingBar: UIView = {
         let bar = UIView()
@@ -80,9 +80,11 @@ class MainTabBarController: UITabBarController {
         MainTabBarController.nowPlayingBar.addSubview(MainTabBarController.playPauseBTN)
         MainTabBarController.nowPlayingBar.addSubview(songTitle)
         MainTabBarController.nowPlayingBar.addSubview(songArtist)
-        
         setupLayout()
         MainTabBarController.nowPlayingBar.isHidden = true
+        let singleFingerTap = UITapGestureRecognizer(target: self, action: #selector(barIsTapped))
+        MainTabBarController.nowPlayingBar.addGestureRecognizer(singleFingerTap)
+        
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(populateNowPlayBar),
                                                name: .songChanged,
@@ -98,6 +100,13 @@ class MainTabBarController: UITabBarController {
         
     }
     
+    @objc func barIsTapped(){
+        guard let vc = appDelegate.playerVC else {
+            return
+        }
+        self.present(vc, animated: true, completion: nil)
+    }
+    
     @objc func playPause(){
         if !(AppDelegate.sharedPlayer.isPlaying) {
             controller.playSong()
@@ -109,12 +118,10 @@ class MainTabBarController: UITabBarController {
     
     @objc func changeToPlayBTN(){
         MainTabBarController.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
-        appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "play_arrow_white_54x54"), for: .normal)
     }
     
     @objc func changeToPauseBTN(){
         MainTabBarController.playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
-        appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
     }
     
     @objc func populateNowPlayBar(){
@@ -168,9 +175,9 @@ class MainTabBarController: UITabBarController {
         // Play/Pause Button
         self.view.addConstraints([
             NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .trailing, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .trailing, multiplier: 1, constant: -8),
-            NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .height, relatedBy: .equal, toItem: MainTabBarController.playPauseBTN, attribute: .width, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .top, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .top, multiplier: 1, constant: 8),
-            NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .bottom, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .bottom, multiplier: 1, constant: -8)
+            NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .height, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .height, multiplier: 0.5, constant: 0),
+            NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .width, relatedBy: .equal, toItem: MainTabBarController.playPauseBTN, attribute: .height, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: MainTabBarController.playPauseBTN, attribute: .centerY, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .centerY, multiplier: 1, constant: 0),
             ])
         
         // Title

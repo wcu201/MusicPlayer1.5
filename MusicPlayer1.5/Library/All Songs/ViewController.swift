@@ -37,31 +37,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.reloadData()
         
         guard appDelegate.musicPlaying else {
-            print("no music")
             return
         }
-        
-        //self.populateNowPlayBar(url: appDelegate.songPlaying!)
-        //self.nowPlaying.isHidden = false
-        /*do {
-            let id3TagEditor = ID3TagEditor()
-            let tag = ID3Tag(version: .version3,
-                             artist: "Usher",
-                             albumArtist: "Usher",
-                             album: "Confessions",
-                             title: "Burn",
-                             year: "2004",
-                             genre: Genre(genre: ID3Genre.RAndB, description: "Rhythm & Blues"),
-                             attachedPictures: [],
-                             trackPosition: TrackPositionInSet(position: 6, totalTracks: 17))
-            //ID3TagEditor.read(<#T##ID3TagEditor#>)
-            //try ID3TagEditor.write(ID3TagEditor())
-            print("Path: ", userData.downloadLibrary[4].path)
-            try id3TagEditor.write(tag: tag, to: userData.downloadLibrary[4].path)
-        } catch {
-            print("Error editing tag: ", error)
-        }
-        */
     }
     
     
@@ -71,17 +48,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         searchBar.delegate = self
         tableView.delegate = self
         tableView.dataSource = self
-        
-        //self.tabBarController?.tabBar.addSubview(nowPlayingBar)
-
-        //appDelegate.player.delegate = self
-        
-        if currentSong != nil {
-            //populateNowPlayBar(url: currentSong!)
-            //nowPlaying.isHidden = false
-        }
-        
-        //NotificationCenter.default.addObserver(self, selector: #selector(populateNowPlayBar), name: .songChanged, object: nil)
     }
     
     override func didReceiveMemoryWarning() {
@@ -186,37 +152,38 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 1 {
-            currentSong = appDelegate.selectedLibrary[indexPath.row]
+            appDelegate.currentPlaylist = NSMutableOrderedSet(array: appDelegate.selectedLibrary)
+            currentSong = (appDelegate.currentPlaylist[indexPath.row] as! URL)
+            //currentSong = appDelegate.selectedLibrary[indexPath.row]
             appDelegate.arrayPos = indexPath.row
         
-            do {AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf:  appDelegate.selectedLibrary[indexPath.row])}
-            catch{print("Song does not exist.")}
-            
-            //guard let audioPlayer = appDelegate.player else {return}
+            do {AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf:
+                (appDelegate.currentPlaylist[indexPath.row] as! URL)
+                //appDelegate.selectedLibrary[indexPath.row]
+                )}
+            catch{
+                // TODO: Handle URL Error
+            }
             
             AppDelegate.sharedPlayer.delegate = appDelegate
             AppDelegate.sharedPlayer.prepareToPlay()
-            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
             AppDelegate.sharedPlayer.play()
             appDelegate.musicPlaying = true
             appDelegate.songPlaying = currentSong
             
             musicVC.isShuffled = false
             
-            let vc = MusicPlayerViewController(songURL: currentSong!)
-            self.show(vc, sender: self)
-            return
+
+            if appDelegate.playerVC == nil {
+                //No Music Player exists, so some setup needs to be done
+                MusicController().attachToCommandCenter()
+                let vc = MusicPlayerViewController(songURL: currentSong!)
+                appDelegate.playerVC = vc
+                vc.modalPresentationStyle = .popover
+            }
+
+            self.present(appDelegate.playerVC!, animated: true, completion: nil)
             
-            if appDelegate.playerVC?.artwork != nil {
-                appDelegate.playerVC?.url = currentSong!
-                appDelegate.playerVC?.setup(theURL: currentSong!)
-                show(appDelegate.playerVC!, sender: self)
-            }
-            else {
-                
-                self.performSegue(withIdentifier: "showMusic", sender: self)
-    
-            }
 
         /*
         if(isSearching){
@@ -348,69 +315,55 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             vc?.songURL = selectedSong
         }
         
-        if segue.identifier == "showMusic" {
-            let vc = segue.destination as? MusicViewController
-            print("current song: ", (currentSong?.absoluteString))
-            vc?.url  = currentSong!
-            appDelegate.playerVC = vc
-        }
     }
-    
-    override func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
-        (self.navigationController?.viewControllers.first as? LibraryViewController)?.nowPlaying = currentSong
-    }
-    
+
     @objc func shufflePlay() {
         if (!appDelegate.selectedLibrary.isEmpty){
-            appDelegate.shuffledLibrary = appDelegate.selectedLibrary
-            appDelegate.shuffledLibrary.shuffle()
-            appDelegate.isShuffled = true
-            appDelegate.musicPlaying = true
+//            appDelegate.shuffledLibrary = appDelegate.selectedLibrary
+//            appDelegate.shuffledLibrary.shuffle()
+//            appDelegate.isShuffled = true
+//            appDelegate.musicPlaying = true
             
+            AppDelegate.sharedPlayer.stop()
+            appDelegate.currentUnshuffledPlaylist = NSMutableOrderedSet(array: appDelegate.selectedLibrary)
+            var shuffledPlaylist = appDelegate.selectedLibrary
+            shuffledPlaylist.shuffle()
+            appDelegate.currentPlaylist = NSMutableOrderedSet(array: shuffledPlaylist)
             
-            currentSong = appDelegate.shuffledLibrary[0]
+//            currentSong = appDelegate.shuffledLibrary[0]
+//            appDelegate.songPlaying = currentSong
+//            appDelegate.arrayPos = 0
+            
+            currentSong = (appDelegate.currentPlaylist[0] as! URL)
             appDelegate.songPlaying = currentSong
             appDelegate.arrayPos = 0
             
-            //populateNowPlayBar(url: currentSong!)
-            
-            do {AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf: currentSong!)}
-            catch{print("Song does not exist.")}
+            do {
+                AppDelegate.sharedPlayer = try AVAudioPlayer(contentsOf: currentSong!)
+            }
+            catch {
+                // TODO: Handle URL error
+            }
             
             AppDelegate.sharedPlayer.delegate = appDelegate
             AppDelegate.sharedPlayer.prepareToPlay()
             AppDelegate.sharedPlayer.play()
+            appDelegate.musicPlaying = true
             
-            if appDelegate.playerVC?.artwork != nil {
-                appDelegate.playerVC?.url = currentSong!
-                appDelegate.playerVC?.setup(theURL: currentSong!)
-                show(appDelegate.playerVC!, sender:self)
+            if appDelegate.playerVC == nil {
+                //No Music Player exists, so some setup needs to be done
+                MusicController().attachToCommandCenter()
+                let vc = MusicPlayerViewController(songURL: currentSong!)
+                appDelegate.playerVC = vc
+                vc.modalPresentationStyle = .popover
             }
-            else {
-                self.performSegue(withIdentifier: "showMusic", sender: self)
-            }
+
+            self.present(appDelegate.playerVC!, animated: true, completion: nil)
+            appDelegate.isShuffled = true
         }
         
     }
-
-    
-    @IBAction func playPause(_ sender: Any) {
-        if !(AppDelegate.sharedPlayer.isPlaying) {
-            AppDelegate.sharedPlayer.play()
-            playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
-            appDelegate.playerVC?.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
-        }
-            
-        else {
-            AppDelegate.sharedPlayer.pause()
-            playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
-        }
-    }
-    
-    deinit {
-        print ("VC deinits")
-    }
-    
+        
     
 }
 

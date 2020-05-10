@@ -125,15 +125,6 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         
         musicProgress.maximumValue = Float((AppDelegate.sharedPlayer.duration))
     }
-    
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        nextButton.sendActions(for: .touchUpInside)
-        print(0)
-    }
-    
-    deinit {
-        print("denit called")
-    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

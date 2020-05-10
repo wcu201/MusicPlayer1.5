@@ -19,25 +19,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     var shuffledLibrary = [URL]()
     var selectedLibrary = [URL]()
     
-    var currentPlaylist = [URL]()
+    var currentPlaylist = NSMutableOrderedSet(array: [URL]())
+    var currentUnshuffledPlaylist: NSMutableOrderedSet?
+    //var currentPlaylist = [URL]()
+    //var currentUnshuffledPlaylist: [URL]?
     var artistsLibraries = [String : [URL]]()
     var albumLibraries = [String : [URL]]()
     var playlistsLibraries = [String : [URL]]()
     var recentlyAddedQueue  = [URL]()
     
-    var isShuffled = false
+    var isShuffled: Bool = false {
+        didSet {
+            if isShuffled {
+                NotificationCenter.default.post(name: .shuffleOn, object: self, userInfo: nil)
+            }
+            else {
+                NotificationCenter.default.post(name: .shuffleOff, object: self, userInfo: nil)
+            }
+        }
+    }
     var musicPlaying = false
     
     public static var sharedPlayer = AVAudioPlayer() {
         didSet {
             NotificationCenter.default.post(name: .songChanged, object: self, userInfo: nil)
+            MusicController().setupNowPlaying()
         }
     }
     
     var songsVC: ViewController?
-    var playerVC: MusicViewController?
+    var playerVC: MusicPlayerViewController?
     var songPlaying: URL?
-    var arrayPos = Int()
+    var arrayPos = Int() {
+        didSet {
+            NotificationCenter.default.post(name: .arrayPosChanged, object: self, userInfo: nil) 
+        }
+    }
     
     var downloadProgressQueue = [URL:Float]() 
 
@@ -48,38 +65,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         populateArtistLibraries()
         populateAlbumLibraries()
         
-        
-//        NotificationCenter.default.addObserver(self, selector: #selector(testing), name: UIAccessibility.announcementDidFinishNotification, object: nil)
-        UIAccessibility.post(notification: UIAccessibility.Notification.screenChanged, argument: nil)
-        //UIAccessibility.
-        /*
-        AppDelegate.sharedPlayer.observe(\.isPlaying, changeHandler: {(player, change) in
-            print(0)
-        })*/
-        
-        //AppDelegate.sharedPlayer.observe(\.isPlaying, options: [.old], changeHandler: {(player, change) in
-        //    print(0)
-        //})
-        
-        //AppDelegate.sharedPlayer.observeValue(forKeyPath: "isPlaying", of: <#T##Any?#>, change: <#T##[NSKeyValueChangeKey : Any]?#>, context: <#T##UnsafeMutableRawPointer?#>)
-        AppDelegate.sharedPlayer.addObserver(self, forKeyPath: "isPlaying", options: .new, context: nil)
-        
-        
-       
-        //AppDelegate.sharedPlayer.delegate = self
-        /*
-        let mp3FileReader = Mp3FileReader()
-        do {
-            let mp3Data = try mp3FileReader.readFrom(path: downloadLibrary[0])
-            //print("testing")
-        }
-        catch {
-            print("error")
-        }*/
-        
-        /*player.addObserver(<#T##observer: NSObject##NSObject#>, forKeyPath: <#T##String#>, options: <#T##NSKeyValueObservingOptions#>, context: <#T##UnsafeMutableRawPointer?#>)*/
-        //print("Player Status: ")
-        //playerVC = UIStoryboard(name: "Main", bundle: Bundle.main).instantiateViewController(withIdentifier: "MusicViewController") 
         return true
     }
     
@@ -124,7 +109,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        MusicController().nextSong()
+        MusicController.nextSong()
     }
     
     
