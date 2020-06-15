@@ -41,6 +41,7 @@ class MusicPlayerViewController: UIViewController {
         self.artworkImage = getImage(songURL: songURL)
         self.songTitle.text = getTitle(songURL: songURL)
         self.songArtist.text = getArtist(songURL: songURL)
+        self.timeRemaining.text = AppDelegate.sharedPlayer.duration.stringFromTimeInterval()
         backgroundArtwork.image = artworkImage
         mainArtwork.image = artworkImage
         
@@ -80,13 +81,20 @@ class MusicPlayerViewController: UIViewController {
                                                object: nil)
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(updateTrackLabel),
-                                               name: .arrayPosChanged, 
+                                               name: .arrayPosChanged,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateRepeatStatusBTN),
+                                               name: .repeatStatusChanged,
                                                object: nil)
         
         
     }
     
     @objc func setup(){
+        guard let _=AppDelegate.sharedPlayer.url else {
+            return
+        }
         let delegate = UIApplication.shared.delegate as! AppDelegate
         //self.songURL = delegate.selectedLibrary[delegate.arrayPos]
         self.songURL = (delegate.currentPlaylist[delegate.arrayPos] as! URL)
@@ -98,6 +106,11 @@ class MusicPlayerViewController: UIViewController {
         backgroundArtwork.image = artworkImage
         mainArtwork.image = artworkImage
         
+        //Time slider
+        musicProgressSlider.value = 0
+        timePassed.text = "0:00"
+        self.timeRemaining.text = AppDelegate.sharedPlayer.duration.stringFromTimeInterval()
+        //self.timeRemaining.text = "dssd"
         //self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.selectedLibrary.count)"
         //self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.currentPlaylist.count)"
     }
@@ -124,6 +137,29 @@ class MusicPlayerViewController: UIViewController {
         shuffleBTN.tintColor = .white
     }
     
+    @objc func updateRepeatStatusBTN(){
+        switch (UIApplication.shared.delegate as! AppDelegate).isRepeating {
+            case .noRepeat:
+                reapeatBTN.tintColor = .white
+                if #available(iOS 13.0, *) {
+                    let largeConfig = UIImage.SymbolConfiguration(textStyle: .title2)
+                    reapeatBTN.setImage(UIImage(systemName: "repeat", withConfiguration: largeConfig), for: .normal)
+                }
+            case .repeatPlaylist:
+                reapeatBTN.tintColor = mainRed
+                if #available(iOS 13.0, *) {
+                    let largeConfig = UIImage.SymbolConfiguration(textStyle: .title2)
+                    reapeatBTN.setImage(UIImage(systemName: "repeat", withConfiguration: largeConfig), for: .normal)
+                }
+            case .repeatSong:
+                reapeatBTN.tintColor = mainRed
+                if #available(iOS 13.0, *) {
+                    let largeConfig = UIImage.SymbolConfiguration(textStyle: .title2)
+                    reapeatBTN.setImage(UIImage(systemName: "repeat.1", withConfiguration: largeConfig), for: .normal)
+                }
+        }
+    }
+    
     @objc func updateTrackLabel(){
         let delegate = UIApplication.shared.delegate as! AppDelegate
         self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.currentPlaylist.count)"
@@ -143,7 +179,7 @@ class MusicPlayerViewController: UIViewController {
     }
     
     @objc func skipForward(){
-        MusicController.nextSong()
+        MusicController().skipForward()
     }
     
     @objc func shuffle(){
@@ -151,6 +187,14 @@ class MusicPlayerViewController: UIViewController {
     }
     
     @objc func repeatAction(){
+        MusicController().updateRepeatStatus()
+    }
+    
+    @objc func changeSongTime(){
+        MusicController().changeSongTime(time: TimeInterval(musicProgressSlider.value))
+        self.timeRemaining.text = (
+            AppDelegate.sharedPlayer.duration - AppDelegate.sharedPlayer.currentTime).stringFromTimeInterval()
+        self.timePassed.text = AppDelegate.sharedPlayer.currentTime.stringFromTimeInterval()
     }
     
     func setupUI(){
@@ -183,7 +227,7 @@ class MusicPlayerViewController: UIViewController {
         
         //Music Progress Stack
         timePassed.text = "0:00"
-        timeRemaining.text = "0:00"
+        //timeRemaining.text = "0:00"
         timePassed.font = UIFont.systemFont(ofSize: 8)
         timeRemaining.font = UIFont.systemFont(ofSize: 8)
         timePassed.textAlignment = .center
@@ -197,6 +241,7 @@ class MusicPlayerViewController: UIViewController {
                     width: 20,
                     height: 20)),
             for: .normal)
+        musicProgressSlider.addTarget(self, action: #selector(changeSongTime), for: .touchUpInside)
         
         musicProgressStackView.axis = .horizontal
         musicProgressStackView.distribution = .equalSpacing

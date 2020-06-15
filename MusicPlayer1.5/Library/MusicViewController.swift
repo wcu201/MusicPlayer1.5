@@ -51,7 +51,7 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         
         appDelegate = UIApplication.shared.delegate as! AppDelegate
         
-        NotificationCenter.default.addObserver(self, selector: #selector(setup2), name: .songChanged, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(setup2), name: .songChanged, object: nil)
         
         setup(theURL: url)
         setupRemoteTransportControls()

@@ -63,8 +63,7 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
         //browser.configuration.userContentController.add(self, name: "observe")
         
         let contentController = WKUserContentController();
-        contentController.add(self, name: "callbackHandler"
-        )
+        contentController.add(self, name: "callbackHandler")
 
     }
     
@@ -134,20 +133,19 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
                 self.appDelegate.downloadProgressQueue[url] = Float(progress.fractionCompleted)
             })
             .response(completionHandler: {(complete) in
-            
-            if complete.error == nil, let filePath = complete.destinationURL?.path {
                 self.navigationController?.tabBarController?.tabBar.items![2].badgeValue = nil
-                print ("Download Finished: ", filePath)
-                print ("url: ", url.lastPathComponent)
-                self.appDelegate.downloadProgressQueue.removeValue(forKey: url)
-                self.fileLocalURLArr.append(url.lastPathComponent)
-                
-                self.appDelegate.populateDownloadLibrary()
-            }
-            else {
-                
-                print("Unsuccessful Download")
-            }
+                if complete.error == nil, let filePath = complete.destinationURL?.path {
+                    print ("Download Finished: ", filePath)
+                    print ("url: ", url.lastPathComponent)
+                    self.appDelegate.downloadProgressQueue.removeValue(forKey: url)
+                    self.fileLocalURLArr.append(url.lastPathComponent)
+                    
+                    self.appDelegate.addSongToCoreData(url: url)
+                    self.appDelegate.populateDownloadLibrary()
+                }
+                else {
+                    print("Unsuccessful Download")
+                }
         })
     }
     

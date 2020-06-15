@@ -9,6 +9,7 @@
 import UIKit
 import ID3TagEditor
 import AVKit
+import CoreData
 
 class MetadataViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
@@ -16,6 +17,7 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
     
     @IBOutlet weak var albumArt: UIImageView!
     var songURL: URL?
+    let mainContext = AppDelegate.viewContext
     
     let metadataFields = ["Title", "Artist", "Album Artist", "Album", "Realease Year"]
     
@@ -115,7 +117,59 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
          //try ID3TagEditor.write(ID3TagEditor())
          print("Path: ", (songURL?.path)!)
             try id3TagEditor.write(tag: tag, to: (songURL?.path)!)
+                
+            if let song = CoreDataUtils.fetchEntity(entity: Song.self, key: "urlPath", value: songURL!.absoluteString, context: mainContext) {
+                
+                song.title = newMetadata[0]
+                // TODO: See if you can avoid this is the metadata does not change also it might be possible for a song to have no artist and/or album, so I should consider this in the future
+                let oldArtist = song.songArtist
+                let oldAlbum = song.songAlbum
+                
+                // 1. If new artist exists set song.songArtist to new artist
+                // 2. else make a new Artist and assign it to song.songArtist
+                // 3. Check to see if old artist is empty with CoreDataUtils.entityIsEmpty()
+                // 4. If empty delete old artist
+                // 5. Repeat above steps for Album as well
+                
+                if let newArtist = CoreDataUtils.fetchEntity(entity: Artist.self, key: "title", value: newMetadata[1], context: mainContext) {
+                    // New Artist already exists
+                    song.songArtist = newArtist
+                }
+                else {
+                    let newArtist = Artist(context: mainContext)
+                    newArtist.title = newMetadata[1]
+                    song.songArtist = newArtist
+                }
+                
+                if let newAlbum = CoreDataUtils.fetchEntity(entity: Album.self, key: "title", value: newMetadata[3], context: mainContext) {
+                    // New Album already exists
+                    song.songAlbum = newAlbum
+                }
+                else {
+                    let newAlbum = Album(context: mainContext)
+                    newAlbum.title = newMetadata[3]
+                    song.songAlbum = newAlbum
+                }
+                
+                CoreDataUtils.deleteIfEmpty(entity: Artist.self, key: "title", value: oldArtist!.title!, context: mainContext)
+                CoreDataUtils.deleteIfEmpty(entity: Album.self, key: "title", value: oldAlbum!.title!, context: mainContext)
+                
+                try? mainContext.save()
+                
+            }
          } catch {print("Error editing tag: ", error)}
+    }
+    
+    func fetchSong(url: URL) -> Song? {
+        let fetchRequest = NSFetchRequest<Song>(entityName: "Song")
+        let predicate = NSPredicate(format: "urlPath = %@", url.absoluteString)
+        fetchRequest.predicate = predicate
+        let result = try? mainContext.fetch(fetchRequest)
+        
+        guard let songs = result, songs.count == 1 else {
+            return nil
+        }
+        return songs.first
     }
     
     

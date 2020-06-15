@@ -29,6 +29,7 @@ class MusicController {
             object: self,
             userInfo: nil)
     }
+    
     public func skipBack() {
         if AppDelegate.sharedPlayer.currentTime < 2 {
             MusicController.previousSong()
@@ -36,6 +37,18 @@ class MusicController {
         else {
             restartSong()
         }
+    }
+    
+    public func skipForward() {
+        MusicController.nextSong()
+        
+        //Start the play song process
+        AppDelegate.sharedPlayer.prepareToPlay()
+        AppDelegate.sharedPlayer.play()
+        NotificationCenter.default.post(
+            name: .songPlayed,
+            object: self,
+            userInfo: nil)
     }
     
     public func restartSong() {
@@ -83,14 +96,16 @@ class MusicController {
             // TODO: Handle URL error
         }
         
-        //Start the play song process
-        AppDelegate.sharedPlayer.prepareToPlay()
-        AppDelegate.sharedPlayer.play()
-        NotificationCenter.default.post(
-            name: .songPlayed,
-            object: self,
-            userInfo: nil)
-        appDelegate.songPlaying = url
+        AppDelegate.sharedPlayer.delegate = appDelegate
+        
+//        //Start the play song process
+//        AppDelegate.sharedPlayer.prepareToPlay()
+//        AppDelegate.sharedPlayer.play()
+//        NotificationCenter.default.post(
+//            name: .songPlayed,
+//            object: self,
+//            userInfo: nil)
+//        appDelegate.songPlaying = url
     }
     
     public static func nextSong() {
@@ -118,15 +133,6 @@ class MusicController {
         }
         
         AppDelegate.sharedPlayer.delegate = appDelegate
-        
-        //Start the play song process
-        AppDelegate.sharedPlayer.prepareToPlay()
-        AppDelegate.sharedPlayer.play()
-        NotificationCenter.default.post(
-            name: .songPlayed,
-            object: self,
-            userInfo: nil)
-        appDelegate.songPlaying = url
     }
     
     public func shuffle(){
@@ -152,8 +158,28 @@ class MusicController {
         }
     }
     
+    public func updateRepeatStatus() {
+        if appDelegate.isRepeating == .repeatSong {
+            appDelegate.isRepeating = .noRepeat
+        }
+        else {
+            appDelegate.isRepeating = repeatStatus(
+                rawValue: appDelegate.isRepeating.rawValue + 1) ?? .noRepeat
+        }
+    }
+    
+    // This function needs to take a ratio of currentTime/duration (always less than 1)
     public func changeSongTime(time: TimeInterval) {
-
+        if (AppDelegate.sharedPlayer.isPlaying) {
+            AppDelegate.sharedPlayer.stop()
+            AppDelegate.sharedPlayer.currentTime = AppDelegate.sharedPlayer.duration * time
+            AppDelegate.sharedPlayer.prepareToPlay()
+            AppDelegate.sharedPlayer.play()
+        }
+        else {
+            AppDelegate.sharedPlayer.currentTime = AppDelegate.sharedPlayer.duration * time
+            AppDelegate.sharedPlayer.prepareToPlay()
+        }
     }
     
     public func playSongAtTime(time: TimeInterval) {
@@ -165,35 +191,6 @@ class MusicController {
         setupNowPlaying()
         
         UIApplication.shared.beginReceivingRemoteControlEvents()
-        let commandCenter = MPRemoteCommandCenter.shared()
-        
-        commandCenter.pauseCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
-            AppDelegate.sharedPlayer.pause()
-            return .success
-        }
-        
-        commandCenter.playCommand.addTarget { (event) -> MPRemoteCommandHandlerStatus in
-            AppDelegate.sharedPlayer.play()
-            return .success
-        }
-        
-        commandCenter.changePlaybackPositionCommand.addTarget{(event) in
-            /*
-            if (self.appDelegate.player.isPlaying) {
-                self.appDelegate.player.stop()
-                self.appDelegate.player.currentTime = event.timestamp
-                self.appDelegate.player.prepareToPlay()
-                self.appDelegate.player.play()
-            }
-            else {
-                self.appDelegate.player.stop()
-                self.appDelegate.player.currentTime = event.timestamp
-                self.appDelegate.player.prepareToPlay()
-            }
-             */
-            return .success
-        }
-        
         
         let audioSession = AVAudioSession.sharedInstance()
         do{try audioSession.setCategory(AVAudioSession.Category.playback)}
@@ -206,31 +203,45 @@ class MusicController {
         
         // Add handler for Play Command
         commandCenter.playCommand.addTarget { event in
-            if AppDelegate.sharedPlayer.rate == 0.0 {
-                AppDelegate.sharedPlayer.play()
-                return .success
-            }
-            return .commandFailed
+            self.playSong()
+            return .success
         }
         
         // Add handler for Pause Command
         commandCenter.pauseCommand.addTarget { event in
-            if AppDelegate.sharedPlayer.rate == 1.0 {
-                AppDelegate.sharedPlayer.pause()
-                return .success
-            }
-            return .commandFailed
+            self.pauseSong()
+            return .success
         }
         
         // Add handler for Next Command
         commandCenter.nextTrackCommand.addTarget(handler: { event in
-            MusicController.nextSong()
+            self.skipForward()
             return .success
         })
         
         // Add handler for Restart Command
         commandCenter.previousTrackCommand.addTarget(handler: { event in
-            MusicController.previousSong()
+            self.skipBack()
+            return .success
+        })
+        
+        // Add handler for Change Playback Position Command
+        commandCenter.changePlaybackPositionCommand.addTarget(handler: {event in
+            let time = (event as! MPChangePlaybackPositionCommandEvent).positionTime
+            self.changeSongTime(time: time/AppDelegate.sharedPlayer.duration)
+            return .success
+        })
+        
+        // Add handler for Change Shuffle Mode Command
+        commandCenter.changeShuffleModeCommand.addTarget(handler: {event in
+            // (event as! MPChangeShuffleModeCommandEvent).preservesShuffleMode
+            self.shuffle()
+            return .success
+        })
+        
+        // Add handler for Repeat Mode Command
+        commandCenter.changeRepeatModeCommand.addTarget(handler: {event in
+            self.updateRepeatStatus()
             return .success
         })
     }
@@ -238,6 +249,9 @@ class MusicController {
     func setupNowPlaying() {
         // Define Now Playing Info
         //let url = appDelegate.selectedLibrary[appDelegate.arrayPos]
+        guard let _=AppDelegate.sharedPlayer.url else {
+            return
+        }
         let url = appDelegate.currentPlaylist[appDelegate.arrayPos] as! URL
 
         let item = AVPlayerItem(url: url)

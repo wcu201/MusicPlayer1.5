@@ -28,6 +28,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     var playlistsLibraries = [String : [URL]]()
     var recentlyAddedQueue  = [URL]()
     
+    static var persistentContainer: NSPersistentContainer {
+        return (UIApplication.shared.delegate as! AppDelegate).persistentContainer
+    }
+    static var viewContext: NSManagedObjectContext {
+        return AppDelegate.persistentContainer.viewContext
+    }
+    
     var isShuffled: Bool = false {
         didSet {
             if isShuffled {
@@ -38,6 +45,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
             }
         }
     }
+    
+    var isRepeating: repeatStatus = .noRepeat {
+        didSet {
+            NotificationCenter.default.post(name: .repeatStatusChanged, object: self, userInfo: nil)
+        }
+    }
+    
     var musicPlaying = false
     
     public static var sharedPlayer = AVAudioPlayer() {
@@ -64,6 +78,40 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         populateDownloadLibrary()
         populateArtistLibraries()
         populateAlbumLibraries()
+//        let editor = Mp3FileReader()
+//
+//        for url in downloadLibrary {
+//            do {
+//                   try print(editor.getTitle(url: url))
+//               }
+//               catch {
+//
+//               }
+//        }
+   
+        
+
+        //Create all Entities
+        //addAllSongsToCoreData()
+        //removeAllSongs()
+        //removeAllEntities()
+        //removeAlbums()
+        
+
+        //Query Database example
+//        let context = AppDelegate.viewContext
+//        let request: NSFetchRequest<Album> = Album.fetchRequest()
+//        let sortDescriptor = NSSortDescriptor(
+//            key: "title",
+//            ascending: true,
+//            selector: #selector(NSString.localizedCompare(_:)))
+//        request.sortDescriptors = [sortDescriptor]
+//        //let predicate = NSPredicate(format: "", <#T##args: CVarArg...##CVarArg#>)
+//        request.predicate = nil
+//        let songs = try? context.fetch(request)
+
+        
+        let test = CoreDataUtils.entityIsEmpty(entity: Artist.self, key: "title", value: "Elliott Yamin", context: AppDelegate.viewContext)
         
         return true
     }
@@ -77,7 +125,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     }
     
     lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "DataModel")
+        let container = NSPersistentContainer(name: "Model")
         container.loadPersistentStores { description, error in
             if let error = error {
                 fatalError("Unable to load persistent stores: \(error)")
@@ -105,11 +153,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
+        
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        MusicController.nextSong()
+        if isRepeating != .repeatSong {
+            MusicController.nextSong()
+        }
+        
+        if arrayPos != 0 || (isRepeating != .noRepeat) {
+            AppDelegate.sharedPlayer.prepareToPlay()
+            AppDelegate.sharedPlayer.play()
+            NotificationCenter.default.post(
+                name: .songPlayed,
+                object: self,
+                userInfo: nil)
+        }
     }
     
     
@@ -131,6 +191,139 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         downloadLibrary = downloads
     }
     
+    func addSongToCoreData(url: URL) {
+        let context = AppDelegate.viewContext
+        let song = Song(context: context)
+        song.artwork = getImage(songURL: url).pngData()
+        song.title = getTitle(songURL: url)
+        song.urlPath = url.absoluteString
+
+        let artist = Artist(context: song.managedObjectContext!)
+        artist.title = getArtist(songURL: url)
+        
+        let albumName = getAlbum(songURL: url)
+        if let album = CoreDataUtils.fetchEntity(entity: Album.self, key: "title", value: albumName, context: song.managedObjectContext!){
+            song.songAlbum = album
+        }
+        else {
+            let album = Album(context: song.managedObjectContext!)
+            album.title = albumName
+            album.albumArtist = artist
+            song.songAlbum = album
+        }
+            
+        song.songArtist = artist
+        
+        do {
+            try context.save()
+        }
+        catch {
+            //CoreData Error
+            print(error)
+        }
+    }
+    
+    //One time helper function for giving all mp3 files in documents a core data representation
+    func addAllSongsToCoreData(){
+        let context = AppDelegate.viewContext
+        for url in downloadLibrary {
+            
+            let song = Song(context: context)
+            song.artwork = getImage(songURL: url).pngData()
+            song.title = getTitle(songURL: url)
+            song.urlPath = url.absoluteString
+
+            let artist = Artist(context: song.managedObjectContext!)
+            artist.title = getArtist(songURL: url)
+
+            let album = Album(context: song.managedObjectContext!)
+            album.title = getAlbum(songURL: url)
+            
+            album.albumArtist = artist
+            song.songArtist = artist
+            song.songAlbum = album
+        }
+        
+        do {
+            try context.save()
+        }
+        catch {
+            //CoreData Error
+            print(0)
+        }
+        
+    }
+    
+    //One time function for deleting all songs from Core Data
+    func removeAllSongs(){
+        let context = AppDelegate.viewContext
+                let request: NSFetchRequest<Song> = Song.fetchRequest()
+                let sortDescriptor = NSSortDescriptor(
+                    key: "title",
+                    ascending: true,
+                    selector: #selector(NSString.localizedCompare(_:)))
+                request.sortDescriptors = [sortDescriptor]
+                //let predicate = NSPredicate(format: "", <#T##args: CVarArg...##CVarArg#>)
+                request.predicate = nil
+                let songs = try? context.fetch(request)
+                for song in songs! {
+                    song.managedObjectContext?.delete(song)
+                }
+                do {
+                    try context.save()
+                }
+                catch {
+                    //CoreData Error
+                    print(0)
+                }
+    }
+    
+    func removeAlbums(){
+        let context = AppDelegate.viewContext
+                let request: NSFetchRequest<Album> = Album.fetchRequest()
+                let sortDescriptor = NSSortDescriptor(
+                    key: "name",
+                    ascending: true,
+                    selector: #selector(NSString.localizedCompare(_:)))
+                request.sortDescriptors = [sortDescriptor]
+                //let predicate = NSPredicate(format: "", <#T##args: CVarArg...##CVarArg#>)
+                request.predicate = nil
+                let songs = try? context.fetch(request)
+                for song in songs! {
+                    song.managedObjectContext?.delete(song)
+                }
+                do {
+                    try context.save()
+                }
+                catch {
+                    //CoreData Error
+                    print(0)
+                }
+    }
+    
+    
+    func removeAllEntities(){
+        let songFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "Song")
+        let songDeleteRequest = NSBatchDeleteRequest(fetchRequest: songFetch)
+        _ = try? AppDelegate.viewContext.execute(songDeleteRequest)
+        
+        let albumFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "Album")
+        let albumDeleteRequest = NSBatchDeleteRequest(fetchRequest: albumFetch)
+        _ = try? AppDelegate.viewContext.execute(albumDeleteRequest)
+        
+        let artistFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "Artist")
+        let artistDelteRequest = NSBatchDeleteRequest(fetchRequest: artistFetch)
+        _ = try? AppDelegate.viewContext.execute(artistDelteRequest)
+        
+        do {
+            try AppDelegate.viewContext.save()
+        }
+        catch {
+            //CoreData Error
+            print(0)
+        }
+    }
+        
     func populateArtistLibraries(){
         var library = [String : [URL]]()
         
@@ -173,6 +366,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         
         populateDownloadLibrary()
     }
+    
 
 }
 

@@ -167,9 +167,31 @@ extension Notification.Name {
     static let songPaused = Notification.Name("songPaused")
     static let shuffleOn = Notification.Name("shuffleOn")
     static let shuffleOff = Notification.Name("shuffleOff")
-    static let arrayPosChanged = Notification.Name("arrayPosChanged") 
+    static let arrayPosChanged = Notification.Name("arrayPosChanged")
+    static let repeatStatusChanged = Notification.Name("repeatStatusChanged")
 }
 
+enum repeatStatus: Int {
+    case noRepeat = 0
+    case repeatPlaylist = 1
+    case repeatSong = 2
+}
+
+extension TimeInterval{
+
+    func stringFromTimeInterval() -> String {
+
+        let time = NSInteger(self)
+
+        //let ms = Int((self.truncatingRemainder(dividingBy: 1)) * 1000)
+        let seconds = time % 60
+        let minutes = (time / 60) % 60
+        //let hours = (time / 3600)
+
+        return String(format: "%0.2d:%0.2d",minutes,seconds)
+
+    }
+}
 /*
 func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
     let size = image.size

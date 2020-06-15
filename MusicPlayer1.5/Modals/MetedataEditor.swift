@@ -14,6 +14,20 @@ enum MetadataError: Error {
     case outOfStock
 }
 
+enum ID3v1FieldRange: Int {
+    case header
+    case title
+    case artist
+    
+    var range: Range<Data.Index> {
+        switch self {
+        case .header: return 0 ..< 3 // "TAG" header field in first 3 bytes
+        case .title: return 3 ..< 33 // 
+        case .artist: return 33 ..< 63
+        }
+    }
+}
+
 //ID3
 /*
  How to read and write data from an mp3 file
@@ -41,7 +55,47 @@ enum MetadataError: Error {
 
 
 
-class Mp3FileReader {
+public class Mp3FileReader: NSObject {
+    
+    func getTitle(url: URL) throws -> String {
+        guard url.pathExtension.caseInsensitiveCompare("mp3") == ComparisonResult.orderedSame else {
+            throw NSError.init(domain: "Error - Not an mp3 file", code: 400, userInfo: nil)
+        }
+        
+        var title = String()
+        let mp3 = try Data(contentsOf: url)
+        
+        // ID3Tag which is the last 128 bytes of an mp3 file
+        let tag = last128bytes(data: mp3)
+        // Grab the title from the tag given the ID3v1 format to know in which byte range it's stored
+        title = String(data: tag[ID3v1FieldRange.title.range], encoding: .utf8) ?? ""
+        // Remove null characters "\0"
+        title = title.replacingOccurrences(of: "\0", with: "")
+        return title
+    }
+    
+    //For ID3v1 should return the ID3 tag which is the last 128 bytes of an mp3 file
+    func last128bytes(data: Data) -> Data {
+        //OR data[data.count-128...data.count-1]
+        return data.subdata(in: data.count-128..<data.count)
+    }
+    
+//    //For ID3v1 should return the header field which contains the string "TAG". In unicode that's 84 -> T, 65 -> A, 71 -> G
+//    func headerRange(data: Data) -> Data {
+//        //OR data[data.count-128...data.count-126]
+//        return data.subdata(in: 0..<3)
+//    }
+//
+//    func titleRange(data: Data) -> Data {
+//        //OR data[data.count-125...data.count-96]
+//        return data.subdata(in: 3..<32)
+//    }
+//
+//    func artistRange(data: Data) -> Data {
+//        //OR data[data.count-95...data.count-66]
+//        return data.subdata(in: data.count-95..<data.count-65)
+//    }
+    
     func readFrom(path: URL/*String*/) throws -> Data {
         //let validPath = URL(fileURLWithPath: path)
         let validPath = path

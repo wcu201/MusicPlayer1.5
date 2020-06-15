@@ -72,7 +72,7 @@ class MainTabBarController: UITabBarController, UIGestureRecognizerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+    
         self.view.insertSubview(MainTabBarController.nowPlayingBar, aboveSubview: tabBar)
         MainTabBarController.nowPlayingBar.addSubview(backgroundArtwork)
         MainTabBarController.nowPlayingBar.addSubview(blurView)
@@ -125,18 +125,36 @@ class MainTabBarController: UITabBarController, UIGestureRecognizerDelegate {
     }
     
     @objc func populateNowPlayBar(){
-        let url = AppDelegate.sharedPlayer.url!
-        
-        // Workaround
-        if noBar {
-            MainTabBarController.nowPlayingBar.isHidden = false
-            noBar = false
+        if let url = AppDelegate.sharedPlayer.url {
+            // Workaround
+            if noBar {
+                MainTabBarController.nowPlayingBar.isHidden = false
+                noBar = false
+                
+                // Here is where I need to change the view contraints to always be above the bar
+//                let transitionView = self.view.subviews[0]
+//                transitionView.translatesAutoresizingMaskIntoConstraints = false
+//                self.view.addConstraints([
+//                    NSLayoutConstraint(item: transitionView, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 0),
+//                    NSLayoutConstraint(item: transitionView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1, constant: 0),
+//                    NSLayoutConstraint(item: transitionView, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1, constant: 0),
+//                    NSLayoutConstraint(item: transitionView, attribute: .bottom, relatedBy: .equal, toItem: MainTabBarController.nowPlayingBar, attribute: .top, multiplier: 1, constant: 0),
+//                ])
+                let constraint = NSLayoutConstraint(item: MainTabBarController.nowPlayingBar, attribute: .top, relatedBy: .equal, toItem: tabBar, attribute: .top, multiplier: 1, constant: -60)
+                self.view.removeConstraint(constraint)
+                print(0)
+                self.view.updateConstraints()
+            }
+            
+            artwork.image = getImage(songURL: url)
+            backgroundArtwork.image = getImage(songURL: url)
+            songTitle.text = getTitle(songURL: url)
+            songArtist.text = getArtist(songURL: url)
         }
-        
-        artwork.image = getImage(songURL: url)
-        backgroundArtwork.image = getImage(songURL: url)
-        songTitle.text = getTitle(songURL: url)
-        songArtist.text = getArtist(songURL: url)
+        else {
+            noBar = true
+            MainTabBarController.nowPlayingBar.isHidden = true
+        }
     }
     
     private func setupLayout(){
