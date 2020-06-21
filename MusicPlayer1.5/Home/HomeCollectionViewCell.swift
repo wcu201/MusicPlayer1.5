@@ -12,4 +12,9 @@ class HomeCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var icon: UIImageView!
     
     @IBOutlet weak var label: UILabel!
+    
+    override func layoutSubviews() {
+        self.layer.masksToBounds = true
+        self.layer.cornerRadius = 5
+    }
 }

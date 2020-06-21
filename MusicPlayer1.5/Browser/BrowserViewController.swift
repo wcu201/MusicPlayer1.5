@@ -140,7 +140,7 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
                     self.appDelegate.downloadProgressQueue.removeValue(forKey: url)
                     self.fileLocalURLArr.append(url.lastPathComponent)
                     
-                    self.appDelegate.addSongToCoreData(url: url)
+                    CoreDataUtils.addSongToCoreData(url: complete.destinationURL!, context: AppDelegate.viewContext)
                     self.appDelegate.populateDownloadLibrary()
                 }
                 else {

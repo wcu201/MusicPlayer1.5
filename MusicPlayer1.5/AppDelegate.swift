@@ -17,16 +17,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     
     var downloadLibrary = [URL]()
     var shuffledLibrary = [URL]()
-    var selectedLibrary = [URL]()
+
     
     var currentPlaylist = NSMutableOrderedSet(array: [URL]())
     var currentUnshuffledPlaylist: NSMutableOrderedSet?
-    //var currentPlaylist = [URL]()
-    //var currentUnshuffledPlaylist: [URL]?
-    var artistsLibraries = [String : [URL]]()
-    var albumLibraries = [String : [URL]]()
-    var playlistsLibraries = [String : [URL]]()
-    var recentlyAddedQueue  = [URL]()
+
     
     static var persistentContainer: NSPersistentContainer {
         return (UIApplication.shared.delegate as! AppDelegate).persistentContainer
@@ -75,9 +70,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         //UIDeviceOrientation = UIDeviceOrientation.portrait
-        populateDownloadLibrary()
-        populateArtistLibraries()
-        populateAlbumLibraries()
+//        populateDownloadLibrary()
+//        populateArtistLibraries()
+//        populateAlbumLibraries()
 //        let editor = Mp3FileReader()
 //
 //        for url in downloadLibrary {
@@ -100,7 +95,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
 
         //Query Database example
 //        let context = AppDelegate.viewContext
-//        let request: NSFetchRequest<Album> = Album.fetchRequest()
+//        let request: NSFetchRequest<Song> = Song.fetchRequest()
 //        let sortDescriptor = NSSortDescriptor(
 //            key: "title",
 //            ascending: true,
@@ -109,10 +104,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
 //        //let predicate = NSPredicate(format: "", <#T##args: CVarArg...##CVarArg#>)
 //        request.predicate = nil
 //        let songs = try? context.fetch(request)
-
-        
-        let test = CoreDataUtils.entityIsEmpty(entity: Artist.self, key: "title", value: "Elliott Yamin", context: AppDelegate.viewContext)
-        
+                
         return true
     }
     
@@ -174,7 +166,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     
     
     func populateDownloadLibrary(){
-        //Gathers all downloaded files and returns their urls
+        // Gathers all downloaded files and returns their urls
             var downloads = [URL]()
             
             let fileManager = FileManager.default
@@ -189,38 +181,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
                 print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
             }
         downloadLibrary = downloads
-    }
-    
-    func addSongToCoreData(url: URL) {
-        let context = AppDelegate.viewContext
-        let song = Song(context: context)
-        song.artwork = getImage(songURL: url).pngData()
-        song.title = getTitle(songURL: url)
-        song.urlPath = url.absoluteString
-
-        let artist = Artist(context: song.managedObjectContext!)
-        artist.title = getArtist(songURL: url)
-        
-        let albumName = getAlbum(songURL: url)
-        if let album = CoreDataUtils.fetchEntity(entity: Album.self, key: "title", value: albumName, context: song.managedObjectContext!){
-            song.songAlbum = album
-        }
-        else {
-            let album = Album(context: song.managedObjectContext!)
-            album.title = albumName
-            album.albumArtist = artist
-            song.songAlbum = album
-        }
-            
-        song.songArtist = artist
-        
-        do {
-            try context.save()
-        }
-        catch {
-            //CoreData Error
-            print(error)
-        }
     }
     
     //One time helper function for giving all mp3 files in documents a core data representation
@@ -323,39 +283,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
             print(0)
         }
     }
-        
-    func populateArtistLibraries(){
-        var library = [String : [URL]]()
-        
-        for url in downloadLibrary{
-            let artist = getArtist(songURL: url)
-            if library.keys.contains(artist) {library[artist]?.append(url)}
-            else {library[artist] = [url]}
-        }
-        
-        artistsLibraries = library
-    }
-    
-    func populateAlbumLibraries(){
-        var library = [String : [URL]]()
-        
-        for url in downloadLibrary{
-            let album = getAlbum(songURL: url)
-            if library.keys.contains(album) {library[album]?.append(url)}
-            else {library[album] = [url]}
-        }
-        
-        albumLibraries = library
-    }
     
     func deleteFromLibrary(url: URL){
         //This is probably broken
         do {
             //stop everything before removing item from library
             print("Deleting from library")
-            /*if(player.data != nil){
-                player.stop()
-            }*/
             AppDelegate.sharedPlayer = AVAudioPlayer()
             
             try FileManager.default.removeItem(at: url)

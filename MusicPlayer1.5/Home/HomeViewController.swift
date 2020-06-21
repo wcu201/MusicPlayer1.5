@@ -7,19 +7,16 @@
 //
 
 import UIKit
+import CoreData
 
-class HomeViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class HomeViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, NSFetchedResultsControllerDelegate {
     
     
     @IBOutlet weak var scrollView: UIScrollView!
-    
-    
     @IBOutlet weak var container: UIView!
     
     @IBOutlet weak var nowPlayingBar: UIView!
-    
     @IBOutlet weak var artworkPlaying: UIImageView!
-    
     @IBOutlet weak var backgroundArtworkPlaying: UIImageView!
     @IBOutlet weak var artistPlaying: UILabel!
     @IBOutlet weak var titlePlaying: UILabel!
@@ -29,7 +26,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
     @IBOutlet weak var playPauseBTN: UIButton!
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    var test: ViewController?
+    var recentlyAddedFetchedResultsController: NSFetchedResultsController<Song>?
     
     
     let sections = ["Songs", "Artists", "Albums", "Playlists"]
@@ -40,8 +37,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
             case collection:
                 return sections.count
             case recentlyAddedCollection:
-                if appDelegate.downloadLibrary.count >= 5 {return 5}
-                else {return appDelegate.downloadLibrary.count}
+                return recentlyAddedFetchedResultsController?.fetchedObjects?.count ?? 0
             default:
                 return 0
         }
@@ -51,7 +47,6 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         switch collectionView {
         case collection:
             let cell = collection.dequeueReusableCell(withReuseIdentifier: "homeCell", for: indexPath) as! HomeCollectionViewCell
-            //cell.layer.cornerRadius = 15
             
             let img = resizeImage(image: sectionImages[indexPath.row], targetSize: CGSize(width: 20, height: 20))
             cell.icon.image = img
@@ -62,7 +57,11 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
             return cell
         case recentlyAddedCollection:
             let cell = recentlyAddedCollection.dequeueReusableCell(withReuseIdentifier: "recentlyAddedCell", for: indexPath) as! RecentlyAddedCollectionViewCell
-            cell.artwork.image = getImage(songURL: appDelegate.downloadLibrary[appDelegate.downloadLibrary.count-indexPath.row-1])
+            let song = recentlyAddedFetchedResultsController?.object(at: indexPath)
+            if let imageData = song?.artwork {
+                cell.artwork.image = UIImage(data: imageData)
+            }
+            //cell.artwork.image = getImage(songURL: appDelegate.downloadLibrary[appDelegate.downloadLibrary.count-indexPath.row-1])
             return cell
         default:
             return UICollectionViewCell(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
@@ -75,17 +74,21 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
             case collection:
                 switch indexPath.row {
                     case 0:
+                        let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: nil)
                         if let vc = appDelegate.songsVC {
-                            //self.navigationController?.pushViewController(vc, animated: true)
+                            vc.useCoreData = true
+                            vc.fetchedResultsController = songsFetchedResults
+                            //appDelegate.selectedLibrary = appDelegate.downloadLibrary
                             show(vc, sender: self)
                         }
                         else {
                             let storyboard = UIStoryboard(name: "Main", bundle: nil)
                             let vc = storyboard.instantiateViewController(withIdentifier: "songs") as! ViewController
-                            appDelegate.selectedLibrary = appDelegate.downloadLibrary
+                            vc.useCoreData = true
+                            vc.fetchedResultsController = songsFetchedResults
+                            //appDelegate.selectedLibrary = appDelegate.downloadLibrary
                             appDelegate.songsVC = vc
                             self.navigationController?.pushViewController(vc, animated: true)
-                            //self.performSegue(withIdentifier: "goToSongs", sender: self)
                     }
                     case 1:
                         self.performSegue(withIdentifier: "goToArtists", sender: self)
@@ -115,11 +118,13 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         
         recentlyAddedCollection.delegate = self
         recentlyAddedCollection.dataSource = self
+        recentlyAddedFetchedResultsController?.delegate = self
         
         refresh(v: container)
         collection.backgroundColor = UIColor.clear
         recentlyAddedCollection.backgroundColor = UIColor.clear
         
+        recentlyAddedFetchedResultsController = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: CoreDataUtils.recentlyAddedPredicate())
         self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
         // Do any additional setup after loading the view.
     }
@@ -127,12 +132,12 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
     
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        switch segue.identifier {
-            case "goToSongs":
-                appDelegate.selectedLibrary = appDelegate.downloadLibrary
-            default:
-                break
-        }
+//        switch segue.identifier {
+//            case "goToSongs":
+//                appDelegate.selectedLibrary = appDelegate.downloadLibrary
+//            default:
+//                break
+//        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -148,10 +153,6 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         titlePlaying.text = getTitle(songURL: url)
         artistPlaying.text = getArtist(songURL: url)
         
-        
-        //Will need another notification that updates the play pause buttons as well
-        //if AppDelegate.sharedPlayer.isPlaying {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)}
-        //else {playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)}
     }
     
     @IBAction func playPauseMusic(_ sender: Any) {

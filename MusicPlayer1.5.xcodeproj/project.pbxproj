@@ -32,7 +32,7 @@
 		54D204242468F44600E9A2BD /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D204232468F44600E9A2BD /* Album.swift */; };
 		54D204262468F45A00E9A2BD /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D204252468F45A00E9A2BD /* Playlist.swift */; };
 		54E281B32494AD4A00D5C89D /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54E281B22494AD4A00D5C89D /* Library.swift */; };
-		54E281B92496C0CA00D5C89D /* CoreDataUtils.swif.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54E281B82496C0CA00D5C89D /* CoreDataUtils.swif.swift */; };
+		54E281B92496C0CA00D5C89D /* CoreDataUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54E281B82496C0CA00D5C89D /* CoreDataUtils.swift */; };
 		54ED74EE210125A600326880 /* Music Library in Resources */ = {isa = PBXBuildFile; fileRef = 54ED74ED210125A600326880 /* Music Library */; };
 		54ED74F12101370100326880 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54ED74F02101370100326880 /* WebKit.framework */; };
 		54ED74F3210139CE00326880 /* BrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54ED74F2210139CE00326880 /* BrowserViewController.swift */; };
@@ -149,7 +149,7 @@
 		54D204232468F44600E9A2BD /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		54D204252468F45A00E9A2BD /* Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
 		54E281B22494AD4A00D5C89D /* Library.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
-		54E281B82496C0CA00D5C89D /* CoreDataUtils.swif.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataUtils.swif.swift; sourceTree = "<group>"; };
+		54E281B82496C0CA00D5C89D /* CoreDataUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataUtils.swift; sourceTree = "<group>"; };
 		54ED74ED210125A600326880 /* Music Library */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Music Library"; sourceTree = "<group>"; };
 		54ED74F02101370100326880 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		54ED74F2210139CE00326880 /* BrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserViewController.swift; sourceTree = "<group>"; };
@@ -270,7 +270,7 @@
 				54D2041F2468E24C00E9A2BD /* Song.swift */,
 				54D204212468F43500E9A2BD /* Artist.swift */,
 				54D204232468F44600E9A2BD /* Album.swift */,
-				54E281B82496C0CA00D5C89D /* CoreDataUtils.swif.swift */,
+				54E281B82496C0CA00D5C89D /* CoreDataUtils.swift */,
 			);
 			path = DataModel;
 			sourceTree = "<group>";
@@ -769,7 +769,7 @@
 				543B774B2104D5FD003A1EE9 /* songTableViewCell.swift in Sources */,
 				54F5D9B32443B2E200AB2FF1 /* ImageCache.swift in Sources */,
 				54E281B32494AD4A00D5C89D /* Library.swift in Sources */,
-				54E281B92496C0CA00D5C89D /* CoreDataUtils.swif.swift in Sources */,
+				54E281B92496C0CA00D5C89D /* CoreDataUtils.swift in Sources */,
 				54ED74F3210139CE00326880 /* BrowserViewController.swift in Sources */,
 				BE819D6B1F5CE4C900B9DE60 /* ViewController.swift in Sources */,
 				54941856224FFFD900E2F097 /* HomeCollectionViewCell.swift in Sources */,

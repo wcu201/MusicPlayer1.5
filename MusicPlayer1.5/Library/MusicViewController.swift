@@ -38,7 +38,7 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
     
     
     override func viewWillAppear(_ animated: Bool) {
-        self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.selectedLibrary.count)"
+        self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.currentPlaylist.count)"
         MainTabBarController.nowPlayingBar.isHidden = true
     }
     
@@ -157,7 +157,7 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         }
         else {
             var index = appDelegate.arrayPos
-            if appDelegate.arrayPos == 0 {index = appDelegate.selectedLibrary.count-1}
+            if appDelegate.arrayPos == 0 {index = appDelegate.currentPlaylist.count-1}
             else {index-=1}
             
             changeSong(index: index)
@@ -186,11 +186,13 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         
         //update the array position to that of the next song
         var index = appDelegate.arrayPos
-        if appDelegate.arrayPos+1 == appDelegate.selectedLibrary.count{index = 0}
+        if appDelegate.arrayPos+1 == appDelegate.currentPlaylist.count{index = 0}
         else {index += 1}
         
         if appDelegate.isShuffled {url = appDelegate.shuffledLibrary[appDelegate.arrayPos]}
-        else{url = appDelegate.selectedLibrary[appDelegate.arrayPos]}
+        else {
+            url = (appDelegate.currentPlaylist[appDelegate.arrayPos] as! Song).getURL()!
+        }
  
         changeSong(index: index)
     }
@@ -199,7 +201,7 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         //guard let audioPlayer = appDelegate.player else {return}
         AppDelegate.sharedPlayer.stop()
         appDelegate.arrayPos = index
-        url = appDelegate.selectedLibrary[index]
+        url = (appDelegate.currentPlaylist[index] as! Song).getURL()!
         
         setup(theURL: url)
         setupNowPlaying()
@@ -229,7 +231,7 @@ class MusicViewController: UIViewController, AVAudioPlayerDelegate {
         //topArtwork.image = blurImage(usingImage: getImage(songURL: theURL), blurAmount: 60.0)
         songName.text = getTitle(songURL: theURL)
         artistName.text = getArtist(songURL: theURL)
-        self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.selectedLibrary.count)"
+        self.title = "\(appDelegate.arrayPos+1) of \(appDelegate.currentPlaylist.count)"
         self.playPauseButton.setImage(#imageLiteral(resourceName: "pause_white_54x54"), for: .normal)
     }
     

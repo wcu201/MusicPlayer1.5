@@ -118,12 +118,23 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
          print("Path: ", (songURL?.path)!)
             try id3TagEditor.write(tag: tag, to: (songURL?.path)!)
                 
-            if let song = CoreDataUtils.fetchEntity(entity: Song.self, key: "urlPath", value: songURL!.absoluteString, context: mainContext) {
+            if let song = CoreDataUtils.fetchEntity(entity: Song.self, key: "urlPath", value: songURL!.lastPathComponent, context: mainContext) {
                 
                 song.title = newMetadata[0]
-                // TODO: See if you can avoid this is the metadata does not change also it might be possible for a song to have no artist and/or album, so I should consider this in the future
+                // TODO: See if you can avoid this if the metadata does not change also it might be possible for a song to have no artist and/or album, so I should consider this in the future
                 let oldArtist = song.songArtist
                 let oldAlbum = song.songAlbum
+                
+                let newArtistTitle = newMetadata[1].isEmpty ? "Unknown Artist" : newMetadata[1]
+                let newAlbumTitle = newMetadata[3].isEmpty ? "Unknown Album" : newMetadata[3]
+                if oldArtist?.title != newArtistTitle {
+                    oldArtist?.removeFromSongs(song)
+                }
+                if oldAlbum?.title != newAlbumTitle {
+                    oldAlbum?.removeFromSongs(song)
+                }
+                
+                song.artwork = artwork?.pngData()
                 
                 // 1. If new artist exists set song.songArtist to new artist
                 // 2. else make a new Artist and assign it to song.songArtist
@@ -143,6 +154,7 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
                 
                 if let newAlbum = CoreDataUtils.fetchEntity(entity: Album.self, key: "title", value: newMetadata[3], context: mainContext) {
                     // New Album already exists
+                    // This apparently doesn't remove the song from the album's songs NSSet
                     song.songAlbum = newAlbum
                 }
                 else {

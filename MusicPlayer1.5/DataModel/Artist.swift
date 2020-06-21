@@ -9,6 +9,6 @@
 import UIKit
 import CoreData
 
-class Artist: NSManagedObject {
+public class Artist: NSManagedObject {
 
 }

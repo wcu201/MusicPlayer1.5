@@ -122,7 +122,7 @@ class MusicController {
         
         appDelegate.arrayPos = index
         //let url = appDelegate.selectedLibrary[index]
-        let url = appDelegate.currentPlaylist[index] as! URL
+        let url = (appDelegate.currentPlaylist[index] as! Song).getURL()!
         
         //load the url onto the avplayer
         do{
@@ -145,11 +145,12 @@ class MusicController {
         }
         else {
             appDelegate.currentUnshuffledPlaylist = appDelegate.currentPlaylist
-            var shuffledPlaylist = appDelegate.currentPlaylist.array.shuffled() as! [URL]
+            var shuffledPlaylist = appDelegate.currentPlaylist.shuffled()
             appDelegate.currentPlaylist = NSMutableOrderedSet(array: shuffledPlaylist)
             
-            let currentURL = AppDelegate.sharedPlayer.url
-            let currentIndex = appDelegate.currentPlaylist.index(of: currentURL!)
+            let currentSong = AppDelegate.sharedPlayer.url
+            let song = appDelegate.currentPlaylist.first(where: {($0 as! Song).urlPath == currentSong?.lastPathComponent})
+            let currentIndex = appDelegate.currentPlaylist.index(of: song as Any)
             shuffledPlaylist.swapAt(0, currentIndex)
             appDelegate.currentPlaylist = NSMutableOrderedSet(array: shuffledPlaylist)
             
@@ -248,11 +249,13 @@ class MusicController {
     
     func setupNowPlaying() {
         // Define Now Playing Info
-        //let url = appDelegate.selectedLibrary[appDelegate.arrayPos]
         guard let _=AppDelegate.sharedPlayer.url else {
             return
         }
-        let url = appDelegate.currentPlaylist[appDelegate.arrayPos] as! URL
+        
+        guard let url = (appDelegate.currentPlaylist[appDelegate.arrayPos] as! Song).getURL() else {
+            return
+        }
 
         let item = AVPlayerItem(url: url)
         var nowPlayingInfo = [String : Any]()

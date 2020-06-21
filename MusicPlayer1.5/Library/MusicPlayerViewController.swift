@@ -97,7 +97,7 @@ class MusicPlayerViewController: UIViewController {
         }
         let delegate = UIApplication.shared.delegate as! AppDelegate
         //self.songURL = delegate.selectedLibrary[delegate.arrayPos]
-        self.songURL = (delegate.currentPlaylist[delegate.arrayPos] as! URL)
+        self.songURL = (delegate.currentPlaylist[delegate.arrayPos] as! Song).getURL()!
         
         guard let url = songURL else {return}
         artworkImage = getImage(songURL: url)
@@ -110,7 +110,6 @@ class MusicPlayerViewController: UIViewController {
         musicProgressSlider.value = 0
         timePassed.text = "0:00"
         self.timeRemaining.text = AppDelegate.sharedPlayer.duration.stringFromTimeInterval()
-        //self.timeRemaining.text = "dssd"
         //self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.selectedLibrary.count)"
         //self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.currentPlaylist.count)"
     }

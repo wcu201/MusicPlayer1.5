@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class Album: NSManagedObject {
+public class Album: NSManagedObject {
 
 }
 

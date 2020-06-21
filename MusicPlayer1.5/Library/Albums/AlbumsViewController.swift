@@ -44,7 +44,7 @@ class AlbumsViewController: UIViewController, UICollectionViewDelegateFlowLayout
             selector: #selector(NSString.localizedCompare(_:)))
         request.sortDescriptors = [sortDescriptor]
         request.predicate = nil
-        let albums = try? context.fetch(request)
+        //let albums = try? context.fetch(request)
         
         let resultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil /*"AlbumCache"*/)
         
@@ -75,47 +75,46 @@ class AlbumsViewController: UIViewController, UICollectionViewDelegateFlowLayout
             return sections[section].numberOfObjects
         }
         return 0
-        //return self.appDelegate.albumLibraries.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = albumsCollectionView.dequeueReusableCell(withReuseIdentifier: "albumCell", for: indexPath) as! AlbumCollectionViewCell
-        //return cell
         let obj = fetchedResultsController.object(at: indexPath)
             
         cell.album.text = obj.title
         cell.artist.text = obj.albumArtist?.title
         
-        if let data = (obj.songs?.allObjects.first as! Song).artwork {
+        if let data = (obj.songs?.firstObject as! Song).artwork {
             let image = UIImage(data: data)
             cell.artwork.image = image
         }
-        
-        
-        
+ 
         return cell
-//        var keys = Array(appDelegate.albumLibraries.keys)
-//        keys.sort()
-//        let firstSong = appDelegate.albumLibraries[keys[indexPath.row]]![0]
-//        let cell = albumsCollectionView.dequeueReusableCell(withReuseIdentifier: "albumCell", for: indexPath) as! AlbumCollectionViewCell
-//        cell.artist.text = getArtist(songURL: firstSong)
-//        cell.album.text = getAlbum(songURL: firstSong)
-//        cell.artwork.image = getImage(songURL: firstSong)
-//        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //Should change logic
-//        var keys = Array(albumDictionary.keys)
-//        keys.sort()
-//        selectedLibrary = albumDictionary[keys[indexPath.row]]!
-//
-//
-//        appDelegate.selectedLibrary = selectedLibrary
-//        let destination: UIViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "songs") as! ViewController
-//        self.present(destination, animated: true, completion: nil)
-//        //_ = UIStoryboardSegue(identifier: "showSongs", source: self, destination: ViewController())
-//        //performSegue(withIdentifier: "showSongs", sender: self)
+            let album = fetchedResultsController.object(at: indexPath)
+            let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: CoreDataUtils.albumSongsPredicate(album: album))
+            if let vc = appDelegate.songsVC {
+                vc.useCoreData = true
+                vc.fetchedResultsController = songsFetchedResults
+                show(vc, sender: self)
+            }
+            else {
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let vc = storyboard.instantiateViewController(withIdentifier: "songs") as! ViewController
+                vc.useCoreData = true
+                vc.fetchedResultsController = songsFetchedResults
+                appDelegate.songsVC = vc
+                self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = collectionView.bounds.width/3.0
+        let height = width
+
+        return CGSize(width: width, height: height)
     }
     
     
@@ -146,7 +145,6 @@ class AlbumsViewController: UIViewController, UICollectionViewDelegateFlowLayout
         
         albumsCollectionView.delegate = self
         albumsCollectionView.reloadData()
-        //print("Album: ", albumKeys)
         // Do any additional setup after loading the view.
     }
 
@@ -154,19 +152,11 @@ class AlbumsViewController: UIViewController, UICollectionViewDelegateFlowLayout
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    /*
- cell.album2Art.isUserInteractionEnabled = true
- cell.album2Art.restorationIdentifier = albumKeys[indexPath.row * 2 + 1]
- let tapGestureRecognizer = UIGestureRecognizer(target: self, action: #selector(self.showSongs))
- */
-    @objc func showSongs(/*sender: UIImageView*/) {
-        print("Picture Pressed")
-        //selectedLibrary = albumDictionary[sender.restorationIdentifier!]!
-        //performSegue(withIdentifier: "showAlbumSongs", sender: self)
+
+    @objc func showSongs() {
+        //print("Picture Pressed")
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        appDelegate.selectedLibrary = selectedLibrary
     }
 }
