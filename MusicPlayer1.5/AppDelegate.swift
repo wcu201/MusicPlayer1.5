@@ -83,8 +83,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
 //
 //               }
 //        }
-   
-        
 
         //Create all Entities
         //addAllSongsToCoreData()
@@ -92,7 +90,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         //removeAllEntities()
         //removeAlbums()
         
-
+//        let url1 = downloadLibrary[3]
+//        let url2 = downloadLibrary[4]
+//        deleteFromLibrary(url: url2)
         //Query Database example
 //        let context = AppDelegate.viewContext
 //        let request: NSFetchRequest<Song> = Song.fetchRequest()

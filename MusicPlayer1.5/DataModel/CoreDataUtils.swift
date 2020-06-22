@@ -95,7 +95,7 @@ public class CoreDataUtils: NSObject {
         let sortDescriptor = NSSortDescriptor(key: "title", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
         fetchRequest.sortDescriptors = [sortDescriptor]
         fetchRequest.predicate = predicate
-        let results = try? context.fetch(fetchRequest)
+        //let results = try? context.fetch(fetchRequest) 
         
         let resultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil )
         

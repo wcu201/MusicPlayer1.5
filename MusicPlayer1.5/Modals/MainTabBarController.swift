@@ -81,6 +81,7 @@ class MainTabBarController: UITabBarController, UIGestureRecognizerDelegate {
         MainTabBarController.nowPlayingBar.addSubview(songTitle)
         MainTabBarController.nowPlayingBar.addSubview(songArtist)
         setupLayout()
+        //tabBar.setValue(true, forKey: "hidesShadow")
         MainTabBarController.nowPlayingBar.isHidden = true
         let singleFingerTap = UITapGestureRecognizer(target: self, action: #selector(barIsTapped))
         MainTabBarController.nowPlayingBar.addGestureRecognizer(singleFingerTap)

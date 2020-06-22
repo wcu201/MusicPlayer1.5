@@ -19,23 +19,8 @@ class AlbumsViewController: UIViewController, UICollectionViewDelegateFlowLayout
             updateCollectionView()
         }
     }
-    var selectedLibrary = [URL]()
-    var albumDictionary: [String : [URL]] {
-        var dict = [String: [URL]]()
-        
-        for song in userData.downloadLibrary {
-            if dict[getAlbum(songURL: song)] != nil {
-                dict[getAlbum(songURL: song)]?.append(song)
-            }
-            else {
-                dict[getAlbum(songURL: song)] = [song]
-            }
-        }
-        
-        return dict
-    }
     
-    var fetchedResultsController: NSFetchedResultsController<Album> {
+    var fetchedResultsController: NSFetchedResultsController<Album> = {
         let context = AppDelegate.viewContext
         let request: NSFetchRequest<Album> = Album.fetchRequest()
         let sortDescriptor = NSSortDescriptor(
@@ -56,7 +41,7 @@ class AlbumsViewController: UIViewController, UICollectionViewDelegateFlowLayout
         }
         
         return resultsController
-    }
+    }()
 
     
     @IBOutlet weak var albumsCollectionView: UICollectionView!
@@ -124,7 +109,23 @@ class AlbumsViewController: UIViewController, UICollectionViewDelegateFlowLayout
     }
     
     public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-//
+        switch type {
+            case .insert:
+                if let indexPath = newIndexPath {
+                    albumsCollectionView.insertItems(at: [indexPath])
+                }
+                break
+            case .delete:
+                if let indexPath = indexPath {
+                    albumsCollectionView.deleteItems(at: [indexPath])
+                }
+                break
+            case .update:
+                albumsCollectionView.reloadItems(at: [indexPath!])
+                break
+            default:
+                print("...")
+        }
     }
     
     public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {

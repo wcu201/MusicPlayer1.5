@@ -22,6 +22,8 @@
 		5476D65E2106582D00702147 /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5476D65D2106582D00702147 /* PlaylistViewController.swift */; };
 		54941854224FF0C900E2F097 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54941853224FF0C900E2F097 /* HomeViewController.swift */; };
 		54941856224FFFD900E2F097 /* HomeCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54941855224FFFD900E2F097 /* HomeCollectionViewCell.swift */; };
+		5494C8E5249FF7FB001AFF3C /* NewSongTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5494C8E4249FF7FB001AFF3C /* NewSongTableViewCell.swift */; };
+		5494C8EB24A02355001AFF3C /* AddToPlaylistsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5494C8EA24A02355001AFF3C /* AddToPlaylistsViewController.swift */; };
 		54A1906922E8D5BE003B5FEF /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A1906822E8D5BE003B5FEF /* Functions.swift */; };
 		54A3A2BF2107AB7D006C4881 /* AlbumsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A3A2BE2107AB7D006C4881 /* AlbumsViewController.swift */; };
 		54A3A2C42107CD65006C4881 /* ArtistsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A3A2C32107CD65006C4881 /* ArtistsViewController.swift */; };
@@ -139,6 +141,8 @@
 		5476D65D2106582D00702147 /* PlaylistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		54941853224FF0C900E2F097 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		54941855224FFFD900E2F097 /* HomeCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCollectionViewCell.swift; sourceTree = "<group>"; };
+		5494C8E4249FF7FB001AFF3C /* NewSongTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSongTableViewCell.swift; sourceTree = "<group>"; };
+		5494C8EA24A02355001AFF3C /* AddToPlaylistsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToPlaylistsViewController.swift; sourceTree = "<group>"; };
 		54A1906822E8D5BE003B5FEF /* Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
 		54A3A2BE2107AB7D006C4881 /* AlbumsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsViewController.swift; sourceTree = "<group>"; };
 		54A3A2C32107CD65006C4881 /* ArtistsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistsViewController.swift; sourceTree = "<group>"; };
@@ -241,6 +245,7 @@
 				54ED74F42101A1E100326880 /* PlaylistsViewController.swift */,
 				5476D65B21064E5400702147 /* playlistTableViewCell.swift */,
 				5476D65D2106582D00702147 /* PlaylistViewController.swift */,
+				5494C8EA24A02355001AFF3C /* AddToPlaylistsViewController.swift */,
 			);
 			path = Playlists;
 			sourceTree = "<group>";
@@ -306,6 +311,7 @@
 				543B774621044C80003A1EE9 /* MetadataViewController.swift */,
 				543B774821044D29003A1EE9 /* metadataTableViewCell.swift */,
 				54A3A2C72108EF15006C4881 /* ShuffleTableViewCell.swift */,
+				5494C8E4249FF7FB001AFF3C /* NewSongTableViewCell.swift */,
 			);
 			path = "All Songs";
 			sourceTree = "<group>";
@@ -758,6 +764,7 @@
 				54941854224FF0C900E2F097 /* HomeViewController.swift in Sources */,
 				5446B72F24402B4A00561759 /* MusicControls.swift in Sources */,
 				546E32DE246230D30079D2DE /* Model.xcdatamodeld in Sources */,
+				5494C8E5249FF7FB001AFF3C /* NewSongTableViewCell.swift in Sources */,
 				54ED74F52101A1E100326880 /* PlaylistsViewController.swift in Sources */,
 				BEE2FE921F5F488C00324879 /* MusicViewController.swift in Sources */,
 				54A3A2CA210A1DD4006C4881 /* Objects.swift in Sources */,
@@ -768,6 +775,7 @@
 				5413A5BC231A050F008AED0B /* RecentlyAddedCollectionViewCell.swift in Sources */,
 				543B774B2104D5FD003A1EE9 /* songTableViewCell.swift in Sources */,
 				54F5D9B32443B2E200AB2FF1 /* ImageCache.swift in Sources */,
+				5494C8EB24A02355001AFF3C /* AddToPlaylistsViewController.swift in Sources */,
 				54E281B32494AD4A00D5C89D /* Library.swift in Sources */,
 				54E281B92496C0CA00D5C89D /* CoreDataUtils.swift in Sources */,
 				54ED74F3210139CE00326880 /* BrowserViewController.swift in Sources */,

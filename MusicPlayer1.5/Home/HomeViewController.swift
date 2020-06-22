@@ -78,6 +78,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
                         if let vc = appDelegate.songsVC {
                             vc.useCoreData = true
                             vc.fetchedResultsController = songsFetchedResults
+                            vc.fetchedResultsController?.delegate = vc
                             //appDelegate.selectedLibrary = appDelegate.downloadLibrary
                             show(vc, sender: self)
                         }
@@ -86,6 +87,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
                             let vc = storyboard.instantiateViewController(withIdentifier: "songs") as! ViewController
                             vc.useCoreData = true
                             vc.fetchedResultsController = songsFetchedResults
+                            vc.fetchedResultsController?.delegate = vc
                             //appDelegate.selectedLibrary = appDelegate.downloadLibrary
                             appDelegate.songsVC = vc
                             self.navigationController?.pushViewController(vc, animated: true)
@@ -107,6 +109,26 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
 
     }
     
+    public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+            case .insert:
+                if let indexPath = newIndexPath {
+                    recentlyAddedCollection.insertItems(at: [indexPath])
+                }
+                break
+            case .delete:
+                if let indexPath = indexPath {
+                    recentlyAddedCollection.deleteItems(at: [indexPath])
+                }
+                break
+            case .update:
+                recentlyAddedCollection.reloadItems(at: [indexPath!])
+                break
+            default:
+                print("...")
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
 
     }
@@ -120,7 +142,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         recentlyAddedCollection.dataSource = self
         recentlyAddedFetchedResultsController?.delegate = self
         
-        refresh(v: container)
+        refresh(v: self.view)
         collection.backgroundColor = UIColor.clear
         recentlyAddedCollection.backgroundColor = UIColor.clear
         
@@ -132,12 +154,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
     
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        switch segue.identifier {
-//            case "goToSongs":
-//                appDelegate.selectedLibrary = appDelegate.downloadLibrary
-//            default:
-//                break
-//        }
+
     }
 
     override func didReceiveMemoryWarning() {

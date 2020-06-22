@@ -44,11 +44,12 @@ class MusicController {
         
         //Start the play song process
         AppDelegate.sharedPlayer.prepareToPlay()
-        AppDelegate.sharedPlayer.play()
-        NotificationCenter.default.post(
-            name: .songPlayed,
-            object: self,
-            userInfo: nil)
+        playSong()
+//        AppDelegate.sharedPlayer.play()
+//        NotificationCenter.default.post(
+//            name: .songPlayed,
+//            object: self,
+//            userInfo: nil)
     }
     
     public func restartSong() {
@@ -73,11 +74,14 @@ class MusicController {
     
     public static func previousSong() {
         AppDelegate.sharedPlayer.stop()
+        NotificationCenter.default.post(
+            name: .songPaused,
+            object: self,
+            userInfo: nil)
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         var index = appDelegate.arrayPos
         if appDelegate.arrayPos == 0 {
-            //index = appDelegate.selectedLibrary.count-1
             index = appDelegate.currentPlaylist.count-1
         }
         else {
@@ -86,7 +90,7 @@ class MusicController {
         
         appDelegate.arrayPos = index
         //let url = appDelegate.selectedLibrary[index]
-        let url = appDelegate.currentPlaylist[index] as! URL
+        let url = (appDelegate.currentPlaylist[index] as! Song).getURL()!
         
         //load the url onto the avplayer
         do {
@@ -97,7 +101,7 @@ class MusicController {
         }
         
         AppDelegate.sharedPlayer.delegate = appDelegate
-        
+        MusicController().playSong()
 //        //Start the play song process
 //        AppDelegate.sharedPlayer.prepareToPlay()
 //        AppDelegate.sharedPlayer.play()

@@ -38,14 +38,38 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.delegate = self
         tableView.dataSource = self
         
-        if useCoreData {
-            fetchedResultsController!.delegate = self
-        }
+//        if useCoreData {
+//            fetchedResultsController!.delegate = self
+//        }
+        
+        tableView.register(NewSongTableViewCell.self, forCellReuseIdentifier: "SongTableViewCell")
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch (type) {
+             case .insert:
+                 if let indexPath = newIndexPath {
+                    tableView.insertRows(at: [IndexPath(row: indexPath.row, section: 1)], with: .fade)
+                 }
+                 break
+             case .delete:
+                 if let indexPath = indexPath {
+                     tableView.deleteRows(at: [IndexPath(row: indexPath.row, section: 1)], with: .fade)
+                 }
+                 break
+             case .update:
+                if let indexPath = indexPath {
+                    tableView.reloadRows(at: [IndexPath(row: indexPath.row, section: 1)], with: .automatic)
+                }
+                break
+             default:
+                 print("...")
+         }
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {isSearching = false}
@@ -112,11 +136,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             cell?.shuffleBTN.addTarget(self, action: #selector(shufflePlay), for: .touchUpInside)
             return cell!
         case 1:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "songCell", for: indexPath) as? songTableViewCell
+//            let cell = tableView.dequeueReusableCell(withIdentifier: "songCell", for: indexPath) as? songTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SongTableViewCell", for: indexPath) as? NewSongTableViewCell
         
             if useCoreData, let results = fetchedResultsController {
                 let song = results.object(at: IndexPath(row: indexPath.row, section: 0))
-
+                
                 cell?.artwork.image = #imageLiteral(resourceName: "album-cover-placeholder-light")
                 DispatchQueue.global(qos: .userInitiated).async { [weak self] in
                     guard let self = self else {
@@ -144,8 +169,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 cell?.titleText.text = getTitle(songURL: (userData.filteredLibrary[indexPath.row]))
                 cell?.artistText.text = getArtist(songURL: (userData.filteredLibrary[indexPath.row]))
                 cell?.artwork.image = getImage(songURL: (userData.filteredLibrary[indexPath.row]))
-                cell?.editBTN.setTitle(userData.filteredLibrary[indexPath.row].absoluteString, for: .normal)
-                cell?.editBTN.addTarget(self, action: #selector(goToMetadataVC), for: .touchUpInside)
             }
             else {
                 // This helps against tableview scroll slowdown but makes a weird effect when scrolling fast. I consider this an improvment from the previous behavior but can definitely be improved upon
@@ -165,9 +188,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                         cell?.artistText.text = artist
                     }
                 }
-                
-                cell?.editBTN.setTitle((appDelegate.currentPlaylist[indexPath.row] as! Song).getURL()!.absoluteString, for: .normal)
-                cell?.editBTN.addTarget(self, action: #selector(goToMetadataVC), for: .touchUpInside)
             }
         
             return cell!
@@ -202,7 +222,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                     
                     AppDelegate.sharedPlayer.delegate = appDelegate
                     AppDelegate.sharedPlayer.prepareToPlay()
-                    AppDelegate.sharedPlayer.play()
+                    MusicController().playSong()
+                    //AppDelegate.sharedPlayer.play()
                     
                     if appDelegate.playerVC == nil {
                         //No Music Player exists, so some setup needs to be done
@@ -214,6 +235,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
                     self.present(appDelegate.playerVC!, animated: true, completion: nil)
                 }
+                
+                tableView.deselectRow(at: indexPath, animated: true)
                 return 
             }
             
@@ -271,13 +294,21 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
  */
         }
- 
+        
     }
     
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 55
-    }
+        if indexPath.section == 0 {
+            return 55
+        }
+        let screenSize = UIScreen.main.bounds
+        let cellDefaultHeight: CGFloat = 55 /*the default height of the cell*/;
+        let screenDefaultHeight: CGFloat = screenSize.height/*the default height of the screen i.e. 480 in iPhone 4*/;
+
+        let factor = (cellDefaultHeight/screenDefaultHeight) as CGFloat
+
+        return factor * UIScreen.main.bounds.size.height;    }
     
     
     // DEPRECATED FOR NOW
@@ -338,8 +369,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             
             AppDelegate.sharedPlayer.delegate = appDelegate
             AppDelegate.sharedPlayer.prepareToPlay()
-            AppDelegate.sharedPlayer.play()
-            appDelegate.musicPlaying = true
+            MusicController().playSong()
             
             if appDelegate.playerVC == nil {
                 //No Music Player exists, so some setup needs to be done
