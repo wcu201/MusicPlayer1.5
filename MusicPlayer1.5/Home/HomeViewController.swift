@@ -15,15 +15,9 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var container: UIView!
     
-    @IBOutlet weak var nowPlayingBar: UIView!
-    @IBOutlet weak var artworkPlaying: UIImageView!
-    @IBOutlet weak var backgroundArtworkPlaying: UIImageView!
-    @IBOutlet weak var artistPlaying: UILabel!
-    @IBOutlet weak var titlePlaying: UILabel!
     @IBOutlet weak var collection: UICollectionView!
     @IBOutlet weak var recentlyAddedCollection: UICollectionView!
-    
-    @IBOutlet weak var playPauseBTN: UIButton!
+
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var recentlyAddedFetchedResultsController: NSFetchedResultsController<Song>?
@@ -109,23 +103,38 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
 
     }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 10
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 10
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let height = collectionView.frame.height*0.9
+        return CGSize(width: height, height: height)
+    }
+    
     public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        switch type {
-            case .insert:
-                if let indexPath = newIndexPath {
-                    recentlyAddedCollection.insertItems(at: [indexPath])
-                }
-                break
-            case .delete:
-                if let indexPath = indexPath {
-                    recentlyAddedCollection.deleteItems(at: [indexPath])
-                }
-                break
-            case .update:
-                recentlyAddedCollection.reloadItems(at: [indexPath!])
-                break
-            default:
-                print("...")
+        if controller == recentlyAddedFetchedResultsController {
+            switch type {
+                case .insert:
+                    if let indexPath = newIndexPath {
+                        recentlyAddedCollection.insertItems(at: [indexPath])
+                    }
+                    break
+                case .delete:
+                    if let indexPath = indexPath {
+                        recentlyAddedCollection.deleteItems(at: [indexPath])
+                    }
+                    break
+                case .update:
+                    recentlyAddedCollection.reloadItems(at: [indexPath!])
+                    break
+                default:
+                    print("...")
+            }
         }
     }
     
@@ -140,14 +149,15 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         
         recentlyAddedCollection.delegate = self
         recentlyAddedCollection.dataSource = self
-        recentlyAddedFetchedResultsController?.delegate = self
         
         refresh(v: self.view)
         collection.backgroundColor = UIColor.clear
         recentlyAddedCollection.backgroundColor = UIColor.clear
         
         recentlyAddedFetchedResultsController = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: CoreDataUtils.recentlyAddedPredicate())
+        recentlyAddedFetchedResultsController?.delegate = self
         self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
+        setupConstraints()
         // Do any additional setup after loading the view.
     }
     
@@ -162,26 +172,17 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         // Dispose of any resources that can be recreated.
     }
     
-    @objc func populateNowPlayBar(){
-        let url = AppDelegate.sharedPlayer.url!
-        nowPlayingBar.isHidden = false
-        artworkPlaying.image = getImage(songURL: url)
-        backgroundArtworkPlaying.image = getImage(songURL: url)
-        titlePlaying.text = getTitle(songURL: url)
-        artistPlaying.text = getArtist(songURL: url)
+    func setupConstraints() {
+        self.view.addConstraints([
+            NSLayoutConstraint(item: collection!, attribute: .height, relatedBy: .equal, toItem: self.view, attribute: .height, multiplier: 0.25, constant: 0),
+            //NSLayoutConstraint(item: collection!, attribute: <#T##NSLayoutConstraint.Attribute#>, relatedBy: <#T##NSLayoutConstraint.Relation#>, toItem: <#T##Any?#>, attribute: <#T##NSLayoutConstraint.Attribute#>, multiplier: <#T##CGFloat#>, constant: <#T##CGFloat#>)
+        ])
         
+        self.view.addConstraints([
+            NSLayoutConstraint(item: recentlyAddedCollection!, attribute: .height, relatedBy: .equal, toItem: self.view, attribute: .height, multiplier: 0.2, constant: 0),
+        ])
     }
     
-    @IBAction func playPauseMusic(_ sender: Any) {
-        if AppDelegate.sharedPlayer.isPlaying{
-            AppDelegate.sharedPlayer.pause()
-            playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_play_circle_filled_white_black_48pt"), for: .normal)
-        }
-        else{
-            AppDelegate.sharedPlayer.play()
-            playPauseBTN.setImage(#imageLiteral(resourceName: "baseline_pause_circle_filled_black_48pt"), for: .normal)
-        }
-    }
     /*
     // MARK: - Navigation
 

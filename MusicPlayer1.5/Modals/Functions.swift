@@ -69,6 +69,20 @@ func openBoolInputAlert(vc: UIViewController, title: String, message: String)->B
     return response!
 }
 
+func addGlobalNotificationObserver() {
+    let notifyCenter = NotificationCenter.default
+    notifyCenter.addObserver(forName: nil, object: nil, queue: nil, using: {notification in
+        print("""
+            Notification found with:
+            \r\n     name:     %@
+            \r\n     object:   %@
+            \r\n     userInfo: %@
+            """,
+            notification.name,
+            notification.object,
+            notification.userInfo);
+    })
+}
 
 var customURLScheme = "nflx://"
 let huluURLScheme = "hulu://www.hulu.com/watch/a262550f-b93e-4f37-bd69-c10a63cbcbfe"

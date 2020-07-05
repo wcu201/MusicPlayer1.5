@@ -9,13 +9,14 @@
 import UIKit
 import AVKit
 import CoreData
+import CoreAudio
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
 
     var window: UIWindow?
     
-    var downloadLibrary = [URL]()
+    static var downloadLibrary = [URL]()
     var shuffledLibrary = [URL]()
 
     
@@ -68,9 +69,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     var downloadProgressQueue = [URL:Float]() 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
         // Override point for customization after application launch.
         //UIDeviceOrientation = UIDeviceOrientation.portrait
-//        populateDownloadLibrary()
+//        AppDelegate.populateDownloadLibrary()
+//        for url in AppDelegate.downloadLibrary {
+//            if (!url.isFileURL){
+//                print(0)
+//                //AppDelegate.deleteFromLibrary(url: url)
+//            }
+//            print(url)
+//        }
+//        for url in AppDelegate.downloadLibrary {
+//            var file: AVAudioFile?
+//            do {
+//                try file = AVAudioFile(forReading: url)
+//            }
+//            catch {
+//                print(error)
+//            }
+//            
+//            if let audio = file {
+//                let format = audio.fileFormat
+//                let title = getTitle(songURL: url)
+//                print(title, ": ", format)
+//                print(0)
+//            }
+//            
+//        }
+//        var player: AVAudioPlayer?
+//        do {
+//            player =  try AVAudioPlayer(contentsOf: AppDelegate.downloadLibrary[0])
+//        }
+//        catch {
+//            print(0)
+//        }
+//
+//        player?.play()
+        
 //        populateArtistLibraries()
 //        populateAlbumLibraries()
 //        let editor = Mp3FileReader()
@@ -93,7 +129,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
 //        let url1 = downloadLibrary[3]
 //        let url2 = downloadLibrary[4]
 //        deleteFromLibrary(url: url2)
-        //Query Database example
+        // Query Database example
 //        let context = AppDelegate.viewContext
 //        let request: NSFetchRequest<Song> = Song.fetchRequest()
 //        let sortDescriptor = NSSortDescriptor(
@@ -104,7 +140,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
 //        //let predicate = NSPredicate(format: "", <#T##args: CVarArg...##CVarArg#>)
 //        request.predicate = nil
 //        let songs = try? context.fetch(request)
-                
         return true
     }
     
@@ -165,7 +200,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     }
     
     
-    func populateDownloadLibrary(){
+    public static func populateDownloadLibrary(){
         // Gathers all downloaded files and returns their urls
             var downloads = [URL]()
             
@@ -174,19 +209,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
             do {
                 let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
                 for song in fileURLs {
+//                    if song.pathExtension.isEmpty {
+//                        var url2 = URL(string: song.absoluteString)
+//                        url2?.appendPathExtension("mp3")
+//
+//                        let fileManager = FileManager.default
+//                        if fileManager.fileExists(atPath: song.path) {
+//                            do {
+//                                try fileManager.replaceItemAt(song, withItemAt: url2!)
+//                            }
+//                            catch {
+//
+//                            }
+//                        }
+//                        downloads.append(url2!)
+//                        continue
+//                    }
                     downloads.append(song)
                 }
             }
             catch {
                 print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
             }
-        downloadLibrary = downloads
+         downloadLibrary = downloads
     }
     
     //One time helper function for giving all mp3 files in documents a core data representation
     func addAllSongsToCoreData(){
         let context = AppDelegate.viewContext
-        for url in downloadLibrary {
+        for url in AppDelegate.downloadLibrary {
             
             let song = Song(context: context)
             song.artwork = getImage(songURL: url).pngData()
@@ -284,7 +335,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         }
     }
     
-    func deleteFromLibrary(url: URL){
+    public static func deleteFromLibrary(url: URL){
         //This is probably broken
         do {
             //stop everything before removing item from library

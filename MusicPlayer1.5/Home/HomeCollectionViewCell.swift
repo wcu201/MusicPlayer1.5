@@ -16,5 +16,10 @@ class HomeCollectionViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         self.layer.masksToBounds = true
         self.layer.cornerRadius = 5
+//        self.translatesAutoresizingMaskIntoConstraints = false
+//        self.addConstraints([
+//            NSLayoutConstraint(item: self, attribute: .height, relatedBy: .equal, toItem: self.contentView, attribute: .height, multiplier: 0.9, constant: 0),
+//            NSLayoutConstraint(item: self, attribute: .width, relatedBy: .equal, toItem: self, attribute: .height, multiplier: 1, constant: 0),
+//        ])
     }
 }

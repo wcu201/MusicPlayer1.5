@@ -38,10 +38,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.delegate = self
         tableView.dataSource = self
         
-//        if useCoreData {
-//            fetchedResultsController!.delegate = self
-//        }
-        
         tableView.register(NewSongTableViewCell.self, forCellReuseIdentifier: "SongTableViewCell")
     }
     
@@ -77,6 +73,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {isSearching = false}
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        if !searchText.isEmpty {
+//            let searchPredicate = NSPredicate(format: "title contains[c] %@", searchText)
+//            fetchedResultsController = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: searchPredicate)
+//            fetchedResultsController?.delegate = self
+//            tableView.reloadData()
+//        }
+        
+        
+        //return
 //        userData.filteredMap.removeAll()
 //        userData.filteredLibrary.removeAll()
 //        userData.filteredPositions.removeAll()
@@ -223,7 +228,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                     AppDelegate.sharedPlayer.delegate = appDelegate
                     AppDelegate.sharedPlayer.prepareToPlay()
                     MusicController().playSong()
-                    //AppDelegate.sharedPlayer.play()
+                    appDelegate.isShuffled = false
                     
                     if appDelegate.playerVC == nil {
                         //No Music Player exists, so some setup needs to be done
@@ -324,11 +329,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         let song = fetchedResultsController?.object(at: IndexPath(row: indexPath.row, section: 0))
         let deleteAction = UITableViewRowAction(style: .normal, title: "Delete", handler: {(action, other) in
-            openBoolAlert(title: "Delete Song", message: "Can't delete"/*"Are you sure you want to delete this song?"*/, view: self, action: {() in
-//                guard let selectedSong = song else {return}
-//                print("Action Called: Delete", self.appDelegate.downloadLibrary[indexPath.row])
-//                self.appDelegate.deleteFromLibrary(url: selectedSong.getURL()!)
-//                tableView.reloadData()
+            openBoolAlert(title: "Delete Song", message: "Are you sure you want to delete this song?", view: self, action: {() in
+                if let selectedSong = song {
+                    AppDelegate.viewContext.delete(selectedSong)
+                    
+                    do {
+                        try AppDelegate.viewContext.save()
+                    }
+                    catch {
+                        
+                    }
+                }
             })
         })
         let editAction = UITableViewRowAction(style: .normal, title: "Edit", handler: {(action, other) in
@@ -386,6 +397,18 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
         
     
+}
+
+extension UIViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
 }
 
 extension MutableCollection {

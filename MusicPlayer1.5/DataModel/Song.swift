@@ -13,15 +13,19 @@ public class Song: NSManagedObject {
     public override func prepareForDeletion() {
         // Handle Deletion behavior
         
-//        // Delete Artist if this is his last song left
-//        if self.songArtist?.songs?.count == 1 {
-//            self.managedObjectContext?.delete(songArtist!)
-//        }
-//
-//        // Delete Album if this is it's last song left
-//        if self.songAlbum?.songs?.count == 1 {
-//            self.managedObjectContext?.delete(songAlbum!)
-//        }
+        if let url = self.getURL() {
+            AppDelegate.deleteFromLibrary(url: url)
+        }
+        
+        // Delete Artist if this is his last song left
+        if let artist = self.songArtist, let songs = artist.songs, songs.count == 1 {
+            self.managedObjectContext?.delete(artist)
+        }
+
+        // Delete Album if this is it's last song left
+        if let album = self.songAlbum, let songs = album.songs, songs.count == 1 {
+            self.managedObjectContext?.delete(album)
+        }
     }
     
     public func getURL() -> URL? {

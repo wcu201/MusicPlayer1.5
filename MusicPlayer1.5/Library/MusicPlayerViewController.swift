@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import AVKit
+import MediaPlayer
 
 class MusicPlayerViewController: UIViewController {
     var songURL: URL?
@@ -86,6 +88,15 @@ class MusicPlayerViewController: UIViewController {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(updateRepeatStatusBTN),
                                                name: .repeatStatusChanged,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(audioSessionInterrupted),
+                                               name: AVAudioSession.interruptionNotification,
+                                               object: nil)
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(volumeChanged),
+                                               name: NSNotification.Name( "AVSystemController_SystemVolumeDidChangeNotification"),
                                                object: nil)
         
         
@@ -194,6 +205,21 @@ class MusicPlayerViewController: UIViewController {
         self.timeRemaining.text = (
             AppDelegate.sharedPlayer.duration - AppDelegate.sharedPlayer.currentTime).stringFromTimeInterval()
         self.timePassed.text = AppDelegate.sharedPlayer.currentTime.stringFromTimeInterval()
+    }
+    
+    @objc func audioSessionInterrupted(){
+        
+    }
+    
+    @objc func volumeChanged(notification: NSNotification) {
+        let volume = notification.userInfo!["AVSystemController_AudioVolumeNotificationParameter"] as! Float
+        volumeSlider.setValue(volume, animated: true)
+        //print("volume changed: ", volume)
+    }
+    
+    @objc func changeVolume(){
+        //Should move functionality to MusicController
+        MPVolumeView.setVolume(volumeSlider.value)
     }
     
     func setupUI(){
@@ -305,6 +331,7 @@ class MusicPlayerViewController: UIViewController {
         //Volume Slider
         volumeSlider.tintColor = mainRed
         volumeSlider.translatesAutoresizingMaskIntoConstraints = false
+        volumeSlider.addTarget(self, action: #selector(changeVolume), for: .valueChanged)
         self.view.addSubview(volumeSlider)
         
         
@@ -389,4 +416,15 @@ class MusicPlayerViewController: UIViewController {
         ])
         
     }
+}
+
+extension MPVolumeView {
+  static func setVolume(_ volume: Float) {
+    let volumeView = MPVolumeView()
+    let slider = volumeView.subviews.first(where: { $0 is UISlider }) as? UISlider
+
+    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.01) {
+      slider?.value = volume
+    }
+  }
 }

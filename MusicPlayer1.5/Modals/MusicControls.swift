@@ -142,7 +142,8 @@ class MusicController {
     public func shuffle(){
         if appDelegate.isShuffled {
             let currentURL = AppDelegate.sharedPlayer.url
-            let currentIndex = appDelegate.currentUnshuffledPlaylist?.index(of: currentURL!)
+            let song = appDelegate.currentUnshuffledPlaylist!.first(where: {($0 as! Song).urlPath == currentURL?.lastPathComponent})
+            let currentIndex = appDelegate.currentUnshuffledPlaylist?.index(of: song as Any)
             appDelegate.arrayPos = currentIndex!
             appDelegate.currentPlaylist = appDelegate.currentUnshuffledPlaylist!
             appDelegate.isShuffled = false
@@ -152,8 +153,8 @@ class MusicController {
             var shuffledPlaylist = appDelegate.currentPlaylist.shuffled()
             appDelegate.currentPlaylist = NSMutableOrderedSet(array: shuffledPlaylist)
             
-            let currentSong = AppDelegate.sharedPlayer.url
-            let song = appDelegate.currentPlaylist.first(where: {($0 as! Song).urlPath == currentSong?.lastPathComponent})
+            let currentURL = AppDelegate.sharedPlayer.url
+            let song = appDelegate.currentPlaylist.first(where: {($0 as! Song).urlPath == currentURL?.lastPathComponent})
             let currentIndex = appDelegate.currentPlaylist.index(of: song as Any)
             shuffledPlaylist.swapAt(0, currentIndex)
             appDelegate.currentPlaylist = NSMutableOrderedSet(array: shuffledPlaylist)

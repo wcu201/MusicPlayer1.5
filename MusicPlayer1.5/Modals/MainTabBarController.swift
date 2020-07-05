@@ -16,6 +16,13 @@ class MainTabBarController: UITabBarController, UIGestureRecognizerDelegate {
         return bar
     }()
     
+    var nowPlayingBarHeight: CGFloat = {
+        return 60
+        //Factor of screen size
+        let factor: CGFloat = 15.0
+        return UIScreen.main.bounds.height/factor
+    }()
+    
     var backgroundArtwork: UIImageView = {
         let background = UIImageView()
         background.clipsToBounds = true
@@ -139,7 +146,7 @@ class MainTabBarController: UITabBarController, UIGestureRecognizerDelegate {
                     NSLayoutConstraint(item: transitionView, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 0),
                     NSLayoutConstraint(item: transitionView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1, constant: 0),
                     NSLayoutConstraint(item: transitionView, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1, constant: 0),
-                    NSLayoutConstraint(item: transitionView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1, constant: -60),
+                    NSLayoutConstraint(item: transitionView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1, constant: -nowPlayingBarHeight),
                 ])
             }
             
@@ -159,7 +166,7 @@ class MainTabBarController: UITabBarController, UIGestureRecognizerDelegate {
         self.view.addConstraints([
             NSLayoutConstraint(item: MainTabBarController.nowPlayingBar, attribute: .leading, relatedBy: .equal, toItem: tabBar, attribute: .leading, multiplier: 1, constant: 0),
             NSLayoutConstraint(item: MainTabBarController.nowPlayingBar, attribute: .trailing, relatedBy: .equal, toItem: tabBar, attribute: .trailing, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: MainTabBarController.nowPlayingBar, attribute: .top, relatedBy: .equal, toItem: tabBar, attribute: .top, multiplier: 1, constant: -60),
+            NSLayoutConstraint(item: MainTabBarController.nowPlayingBar, attribute: .top, relatedBy: .equal, toItem: tabBar, attribute: .top, multiplier: 1, constant: -nowPlayingBarHeight),
             NSLayoutConstraint(item: MainTabBarController.nowPlayingBar, attribute: .bottom, relatedBy: .equal, toItem: tabBar, attribute: .top, multiplier: 1, constant: 0)
             ])
         

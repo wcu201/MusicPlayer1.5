@@ -82,6 +82,11 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        self.hideKeyboardWhenTappedAround()
+        
         artwork = getImage(songURL: songURL!)
         albumArt.image = artwork
     }
@@ -172,19 +177,6 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
          } catch {print("Error editing tag: ", error)}
     }
     
-    func fetchSong(url: URL) -> Song? {
-        let fetchRequest = NSFetchRequest<Song>(entityName: "Song")
-        let predicate = NSPredicate(format: "urlPath = %@", url.absoluteString)
-        fetchRequest.predicate = predicate
-        let result = try? mainContext.fetch(fetchRequest)
-        
-        guard let songs = result, songs.count == 1 else {
-            return nil
-        }
-        return songs.first
-    }
-    
-    
     func getImage(songURL: URL) -> UIImage {
         var theImage: UIImage = #imageLiteral(resourceName: "album-cover-placeholder-light")
         
@@ -225,6 +217,22 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
         present(alert, animated: true, completion: nil)
     }
     
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            //Temporary, not good
+            //if self.view.frame.origin.y == 0 {
+                self.view.frame.origin.y -= (keyboardSize.height - 64)
+            //}
+        }
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        //Temporary, not good
+        self.view.frame.origin.y += (260 - 64)//keyboardSize.height
+//        if self.view.frame.origin.y != 0 {
+//            self.view.frame.origin.y = 0
+//        }
+    }
 }
 
 extension MetadataViewController: UINavigationControllerDelegate, UIImagePickerControllerDelegate {

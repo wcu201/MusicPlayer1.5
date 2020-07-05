@@ -96,7 +96,7 @@ class AlbumsViewController: UIViewController, UICollectionViewDelegateFlowLayout
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = collectionView.bounds.width/3.0
+        let width = collectionView.bounds.width/2.0
         let height = width
 
         return CGSize(width: width, height: height)
