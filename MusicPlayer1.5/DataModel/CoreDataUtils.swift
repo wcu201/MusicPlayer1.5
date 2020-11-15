@@ -117,6 +117,10 @@ public class CoreDataUtils: NSObject {
         return NSPredicate(format: "songArtist == %@", artist)
     }
     
+    public static func playlistSongsPredicate(playlist: Playlist) -> NSPredicate {
+        return NSPredicate(format: "SELF IN %@", playlist.songs ?? NSSet())
+    }
+
     public static func recentlyAddedPredicate() -> NSPredicate {
         let thirtyDays = TimeInterval(exactly: 3600 * 24 * 30)
         let thirtyDaysAgo = NSDate().addingTimeInterval(-thirtyDays!)

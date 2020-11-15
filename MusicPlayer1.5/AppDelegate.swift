@@ -8,6 +8,7 @@
 
 import UIKit
 import AVKit
+import AVFoundation
 import CoreData
 import CoreAudio
 
@@ -69,56 +70,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     var downloadProgressQueue = [URL:Float]() 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-        // Override point for customization after application launch.
-        //UIDeviceOrientation = UIDeviceOrientation.portrait
-//        AppDelegate.populateDownloadLibrary()
-//        for url in AppDelegate.downloadLibrary {
-//            if (!url.isFileURL){
-//                print(0)
-//                //AppDelegate.deleteFromLibrary(url: url)
-//            }
-//            print(url)
-//        }
-//        for url in AppDelegate.downloadLibrary {
-//            var file: AVAudioFile?
-//            do {
-//                try file = AVAudioFile(forReading: url)
-//            }
-//            catch {
-//                print(error)
-//            }
-//            
-//            if let audio = file {
-//                let format = audio.fileFormat
-//                let title = getTitle(songURL: url)
-//                print(title, ": ", format)
-//                print(0)
-//            }
-//            
-//        }
-//        var player: AVAudioPlayer?
-//        do {
-//            player =  try AVAudioPlayer(contentsOf: AppDelegate.downloadLibrary[0])
-//        }
-//        catch {
-//            print(0)
-//        }
-//
-//        player?.play()
-        
-//        populateArtistLibraries()
-//        populateAlbumLibraries()
-//        let editor = Mp3FileReader()
-//
-//        for url in downloadLibrary {
-//            do {
-//                   try print(editor.getTitle(url: url))
-//               }
-//               catch {
-//
-//               }
-//        }
 
         //Create all Entities
         //addAllSongsToCoreData()
@@ -142,8 +93,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
 //        let songs = try? context.fetch(request)
         return true
     }
-    
-
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath=="isPlaying" {
@@ -260,7 +209,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         }
         catch {
             //CoreData Error
-            print(0)
         }
         
     }
@@ -285,7 +233,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
                 }
                 catch {
                     //CoreData Error
-                    print(0)
                 }
     }
     
@@ -331,7 +278,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
         }
         catch {
             //CoreData Error
-            print(0)
         }
     }
     

@@ -56,7 +56,6 @@ class ArtistsViewController: UIViewController, UITableViewDataSource, UITableVie
         cell.textLabel?.textColor = mainRed
                
         return cell
-        
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -78,11 +77,6 @@ class ArtistsViewController: UIViewController, UITableViewDataSource, UITableVie
         
         tableView.cellForRow(at: indexPath)?.isSelected = false
     }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
-    }
-    
 
     override func viewDidLoad() {
         super.viewDidLoad()

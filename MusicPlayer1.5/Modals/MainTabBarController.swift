@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVKit
 
 class MainTabBarController: UITabBarController, UIGestureRecognizerDelegate {
 
@@ -105,6 +106,11 @@ class MainTabBarController: UITabBarController, UIGestureRecognizerDelegate {
                                                selector: #selector(changeToPauseBTN),
                                                name: .songPlayed,
                                                object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(changeToPauseBTN),
+                                               name: AVAudioSession.interruptionNotification,
+                                               object: nil)
+
         
     }
     

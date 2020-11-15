@@ -30,6 +30,14 @@ class MusicController {
             userInfo: nil)
     }
     
+    public static func stopSong(){
+        AppDelegate.sharedPlayer.stop()
+        NotificationCenter.default.post(
+            name: .songPaused,
+            object: self,
+            userInfo: nil)
+    }
+
     public func skipBack() {
         if AppDelegate.sharedPlayer.currentTime < 2 {
             MusicController.previousSong()
@@ -59,15 +67,6 @@ class MusicController {
         AppDelegate.sharedPlayer.play()
         NotificationCenter.default.post(
             name: .songPlayed,
-            object: self,
-            userInfo: nil)
-    }
-    
-    public func stopSong() {
-        AppDelegate.sharedPlayer.stop()
-        AppDelegate.sharedPlayer.currentTime = 0
-        NotificationCenter.default.post(
-            name: .songPaused,
             object: self,
             userInfo: nil)
     }
@@ -113,8 +112,7 @@ class MusicController {
     }
     
     public static func nextSong() {
-        AppDelegate.sharedPlayer.stop()
-        
+        stopSong()
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         var index = appDelegate.arrayPos
         if appDelegate.arrayPos == appDelegate.currentPlaylist.count-1 /*appDelegate.selectedLibrary.count-1*/{

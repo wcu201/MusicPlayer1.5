@@ -58,9 +58,9 @@ enum ID3v1FieldRange: Int {
 public class Mp3FileReader: NSObject {
     
     func getTitle(url: URL) throws -> String {
-        guard url.pathExtension.caseInsensitiveCompare("mp3") == ComparisonResult.orderedSame else {
-            throw NSError.init(domain: "Error - Not an mp3 file", code: 400, userInfo: nil)
-        }
+//        guard url.pathExtension.caseInsensitiveCompare("mp3") == ComparisonResult.orderedSame else {
+//            throw NSError.init(domain: "Error - Not an mp3 file", code: 400, userInfo: nil)
+//        }
         
         var title = String()
         let mp3 = try Data(contentsOf: url)

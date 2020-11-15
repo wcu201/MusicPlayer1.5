@@ -16,6 +16,7 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
     var addressBar: UISearchBar?
     var backButton: UIBarButtonItem?
     var forwardButton: UIBarButtonItem?
+    var processingValidation = false
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if(message.name == "callbackHandler") {
@@ -24,30 +25,43 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        print("Navigation Type: ", navigationAction.navigationType)
         if navigationAction.navigationType == WKNavigationType.linkActivated {
-            print("link")
             let req = navigationAction.request
             print(req)
             decisionHandler(WKNavigationActionPolicy.allow)
-            if (req.url?.pathExtension == "mp3"){
-                createActionSheet(title: "Download", message: "Do you want to download this mp3?", songURL: req.url!)
+            if !processingValidation {
+                processingValidation = true
+                Alamofire.request(req.url!).validate(contentType: ["audio/mpeg", "application/octet-stream"]).response { response in
+                    // If the content type is audio
+                    if response.error == nil {
+                        self.createActionSheet(title: "Download", message: "Do you want to download this mp3?", songURL: req.url!)
+                    }
+                    self.processingValidation = false
+                }
             }
+
+//            if let pathExtension = req.url?.pathExtension, (pathExtension == "mp3" || pathExtension.isEmpty){
+//                //req.setValue("audio.mp3", forHTTPHeaderField: "Content-Disposition")
+//                createActionSheet(title: "Download", message: "Do you want to download this mp3?", songURL: req.url!)
+//            }
             
             addressBar?.text = req.url?.absoluteString
             return
         }
-        print("Nav Type: ", navigationAction.navigationType)
         print("no link")
         decisionHandler(WKNavigationActionPolicy.allow)
         let req = navigationAction.request
         addressBar?.text = req.url?.absoluteString
         print(req)
-        if (req.url?.pathExtension == "mp3"){
-            createActionSheet(title: "Download", message: "Do you want to download this mp3?", songURL: req.url!)
-        }
-        else {
-            print("Unreconized path extension" )
-        }
+        
+        
+//        if let pathExtension = req.url?.pathExtension, (pathExtension == "mp3"){
+//            createActionSheet(title: "Download", message: "Do you want to download this mp3?", songURL: req.url!)
+//        }
+//        else {
+//            print("Unreconized path extension" )
+//        }
     }
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
@@ -105,7 +119,10 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
         let dest: DownloadRequest.DownloadFileDestination = { _, _ in
             let documentsURL:NSURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first! as NSURL
             print("***documentURL: ",documentsURL)
-            let fileURL = documentsURL.appendingPathComponent(url.lastPathComponent)
+            var fileURL = documentsURL.appendingPathComponent(url.lastPathComponent)
+            if url.pathExtension.isEmpty {
+                fileURL?.appendPathExtension("mp3")
+            }
             print("***fileURL: ",fileURL ?? "")
             return (fileURL!,[.removePreviousFile, .createIntermediateDirectories])
         }
@@ -129,14 +146,15 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
             UserDefaults.standard.set(downloads, forKey: "downloadHistory")
         }
         
-//        Alamofire.download(<#T##url: URLConvertible##URLConvertible#>, method: <#T##HTTPMethod#>, parameters: <#T##Parameters?#>, encoding: URLE, headers: <#T##HTTPHeaders?#>, to: <#T##DownloadRequest.DownloadFileDestination?##DownloadRequest.DownloadFileDestination?##(URL, HTTPURLResponse) -> (destinationURL: URL, options: DownloadRequest.DownloadOptions)#>)
+
         //Performing actual download operation
         Alamofire.download(url, to: dest)
             .downloadProgress(closure: {(progress) in
                 print("Progress: \(progress.fractionCompleted)")
                 self.appDelegate.downloadProgressQueue[url] = Float(progress.fractionCompleted)
-            }).validate(contentType: ["audio/mpeg"])
+            })//.validate(contentType: ["audio/mpeg"]) "application/octet-stream\" might also be valid
             .response(completionHandler: {(complete) in
+                //let header = ["Content-Disposition": "audio.mp3"]
                 self.navigationController?.tabBarController?.tabBar.items![2].badgeValue = nil
                 if complete.error == nil, let filePath = complete.destinationURL?.path {
                     print ("Download Finished: ", filePath)
@@ -146,6 +164,7 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
                     
                     CoreDataUtils.addSongToCoreData(url: complete.destinationURL!, context: AppDelegate.viewContext)
                     AppDelegate.populateDownloadLibrary()
+                    //Encoder
                 }
                 else {
                     print("Unsuccessful Download")
@@ -157,10 +176,18 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
     func createActionSheet(title: String, message: String, songURL: URL){
         let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.actionSheet)
         
+        // Should removed validate below since I do it earlier
         let downloadAction = UIAlertAction(title: "Download", style: .default, handler: {(action) in
-                Alamofire.request(songURL).validate(contentType: ["audio/mpeg"]).response { response in
-                    //let r = response.response?.allHeaderFields
-                self.downloadURL(url: songURL)
+                Alamofire.request(songURL).validate(contentType: ["audio/mpeg", "application/octet-stream"]).response { response in
+                    if songURL.pathExtension == "mp3" || (songURL.pathExtension.isEmpty && response.error == nil) {
+                        self.downloadURL(url: songURL)
+                    }
+                    else {
+                        let errorMessage = response.error != nil ? response.error?.localizedDescription : "Uknown Error"
+                        let errorAlert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
+                        errorAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                        self.present(errorAlert, animated: true, completion: nil)
+                    }
             }
             
         })
@@ -170,7 +197,6 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
         alert.addAction(cancelAction)
         
         self.present(alert, animated: true, completion: nil)
-        //let alert = UIActionSheet()
     }
     
     func createAddressBar() {

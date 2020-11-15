@@ -35,6 +35,7 @@ class MusicPlayerViewController: UIViewController {
     var volumeHighBTN = UIButton()
     var volumeSlider = UISlider()
     let controller = MusicController()
+    var musicTimer: Timer?
     
     init(songURL: URL){
         let delegate = UIApplication.shared.delegate as! AppDelegate
@@ -56,6 +57,18 @@ class MusicPlayerViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        updateSlider(animated: false)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        self.scheduelTimer()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        self.stopTimer()
+    }
+
     override func viewDidLoad() {
         //Should initialize with a URL
         setupUI()
@@ -70,7 +83,15 @@ class MusicPlayerViewController: UIViewController {
                                                name: .songPaused,
                                                object: nil)
         NotificationCenter.default.addObserver(self,
+                                               selector: #selector(stopTimer),
+                                               name: .songPaused,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
                                                selector: #selector(changeToPauseBTN),
+                                               name: .songPlayed,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(scheduelTimer),
                                                name: .songPlayed,
                                                object: nil)
         NotificationCenter.default.addObserver(self,
@@ -90,10 +111,9 @@ class MusicPlayerViewController: UIViewController {
                                                name: .repeatStatusChanged,
                                                object: nil)
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(audioSessionInterrupted),
+                                               selector: #selector(changeToPauseBTN),
                                                name: AVAudioSession.interruptionNotification,
                                                object: nil)
-
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(volumeChanged),
                                                name: NSNotification.Name( "AVSystemController_SystemVolumeDidChangeNotification"),
@@ -102,12 +122,41 @@ class MusicPlayerViewController: UIViewController {
         
     }
     
-    @objc func setup(){
-        guard let _=AppDelegate.sharedPlayer.url else {
-            return
+    func updateSlider(animated: Bool){
+            let timeRatio = Float(AppDelegate.sharedPlayer.currentTime/AppDelegate.sharedPlayer.duration)
+            self.musicProgressSlider.setValue(timeRatio, animated: animated)
+    }
+
+    func updateTimeLabels(){
+        let player = AppDelegate.sharedPlayer
+        let timePassed = round(Float(player.currentTime))
+        let timeRemaining  = round(Float(player.duration)-Float(player.currentTime))
+        var seconds = Int(timePassed)%60
+        var minutes = Int(timePassed)/60
+        if seconds<10 {self.timePassed.text = "\(minutes)"+":"+"0"+"\(seconds)"}
+        else {self.timePassed.text = "\(minutes)"+":"+"\(seconds)"}
+        seconds = Int(timeRemaining)%60
+        minutes = Int(timeRemaining)/60
+        if seconds<10{self.timeRemaining.text = "\(minutes)"+":"+"0"+"\(seconds)"}
+        else {self.timeRemaining.text = "\(minutes)"+":"+"\(seconds)"}
+    }
+
+    @objc func scheduelTimer() {
+        if (self.viewIfLoaded?.window) == nil || !AppDelegate.sharedPlayer.isPlaying { return }
+        self.musicTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            self.updateSlider(animated: true)
+            //self.updateTimeLabels()
         }
+    }
+
+    @objc func stopTimer(){
+        self.musicTimer?.invalidate()
+        self.musicTimer = nil
+    }
+
+    @objc func setup(){
+        guard let _=AppDelegate.sharedPlayer.url else { return }
         let delegate = UIApplication.shared.delegate as! AppDelegate
-        //self.songURL = delegate.selectedLibrary[delegate.arrayPos]
         self.songURL = (delegate.currentPlaylist[delegate.arrayPos] as! Song).getURL()!
         
         guard let url = songURL else {return}
@@ -202,19 +251,42 @@ class MusicPlayerViewController: UIViewController {
     
     @objc func changeSongTime(){
         MusicController().changeSongTime(time: TimeInterval(musicProgressSlider.value))
+        // The next two lines should be removed when time labels are stable when integrated with the timer
         self.timeRemaining.text = (
             AppDelegate.sharedPlayer.duration - AppDelegate.sharedPlayer.currentTime).stringFromTimeInterval()
         self.timePassed.text = AppDelegate.sharedPlayer.currentTime.stringFromTimeInterval()
     }
-    
+
+    @objc func sliderTouchEvent(slider: UISlider, event: UIEvent){
+        if let touchEvent = event.allTouches?.first {
+            switch touchEvent.phase {
+            case .began:
+                self.stopTimer()
+            case .ended:
+                // Possible to place changeSongTime() in a .moved case.
+                // To do this the play control would have to be removed
+                // From the changeSongTime() and move to the .ended case
+                // For best experience. For now this is uneeded.
+                changeSongTime()
+                scheduelTimer()
+            default:
+                break
+            }
+        }
+    }
+
+    @objc func sliderTouchEnded(){
+        changeSongTime()
+        scheduelTimer()
+    }
+
     @objc func audioSessionInterrupted(){
         
     }
-    
+
     @objc func volumeChanged(notification: NSNotification) {
         let volume = notification.userInfo!["AVSystemController_AudioVolumeNotificationParameter"] as! Float
         volumeSlider.setValue(volume, animated: true)
-        //print("volume changed: ", volume)
     }
     
     @objc func changeVolume(){
@@ -238,7 +310,6 @@ class MusicPlayerViewController: UIViewController {
         self.view.addSubview(blurView)
         
         //Track Label
-        //trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.selectedLibrary.count)"
         self.trackLabel.text = "\(delegate.arrayPos+1) of \(delegate.currentPlaylist.count)"
         trackLabel.font = UIFont(name: "Avenir Book", size: 25.0)
         trackLabel.textColor = mainRed
@@ -266,7 +337,7 @@ class MusicPlayerViewController: UIViewController {
                     width: 20,
                     height: 20)),
             for: .normal)
-        musicProgressSlider.addTarget(self, action: #selector(changeSongTime), for: .touchUpInside)
+        musicProgressSlider.addTarget(self, action: #selector(sliderTouchEvent(slider:event:)), for: .allTouchEvents)
         
         musicProgressStackView.axis = .horizontal
         musicProgressStackView.distribution = .equalSpacing

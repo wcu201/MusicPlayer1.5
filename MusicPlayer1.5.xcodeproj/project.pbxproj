@@ -30,13 +30,14 @@
 		54A3A2C42107CD65006C4881 /* ArtistsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A3A2C32107CD65006C4881 /* ArtistsViewController.swift */; };
 		54A3A2C82108EF15006C4881 /* ShuffleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A3A2C72108EF15006C4881 /* ShuffleTableViewCell.swift */; };
 		54A3A2CA210A1DD4006C4881 /* Objects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A3A2C9210A1DD4006C4881 /* Objects.swift */; };
+		54A4703A24E909AA003102D6 /* MarqueeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A4703924E909AA003102D6 /* MarqueeLabel.swift */; };
+		54A4703C24EEB9C8003102D6 /* That Way.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 54A4703B24EEB9C8003102D6 /* That Way.mp4 */; };
 		54D204202468E24C00E9A2BD /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D2041F2468E24C00E9A2BD /* Song.swift */; };
 		54D204222468F43500E9A2BD /* Artist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D204212468F43500E9A2BD /* Artist.swift */; };
 		54D204242468F44600E9A2BD /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D204232468F44600E9A2BD /* Album.swift */; };
 		54D204262468F45A00E9A2BD /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D204252468F45A00E9A2BD /* Playlist.swift */; };
 		54E281B32494AD4A00D5C89D /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54E281B22494AD4A00D5C89D /* Library.swift */; };
 		54E281B92496C0CA00D5C89D /* CoreDataUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54E281B82496C0CA00D5C89D /* CoreDataUtils.swift */; };
-		54ED74EE210125A600326880 /* Music Library in Resources */ = {isa = PBXBuildFile; fileRef = 54ED74ED210125A600326880 /* Music Library */; };
 		54ED74F12101370100326880 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54ED74F02101370100326880 /* WebKit.framework */; };
 		54ED74F3210139CE00326880 /* BrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54ED74F2210139CE00326880 /* BrowserViewController.swift */; };
 		54ED74F52101A1E100326880 /* PlaylistsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54ED74F42101A1E100326880 /* PlaylistsViewController.swift */; };
@@ -150,13 +151,14 @@
 		54A3A2C32107CD65006C4881 /* ArtistsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistsViewController.swift; sourceTree = "<group>"; };
 		54A3A2C72108EF15006C4881 /* ShuffleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuffleTableViewCell.swift; sourceTree = "<group>"; };
 		54A3A2C9210A1DD4006C4881 /* Objects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Objects.swift; sourceTree = "<group>"; };
+		54A4703924E909AA003102D6 /* MarqueeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarqueeLabel.swift; sourceTree = "<group>"; };
+		54A4703B24EEB9C8003102D6 /* That Way.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "That Way.mp4"; path = "../../That Way.mp4"; sourceTree = "<group>"; };
 		54D2041F2468E24C00E9A2BD /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		54D204212468F43500E9A2BD /* Artist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Artist.swift; sourceTree = "<group>"; };
 		54D204232468F44600E9A2BD /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		54D204252468F45A00E9A2BD /* Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
 		54E281B22494AD4A00D5C89D /* Library.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
 		54E281B82496C0CA00D5C89D /* CoreDataUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataUtils.swift; sourceTree = "<group>"; };
-		54ED74ED210125A600326880 /* Music Library */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Music Library"; sourceTree = "<group>"; };
 		54ED74F02101370100326880 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		54ED74F2210139CE00326880 /* BrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserViewController.swift; sourceTree = "<group>"; };
 		54ED74F42101A1E100326880 /* PlaylistsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsViewController.swift; sourceTree = "<group>"; };
@@ -299,6 +301,7 @@
 				54766DA8231BEAC000ACEF56 /* MainTabBarController.swift */,
 				5446B72E24402B4A00561759 /* MusicControls.swift */,
 				54F5D9B22443B2E200AB2FF1 /* ImageCache.swift */,
+				54A4703924E909AA003102D6 /* MarqueeLabel.swift */,
 			);
 			path = Modals;
 			sourceTree = "<group>";
@@ -434,9 +437,9 @@
 				543B774221041974003A1EE9 /* Playlists */,
 				543B774121041947003A1EE9 /* Library */,
 				BE819D681F5CE4C900B9DE60 /* AppDelegate.swift */,
+				54A4703B24EEB9C8003102D6 /* That Way.mp4 */,
 				BE819D6C1F5CE4C900B9DE60 /* Main.storyboard */,
 				BE819D711F5CE4C900B9DE60 /* LaunchScreen.storyboard */,
-				54ED74ED210125A600326880 /* Music Library */,
 				BE819D6F1F5CE4C900B9DE60 /* Assets.xcassets */,
 				BE819D741F5CE4C900B9DE60 /* Info.plist */,
 			);
@@ -559,6 +562,7 @@
 					BE819D641F5CE4C900B9DE60 = {
 						CreatedOnToolsVersion = 8.3.3;
 						DevelopmentTeam = 6343M8D847;
+						LastSwiftMigration = 1150;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -651,9 +655,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE819D731F5CE4C900B9DE60 /* LaunchScreen.storyboard in Resources */,
+				54A4703C24EEB9C8003102D6 /* That Way.mp4 in Resources */,
 				BE819D701F5CE4C900B9DE60 /* Assets.xcassets in Resources */,
 				BE819D6E1F5CE4C900B9DE60 /* Main.storyboard in Resources */,
-				54ED74EE210125A600326880 /* Music Library in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -770,6 +774,7 @@
 				54A3A2BF2107AB7D006C4881 /* AlbumsViewController.swift in Sources */,
 				543B774921044D29003A1EE9 /* metadataTableViewCell.swift in Sources */,
 				54766DA9231BEAC000ACEF56 /* MainTabBarController.swift in Sources */,
+				54A4703A24E909AA003102D6 /* MarqueeLabel.swift in Sources */,
 				54D204222468F43500E9A2BD /* Artist.swift in Sources */,
 				546E32E0246763F90079D2DE /* MusicPlayerViewController.swift in Sources */,
 				54941854224FF0C900E2F097 /* HomeViewController.swift in Sources */,
@@ -1028,12 +1033,14 @@
 			baseConfigurationReference = F56E7D94E959AD97A6450822 /* Pods-MusicPlayer1.5.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = 6343M8D847;
 				INFOPLIST_FILE = MusicPlayer1.5/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "WiU.MusicPlayer1-5";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -1043,6 +1050,7 @@
 			baseConfigurationReference = 711101E6B49AE97C33A29FE4 /* Pods-MusicPlayer1.5.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = 6343M8D847;
 				INFOPLIST_FILE = MusicPlayer1.5/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;

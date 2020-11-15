@@ -7,14 +7,71 @@
 //
 
 import UIKit
+import CoreData
 
-class PlaylistsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource{
+class PlaylistsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate {
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    var container: NSPersistentContainer = (UIApplication.shared.delegate as! AppDelegate).persistentContainer {
+        didSet {
+            //updateTableView()
+        }
+    }
+
+    var fetchedResultsController: NSFetchedResultsController<Playlist> {
+        let context = AppDelegate.viewContext
+        let request: NSFetchRequest<Playlist> = Playlist.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(
+            key: "title",
+            ascending: true,
+            selector: #selector(NSString.localizedCompare(_:)))
+        request.sortDescriptors = [sortDescriptor]
+        request.predicate = nil
+        //let artists = try? context.fetch(request)
+        let resultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil /*"AlbumCache"*/)
+
+        do {
+            try resultsController.performFetch()
+        }
+        catch {
+           fatalError("Failed to initialize FetchedResultsController: \(error)")
+        }
+        return resultsController
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if let sections = self.fetchedResultsController.sections, sections.count > 0 {
+            return sections[section].numberOfObjects
+        }
         return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return tableView.dequeueReusableCell(withIdentifier: "")!
+        let cell = tableView.dequeueReusableCell(withIdentifier: "")!
+        let obj = fetchedResultsController.object(at: indexPath)
+
+        cell.textLabel?.text = obj.title
+        cell.textLabel?.textColor = mainRed
+
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let playlist = fetchedResultsController.object(at: indexPath)
+        let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: CoreDataUtils.playlistSongsPredicate(playlist: playlist))
+        if let vc = appDelegate.songsVC {
+            vc.useCoreData = true
+            vc.fetchedResultsController = songsFetchedResults
+            show(vc, sender: self)
+            }
+        else {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "songs") as! ViewController
+            vc.useCoreData = true
+            vc.fetchedResultsController = songsFetchedResults
+            appDelegate.songsVC = vc
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+        tableView.cellForRow(at: indexPath)?.isSelected = false
     }
     
 
@@ -24,7 +81,7 @@ class PlaylistsViewController: UIViewController, UITableViewDelegate, UITableVie
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
+        self.fetchedResultsController.delegate = self
         // Do any additional setup after loading the view.
     }
 
@@ -36,7 +93,6 @@ class PlaylistsViewController: UIViewController, UITableViewDelegate, UITableVie
     
     @IBAction func goToCreatePlaylist(_ sender: Any) {
         self.performSegue(withIdentifier: "goToCreatePlaylist", sender: self)
-        
     }
     /*
     // MARK: - Navigation

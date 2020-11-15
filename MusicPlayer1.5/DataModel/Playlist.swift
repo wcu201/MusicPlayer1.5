@@ -9,6 +9,6 @@
 import UIKit
 import CoreData
 
-class Playlist: NSManagedObject {
+public class Playlist: NSManagedObject {
 
 }
