@@ -57,7 +57,7 @@ class PlaylistsViewController: UIViewController, UITableViewDelegate, UITableVie
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let playlist = fetchedResultsController.object(at: indexPath)
-        let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: CoreDataUtils.playlistSongsPredicate(playlist: playlist))
+        let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, onlyCompletedDownloads: true, predicate: CoreDataUtils.playlistSongsPredicate(playlist: playlist))
         if let vc = appDelegate.songsVC {
             vc.useCoreData = true
             vc.fetchedResultsController = songsFetchedResults

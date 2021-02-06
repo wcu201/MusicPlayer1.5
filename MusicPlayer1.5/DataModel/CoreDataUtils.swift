@@ -50,52 +50,33 @@ public class CoreDataUtils: NSObject {
         }
     }
     
-    public static func addSongToCoreData(url: URL, context: NSManagedObjectContext) {
+    public static func addSongToCoreData(context: NSManagedObjectContext) -> (Song?, Error?) {
         let song = Song(context: context)
-        song.artwork = getImage(songURL: url).pngData()
-        song.title = getTitle(songURL: url)
-        song.urlPath = url.lastPathComponent
-        song.timeStamp = Date()
-        
-        var artist: Artist?
-        var album: Album?
-
-        let aritstName = getArtist(songURL: url)
-        if let artist = CoreDataUtils.fetchEntity(entity: Artist.self, key: "title", value: aritstName, context: song.managedObjectContext!){
-            song.songArtist = artist
-        }
-        else {
-            artist = Artist(context: song.managedObjectContext!)
-            artist?.title = getArtist(songURL: url)
-            song.songArtist = artist
-        }
-        
-        let albumName = getAlbum(songURL: url)
-        if let album = CoreDataUtils.fetchEntity(entity: Album.self, key: "title", value: albumName, context: song.managedObjectContext!){
-            song.songAlbum = album
-        }
-        else {
-            album = Album(context: song.managedObjectContext!)
-            album?.title = albumName
-            album?.albumArtist = artist
-            song.songAlbum = album
-        }
-            
+        song.songID = UUID()
+        song.downloadProgress = 0
+        song.downloaded = false
+    
         do {
             try context.save()
+            return (song, nil)
         }
         catch {
             //CoreData Error
             print(error)
+            return (nil, error)
         }
     }
     
-    public static func fetchSongs(context: NSManagedObjectContext, predicate: NSPredicate? = nil) -> NSFetchedResultsController<Song>? {
+    public static func fetchSongs(context: NSManagedObjectContext, onlyCompletedDownloads: Bool, predicate: NSPredicate? = nil) -> NSFetchedResultsController<Song>? {
         let fetchRequest = NSFetchRequest<Song>(entityName: "Song")
         let sortDescriptor = NSSortDescriptor(key: "title", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
         fetchRequest.sortDescriptors = [sortDescriptor]
-        fetchRequest.predicate = predicate
-        //let results = try? context.fetch(fetchRequest) 
+        
+        var predicates = [NSPredicate]()
+        if onlyCompletedDownloads { predicates.append(completedDownloadsPredicate) }
+        if let addedPredicate = predicate { predicates.append(addedPredicate)}
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        fetchRequest.predicate = compoundPredicate
         
         let resultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil )
         
@@ -107,6 +88,10 @@ public class CoreDataUtils: NSObject {
         }
         
         return resultsController
+    }
+    
+    public static var completedDownloadsPredicate: NSPredicate {
+        return NSPredicate(format: "downloaded == YES")
     }
     
     public static func albumSongsPredicate(album: Album) -> NSPredicate {

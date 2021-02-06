@@ -79,7 +79,7 @@ class AlbumsViewController: UIViewController, UICollectionViewDelegateFlowLayout
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
             let album = fetchedResultsController.object(at: indexPath)
-            let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: CoreDataUtils.albumSongsPredicate(album: album))
+        let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, onlyCompletedDownloads: true, predicate: CoreDataUtils.albumSongsPredicate(album: album))
             if let vc = appDelegate.songsVC {
                 vc.useCoreData = true
                 vc.fetchedResultsController = songsFetchedResults

@@ -60,7 +60,7 @@ class ArtistsViewController: UIViewController, UITableViewDataSource, UITableVie
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let artist = fetchedResultsController.object(at: indexPath)
-        let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: CoreDataUtils.artistSongsPredicate(artist: artist))
+        let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, onlyCompletedDownloads: true, predicate: CoreDataUtils.artistSongsPredicate(artist: artist))
         if let vc = appDelegate.songsVC {
             vc.useCoreData = true
             vc.fetchedResultsController = songsFetchedResults

@@ -27,6 +27,8 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
     var album = String()
     var releaseYear = String()
     var artwork: UIImage?
+    // Workaround
+    var keyBoardIsVisible = false
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return metadataFields.count
@@ -218,20 +220,19 @@ class MetadataViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            //Temporary, not good
-            //if self.view.frame.origin.y == 0 {
-                self.view.frame.origin.y -= (keyboardSize.height - 64)
-            //}
+        if !keyBoardIsVisible, let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            keyBoardIsVisible = true
+            let tabBarHieght = tabBarController?.tabBar.frame.height ?? 0
+            self.tabBarController?.view.frame.origin.y -= (keyboardSize.height - tabBarHieght)
         }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
-        //Temporary, not good
-        self.view.frame.origin.y += (260 - 64)//keyboardSize.height
-//        if self.view.frame.origin.y != 0 {
-//            self.view.frame.origin.y = 0
-//        }
+        if keyBoardIsVisible, let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            keyBoardIsVisible = false
+            let tabBarHieght = tabBarController?.tabBar.frame.height ?? 0
+            self.tabBarController?.view.frame.origin.y += (keyboardSize.height - tabBarHieght)
+        }
     }
 }
 

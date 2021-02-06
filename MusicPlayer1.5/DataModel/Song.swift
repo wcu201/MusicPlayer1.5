@@ -40,4 +40,63 @@ public class Song: NSManagedObject {
         }
         return nil
     }
+    
+    public func addURL(url: URL) {
+        guard let context = self.managedObjectContext else {
+            print("Cannot add URL. Song has not context")
+            return
+        }
+        self.artwork = getImage(songURL: url).pngData()
+        self.title = getTitle(songURL: url)
+        self.urlPath = url.lastPathComponent
+        self.timeStamp = Date()
+        
+        var artist: Artist?
+        var album: Album?
+
+        let aritstName = getArtist(songURL: url)
+        if let artist = CoreDataUtils.fetchEntity(entity: Artist.self, key: "title", value: aritstName, context: context){
+            self.songArtist = artist
+        }
+        else {
+            artist = Artist(context: context)
+            artist?.title = getArtist(songURL: url)
+            self.songArtist = artist
+        }
+        
+        let albumName = getAlbum(songURL: url)
+        if let album = CoreDataUtils.fetchEntity(entity: Album.self, key: "title", value: albumName, context: context){
+            self.songAlbum = album
+        }
+        else {
+            album = Album(context: context)
+            album?.title = albumName
+            album?.albumArtist = artist
+            self.songAlbum = album
+        }
+            
+        do {
+            try context.save()
+        }
+        catch {
+            // CoreData Error
+            print(error)
+        }
+    }
+    
+    public func updateDownloadProgress(fractionCompleted: Double){
+        guard let context = self.managedObjectContext else { return }
+        let downloadProgress = 100 * fractionCompleted
+        self.downloadProgress = downloadProgress
+        do {
+            try context.save()
+            let notificationCenter = NotificationCenter.default
+            let userInfo = [
+                "progress" : downloadProgress,
+                "songID" : self.songID?.uuidString
+            ] as [String : Any]
+            notificationCenter.post(name: .downloadProgressUpdated, object: self, userInfo: userInfo)
+        }
+        catch {}
+    }
 }

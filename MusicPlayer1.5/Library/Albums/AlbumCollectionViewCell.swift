@@ -14,7 +14,6 @@ class AlbumCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var artist: UILabel!
     
-    
     @IBOutlet weak var album: UILabel!
     
 }

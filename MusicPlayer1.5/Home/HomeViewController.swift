@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class HomeViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, NSFetchedResultsControllerDelegate {
+class HomeViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, NSFetchedResultsControllerDelegate, UIGestureRecognizerDelegate {
     
     
     @IBOutlet weak var scrollView: UIScrollView!
@@ -68,7 +68,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
             case collection:
                 switch indexPath.row {
                     case 0:
-                        let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: nil)
+                        let songsFetchedResults = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, onlyCompletedDownloads: true, predicate: nil)
                         if let vc = appDelegate.songsVC {
                             vc.useCoreData = true
                             vc.fetchedResultsController = songsFetchedResults
@@ -154,10 +154,12 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         collection.backgroundColor = UIColor.clear
         recentlyAddedCollection.backgroundColor = UIColor.clear
         
-        recentlyAddedFetchedResultsController = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, predicate: CoreDataUtils.recentlyAddedPredicate())
+        recentlyAddedFetchedResultsController = CoreDataUtils.fetchSongs(context: AppDelegate.viewContext, onlyCompletedDownloads: true, predicate: CoreDataUtils.recentlyAddedPredicate())
         recentlyAddedFetchedResultsController?.delegate = self
         self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
         setupConstraints()
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = false
         // Do any additional setup after loading the view.
     }
     

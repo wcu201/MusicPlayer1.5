@@ -91,6 +91,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
 //        //let predicate = NSPredicate(format: "", <#T##args: CVarArg...##CVarArg#>)
 //        request.predicate = nil
 //        let songs = try? context.fetch(request)
+//        if let theSongs = songs {
+//            for song in theSongs {
+//                let x = song.songID
+//                print(x)
+//            }
+//            //try? context.save()
+//        }
         return true
     }
     

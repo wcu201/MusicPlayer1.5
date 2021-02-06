@@ -40,11 +40,6 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
                     self.processingValidation = false
                 }
             }
-
-//            if let pathExtension = req.url?.pathExtension, (pathExtension == "mp3" || pathExtension.isEmpty){
-//                //req.setValue("audio.mp3", forHTTPHeaderField: "Content-Disposition")
-//                createActionSheet(title: "Download", message: "Do you want to download this mp3?", songURL: req.url!)
-//            }
             
             addressBar?.text = req.url?.absoluteString
             return
@@ -54,14 +49,6 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
         let req = navigationAction.request
         addressBar?.text = req.url?.absoluteString
         print(req)
-        
-        
-//        if let pathExtension = req.url?.pathExtension, (pathExtension == "mp3"){
-//            createActionSheet(title: "Download", message: "Do you want to download this mp3?", songURL: req.url!)
-//        }
-//        else {
-//            print("Unreconized path extension" )
-//        }
     }
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
@@ -115,6 +102,14 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
     //downloadURL(url: URL(string: "https://a.tumblr.com/tumblr_lz99inw5kp1r9sexqo1.mp3")!)
     
     func downloadURL(url: URL) {
+        //Create Song NSManagedObject
+        let addedSong = CoreDataUtils.addSongToCoreData(context: AppDelegate.viewContext)
+        guard let song = addedSong.0 else {
+            if let error = addedSong.1 { print(error) }
+            return
+        }
+    
+        
         //Creates destination where file is stored
         let dest: DownloadRequest.DownloadFileDestination = { _, _ in
             let documentsURL:NSURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first! as NSURL
@@ -137,6 +132,7 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
         }
         
         //Adding record to download history
+        //TODO: Remove this. Shouldn't be storing download history in User Defaults Settings
         if (UserDefaults.standard.array(forKey: "downloadHistory")) == nil {
             UserDefaults.standard.set([url.lastPathComponent], forKey: "downloadHistory")
         }
@@ -151,9 +147,9 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
         Alamofire.download(url, to: dest)
             .downloadProgress(closure: {(progress) in
                 print("Progress: \(progress.fractionCompleted)")
-                self.appDelegate.downloadProgressQueue[url] = Float(progress.fractionCompleted)
-            })//.validate(contentType: ["audio/mpeg"]) "application/octet-stream\" might also be valid
-            .response(completionHandler: {(complete) in
+                song.updateDownloadProgress(fractionCompleted: progress.fractionCompleted)
+                //self.appDelegate.downloadProgressQueue[url] = Float(progress.fractionCompleted)
+            }).response(completionHandler: {(complete) in
                 //let header = ["Content-Disposition": "audio.mp3"]
                 self.navigationController?.tabBarController?.tabBar.items![2].badgeValue = nil
                 if complete.error == nil, let filePath = complete.destinationURL?.path {
@@ -162,8 +158,14 @@ class BrowserViewController: UIViewController, WKUIDelegate, WKNavigationDelegat
                     self.appDelegate.downloadProgressQueue.removeValue(forKey: url)
                     self.fileLocalURLArr.append(url.lastPathComponent)
                     
-                    CoreDataUtils.addSongToCoreData(url: complete.destinationURL!, context: AppDelegate.viewContext)
-                    AppDelegate.populateDownloadLibrary()
+                    if let destinationURL = complete.destinationURL {
+                        song.addURL(url: destinationURL)
+                        song.downloadProgress = 100
+                        song.downloaded = true
+                        try? AppDelegate.viewContext.save()
+                    }
+                    //CoreDataUtils.addSongToCoreData(url: complete.destinationURL!, context: AppDelegate.viewContext)
+                    //AppDelegate.populateDownloadLibrary()
                     //Encoder
                 }
                 else {

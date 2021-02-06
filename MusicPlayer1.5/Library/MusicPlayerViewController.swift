@@ -145,7 +145,7 @@ class MusicPlayerViewController: UIViewController {
         if (self.viewIfLoaded?.window) == nil || !AppDelegate.sharedPlayer.isPlaying { return }
         self.musicTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
             self.updateSlider(animated: true)
-            //self.updateTimeLabels()
+            self.updateTimeLabels()
         }
     }
 
@@ -251,10 +251,7 @@ class MusicPlayerViewController: UIViewController {
     
     @objc func changeSongTime(){
         MusicController().changeSongTime(time: TimeInterval(musicProgressSlider.value))
-        // The next two lines should be removed when time labels are stable when integrated with the timer
-        self.timeRemaining.text = (
-            AppDelegate.sharedPlayer.duration - AppDelegate.sharedPlayer.currentTime).stringFromTimeInterval()
-        self.timePassed.text = AppDelegate.sharedPlayer.currentTime.stringFromTimeInterval()
+        updateTimeLabels()
     }
 
     @objc func sliderTouchEvent(slider: UISlider, event: UIEvent){
@@ -328,8 +325,13 @@ class MusicPlayerViewController: UIViewController {
         timeRemaining.font = UIFont.systemFont(ofSize: 8)
         timePassed.textAlignment = .center
         timeRemaining.textAlignment = .center
-        timePassed.textColor = .white
+        timePassed.textColor = mainRed
         timeRemaining.textColor = .white
+        timePassed.translatesAutoresizingMaskIntoConstraints = false
+        timeRemaining.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(timePassed)
+        self.view.addSubview(timeRemaining)
+        
         musicProgressSlider.tintColor = mainRed
         musicProgressSlider.setThumbImage(resizeImage(
                 image: UIImage(named: "custom_thumb")!,
@@ -338,14 +340,16 @@ class MusicPlayerViewController: UIViewController {
                     height: 20)),
             for: .normal)
         musicProgressSlider.addTarget(self, action: #selector(sliderTouchEvent(slider:event:)), for: .allTouchEvents)
+        musicProgressSlider.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(musicProgressSlider)
         
-        musicProgressStackView.axis = .horizontal
-        musicProgressStackView.distribution = .equalSpacing
-        musicProgressStackView.translatesAutoresizingMaskIntoConstraints = false
-        musicProgressStackView.addArrangedSubview(timePassed)
-        musicProgressStackView.addArrangedSubview(musicProgressSlider)
-        musicProgressStackView.addArrangedSubview(timeRemaining)
-        self.view.addSubview(musicProgressStackView)
+//        musicProgressStackView.axis = .horizontal
+//        musicProgressStackView.distribution = .equalSpacing
+//        musicProgressStackView.translatesAutoresizingMaskIntoConstraints = false
+//        musicProgressStackView.addArrangedSubview(timePassed)
+//        musicProgressStackView.addArrangedSubview(musicProgressSlider)
+//        musicProgressStackView.addArrangedSubview(timeRemaining)
+//        self.view.addSubview(musicProgressStackView)
         
         //Song Title
         songTitle.textColor = .white
@@ -443,17 +447,34 @@ class MusicPlayerViewController: UIViewController {
             NSLayoutConstraint(item: mainArtwork, attribute: .height, relatedBy: .equal, toItem: mainArtwork, attribute: .width, multiplier: 1, constant: 0)
         ])
         
-        //Music Progress Stack
-        self.view.addConstraints([
-            NSLayoutConstraint(item: musicProgressStackView, attribute: .centerX, relatedBy: .equal, toItem: self.view, attribute: .centerX, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: musicProgressStackView, attribute: .width, relatedBy: .equal, toItem: self.view, attribute: .width, multiplier: 0.8, constant: 0),
-            NSLayoutConstraint(item: musicProgressStackView, attribute: .top, relatedBy: .equal, toItem: mainArtwork, attribute: .bottom, multiplier: 1, constant: 16),
-            //Standard height, no need to set
-        ])
+//        //Music Progress Stack
+//        self.view.addConstraints([
+//            NSLayoutConstraint(item: musicProgressStackView, attribute: .centerX, relatedBy: .equal, toItem: self.view, attribute: .centerX, multiplier: 1, constant: 0),
+//            NSLayoutConstraint(item: musicProgressStackView, attribute: .width, relatedBy: .equal, toItem: self.view, attribute: .width, multiplier: 0.8, constant: 0),
+//            NSLayoutConstraint(item: musicProgressStackView, attribute: .top, relatedBy: .equal, toItem: mainArtwork, attribute: .bottom, multiplier: 1, constant: 16),
+//            //Standard height, no need to set
+//        ])
         
         //Music Progress Slider
         self.view.addConstraints([
-            NSLayoutConstraint(item: musicProgressSlider, attribute: .width, relatedBy: .equal, toItem: self.view, attribute: .width, multiplier: 0.65, constant: 0),
+            NSLayoutConstraint(item: musicProgressSlider, attribute: .centerX, relatedBy: .equal, toItem: self.view, attribute: .centerX, multiplier: 1.0, constant: 0.0),
+            NSLayoutConstraint(item: musicProgressSlider, attribute: .width, relatedBy: .equal, toItem: self.view, attribute: .width, multiplier: 0.75, constant: 0),
+            NSLayoutConstraint(item: musicProgressSlider, attribute: .top, relatedBy: .equal, toItem: mainArtwork, attribute: .bottom, multiplier: 1, constant: 16),
+                //Standard height, no need to set
+        ])
+        
+        //Time Passed Label
+        self.view.addConstraints([
+            NSLayoutConstraint(item: timePassed, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: 0.0),
+            NSLayoutConstraint(item: timePassed, attribute: .trailing, relatedBy: .equal, toItem: musicProgressSlider, attribute: .leading, multiplier: 1.0, constant: 0.0),
+            NSLayoutConstraint(item: timePassed, attribute: .centerY, relatedBy: .equal, toItem: musicProgressSlider, attribute: .centerY, multiplier: 1.0, constant: 0.0)
+        ])
+        
+        //Time Remaining Label
+        self.view.addConstraints([
+            NSLayoutConstraint(item: timeRemaining, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1.0, constant: 0.0),
+            NSLayoutConstraint(item: timeRemaining, attribute: .leading, relatedBy: .equal, toItem: musicProgressSlider, attribute: .trailing, multiplier: 1.0, constant: 0.0),
+            NSLayoutConstraint(item: timeRemaining, attribute: .centerY, relatedBy: .equal, toItem: musicProgressSlider, attribute: .centerY, multiplier: 1.0, constant: 0.0)
         ])
         
         //Song Title

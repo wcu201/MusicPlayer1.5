@@ -169,6 +169,8 @@ extension Notification.Name {
     static let shuffleOff = Notification.Name("shuffleOff")
     static let arrayPosChanged = Notification.Name("arrayPosChanged")
     static let repeatStatusChanged = Notification.Name("repeatStatusChanged")
+    // Look into having separate custom notifications for each download
+    static let downloadProgressUpdated = Notification.Name("downloadProgressUpdated")
 }
 
 enum repeatStatus: Int {

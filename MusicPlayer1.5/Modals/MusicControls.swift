@@ -115,15 +115,10 @@ class MusicController {
         stopSong()
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         var index = appDelegate.arrayPos
-        if appDelegate.arrayPos == appDelegate.currentPlaylist.count-1 /*appDelegate.selectedLibrary.count-1*/{
-            index = 0
-        }
-        else {
-            index += 1
-        }
+        if appDelegate.arrayPos == appDelegate.currentPlaylist.count-1 { index = 0 }
+        else { index += 1 }
         
         appDelegate.arrayPos = index
-        //let url = appDelegate.selectedLibrary[index]
         let url = (appDelegate.currentPlaylist[index] as! Song).getURL()!
         
         //load the url onto the avplayer
